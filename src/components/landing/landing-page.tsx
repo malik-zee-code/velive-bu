@@ -16,7 +16,7 @@ const mockListings: Listing[] = [
     id: 1,
     title: 'Sapori Pane Italian Restaurant',
     description: 'Authentic Italian cuisine in the heart of the city.',
-    category: 'Restaurant',
+    category: 'Restaurants',
     location: 'New York',
     image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 4.8,
@@ -30,7 +30,7 @@ const mockListings: Listing[] = [
     id: 2,
     title: 'Ramada Bay Hotel Elite',
     description: 'Luxury hotel with stunning city views.',
-    category: 'Hotel',
+    category: 'Hotels',
     location: 'Los Angeles',
     image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 4.9,
@@ -72,7 +72,7 @@ const mockListings: Listing[] = [
     id: 5,
     title: 'Leradoc Band in Marquee Club',
     description: 'Live music event featuring the Leradoc Band.',
-    category: 'Event',
+    category: 'Events',
     location: 'London',
     image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 5.0,
@@ -95,6 +95,20 @@ const mockListings: Listing[] = [
     price: 80,
     status: 'Open',
     date: 'Posted 3 Days Ago'
+  },
+   {
+    id: 7,
+    title: 'Some Business',
+    description: 'A great business to work with.',
+    category: 'Business',
+    location: 'New York',
+    image: 'https://placehold.co/400x250/FBBF24/000000',
+    rating: 4.5,
+    reviews: 20,
+    author: { name: 'Some Guy', avatar: 'https://placehold.co/40x40' },
+    price: 0,
+    status: 'Open',
+    date: 'Posted 1 week ago'
   }
 ];
 

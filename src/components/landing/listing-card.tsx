@@ -14,14 +14,15 @@ interface ListingCardProps {
 export const ListingCard = ({ listing }: ListingCardProps) => {
   const getCategoryIcon = (category: Listing['category']) => {
     const icons = {
-      Restaurant: '🍽️',
-      Hotel: '🏨',
-      Shopping: '🛍️',
-      Apartment: '🏢',
-      Event: '🎉',
-      Fitness: '💪',
+      'Restaurants': '🍽️',
+      'Hotels': '🏨',
+      'Shopping': '🛍️',
+      'Apartment': '🏢',
+      'Events': '🎉',
+      'Fitness': '💪',
+      'Business': '💼'
     };
-    return icons[category];
+    return icons[category] || '❓';
   };
 
   return (

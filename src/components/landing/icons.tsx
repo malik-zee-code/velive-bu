@@ -1,5 +1,9 @@
-export const CityZenLogo = () => (
-  <h1 className="text-2xl font-bold font-headline text-white">
-    Dire<span className="text-primary">eto</span>
-  </h1>
+export const Logo = () => (
+  <div className="flex items-center">
+    <h1 className="text-4xl font-black font-headline text-white italic">VE</h1>
+    <div className="text-xs font-light uppercase ml-2 leading-tight">
+      <div>Live Property</div>
+      <div>Management</div>
+    </div>
+  </div>
 );

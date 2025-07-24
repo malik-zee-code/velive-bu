@@ -2,7 +2,7 @@ export type Listing = {
   id: number;
   title: string;
   description: string;
-  category: 'Restaurant' | 'Hotel' | 'Shopping' | 'Apartment' | 'Event' | 'Fitness';
+  category: 'Restaurants' | 'Hotels' | 'Shopping' | 'Business' | 'Events' | 'Fitness' | 'Apartment';
   location: string;
   image: string;
   rating: number;
