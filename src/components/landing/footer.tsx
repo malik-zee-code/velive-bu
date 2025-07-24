@@ -6,7 +6,7 @@ import { Twitter, Facebook, Linkedin, Youtube } from 'lucide-react';
 
 export const Footer = () => {
   return (
-    <footer className="bg-card text-card-foreground border-t">
+    <footer className="bg-secondary text-secondary-foreground border-t">
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
@@ -16,7 +16,7 @@ export const Footer = () => {
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-4 text-white">Company</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Company</h4>
             <ul className="space-y-2">
               <li><Link href="#" className="text-muted-foreground hover:text-primary">About Us</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary">Careers</Link></li>
@@ -25,7 +25,7 @@ export const Footer = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4 text-white">Support</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Support</h4>
             <ul className="space-y-2">
               <li><Link href="#" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary">FAQ</Link></li>
@@ -34,7 +34,7 @@ export const Footer = () => {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4 text-white">Stay Connected</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Stay Connected</h4>
             <p className="text-muted-foreground mb-4">Subscribe to our newsletter for the latest updates.</p>
             <div className="flex w-full max-w-sm items-center space-x-2">
               <Input type="email" placeholder="Email" className="bg-background text-foreground"/>
