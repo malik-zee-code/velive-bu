@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CityZenLogo } from '@/components/landing/icons';
-import { UserCircle, PlusCircle } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 
 export const Header = () => {
   return (
@@ -19,13 +19,9 @@ export const Header = () => {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <Button variant="ghost" className="hidden md:inline-flex">
-            <UserCircle className="h-5 w-5 mr-2" />
-            Sign In
-          </Button>
           <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
             <PlusCircle className="h-5 w-5 mr-2" />
-            Get Quotation
+            Add Listing
           </Button>
         </div>
       </div>

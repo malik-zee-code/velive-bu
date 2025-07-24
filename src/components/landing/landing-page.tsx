@@ -4,10 +4,12 @@ import { useState } from 'react';
 import type { Listing } from '@/types/listing';
 import { Header } from '@/components/landing/header';
 import { Hero } from '@/components/landing/hero';
-import { Categories } from '@/components/landing/categories';
 import { Listings } from '@/components/landing/listings';
-import { AiRecommender } from '@/components/landing/ai-recommender';
 import { Footer } from '@/components/landing/footer';
+import { GrowBusiness } from './grow-business';
+import { PopularCities } from './popular-cities';
+import { Testimonials } from './testimonials';
+import { HowItWorks } from './how-it-works';
 
 const mockListings: Listing[] = [
   {
@@ -16,7 +18,7 @@ const mockListings: Listing[] = [
     description: 'Authentic Italian cuisine in the heart of the city.',
     category: 'Restaurant',
     location: 'New York',
-    image: 'https://placehold.co/400x250/6a5acd/ffffff',
+    image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 4.8,
     reviews: 120,
     author: { name: 'Lisa Smith', avatar: 'https://placehold.co/40x40' },
@@ -30,7 +32,7 @@ const mockListings: Listing[] = [
     description: 'Luxury hotel with stunning city views.',
     category: 'Hotel',
     location: 'Los Angeles',
-    image: 'https://placehold.co/400x250/ffa500/ffffff',
+    image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 4.9,
     reviews: 340,
     author: { name: 'John Doe', avatar: 'https://placehold.co/40x40' },
@@ -44,7 +46,7 @@ const mockListings: Listing[] = [
     description: 'The latest trends in fashion and apparel.',
     category: 'Shopping',
     location: 'London',
-    image: 'https://placehold.co/400x250/6a5acd/ffffff',
+    image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 4.7,
     reviews: 88,
     author: { name: 'Jane Roe', avatar: 'https://placehold.co/40x40' },
@@ -58,7 +60,7 @@ const mockListings: Listing[] = [
     description: 'Modern apartments with a beautiful lake view.',
     category: 'Apartment',
     location: 'New York',
-    image: 'https://placehold.co/400x250/ffa500/ffffff',
+    image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 4.6,
     reviews: 65,
     author: { name: 'Peter Pan', avatar: 'https://placehold.co/40x40' },
@@ -72,7 +74,7 @@ const mockListings: Listing[] = [
     description: 'Live music event featuring the Leradoc Band.',
     category: 'Event',
     location: 'London',
-    image: 'https://placehold.co/400x250/6a5acd/ffffff',
+    image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 5.0,
     reviews: 210,
     author: { name: 'Mike Johnson', avatar: 'https://placehold.co/40x40' },
@@ -86,7 +88,7 @@ const mockListings: Listing[] = [
     description: 'State-of-the-art fitness center with personal trainers.',
     category: 'Fitness',
     location: 'Los Angeles',
-    image: 'https://placehold.co/400x250/ffa500/ffffff',
+    image: 'https://placehold.co/400x250/FBBF24/000000',
     rating: 4.8,
     reviews: 150,
     author: { name: 'Sarah Chen', avatar: 'https://placehold.co/40x40' },
@@ -115,14 +117,16 @@ export function LandingPage() {
           locations={locations}
           categories={categories}
         />
-        <Categories selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
         <Listings
           listings={mockListings}
           searchQuery={searchQuery}
           selectedLocation={selectedLocation}
           selectedCategory={selectedCategory}
         />
-        <AiRecommender />
+        <GrowBusiness />
+        <PopularCities />
+        <Testimonials />
+        <HowItWorks />
       </main>
       <Footer />
     </>

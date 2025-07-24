@@ -23,7 +23,7 @@ export const Listings = ({ listings, searchQuery, selectedLocation, selectedCate
       <div className="container mx-auto">
         <div className="text-center mb-12">
           <span className="text-primary font-semibold">Directory</span>
-          <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2">Our Featured Directory</h2>
+          <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Our Featured Directory</h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
             Explore our curated list of top-rated places and services in the city, reviewed by our community.
           </p>
