@@ -94,12 +94,12 @@ export const Hero = ({ setSearchQuery, setSelectedLocation, setSelectedCategory,
                     onClick={() => setSelectedCategory(name)}
                     className="w-full"
                     >
-                    <Card className="group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 border-transparent bg-white/10 hover:bg-white/20 rounded-lg">
+                    <Card className="group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 border-transparent bg-white hover:bg-gray-100 rounded-lg">
                         <CardContent className="p-0">
                         <div className="mx-auto h-16 w-16 rounded-lg flex items-center justify-center bg-primary/20 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                             <Icon className="h-8 w-8" />
                         </div>
-                        <h3 className="mt-4 font-semibold text-lg text-white">{name}</h3>
+                        <h3 className="mt-4 font-semibold text-lg text-foreground">{name}</h3>
                         </CardContent>
                     </Card>
                     </button>
