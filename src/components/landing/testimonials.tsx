@@ -5,19 +5,19 @@ import { Star } from "lucide-react"
 const testimonials = [
   {
     name: "John Doe",
-    avatar: "https://placehold.co/100x100",
+    avatar: "https://placehold.co/100x100.png",
     text: "This is the best service I have ever used. Highly recommended!",
     rating: 5,
   },
   {
     name: "Jane Smith",
-    avatar: "https://placehold.co/100x100",
+    avatar: "https://placehold.co/100x100.png",
     text: "Excellent experience and great support. I found exactly what I was looking for.",
     rating: 5,
   },
   {
     name: "Sam Wilson",
-    avatar: "https://placehold.co/100x100",
+    avatar: "https://placehold.co/100x100.png",
     text: "A fantastic platform with a wide variety of options. Will use again!",
     rating: 5,
   },

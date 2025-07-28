@@ -3,10 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 
 const cities = [
-    { name: "New York", image: "https://placehold.co/400x500/FBBF24/000000", listings: 12 },
-    { name: "Los Angeles", image: "https://placehold.co/400x500/FBBF24/000000", listings: 8 },
-    { name: "London", image: "https://placehold.co/400x500/FBBF24/000000", listings: 15 },
-    { name: "Paris", image: "https://placehold.co/400x500/FBBF24/000000", listings: 10 },
+    { name: "New York", image: "https://placehold.co/400x500.png", listings: 12 },
+    { name: "Los Angeles", image: "https://placehold.co/400x500.png", listings: 8 },
+    { name: "London", image: "https://placehold.co/400x500.png", listings: 15 },
+    { name: "Paris", image: "https://placehold.co/400x500.png", listings: 10 },
 ];
 
 export const PopularCities = () => {

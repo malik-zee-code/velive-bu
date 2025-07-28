@@ -28,7 +28,7 @@ const categoryItems: { name: string; icon: ElementType }[] = [
 export const Hero = ({ setSearchQuery, setSelectedLocation, setSelectedCategory, locations, categories }: HeroProps) => {
   return (
     <section className="relative py-20 md:py-32 bg-card text-card-foreground" style={{
-      backgroundImage: 'url(https://placehold.co/1920x1080/000000/000000)',
+      backgroundImage: 'url(https://placehold.co/1920x1080.png)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
     }}>
