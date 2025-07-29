@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { UserCircle } from 'lucide-react';
+import { UserCircle, Shield } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,7 +62,13 @@ export const Header = () => {
             )
           ))}
         </nav>
-        <div className="flex items-center justify-end space-x-4 ml-8">
+        <div className="flex items-center justify-end space-x-2 ml-auto">
+          <Button asChild variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
+            <Link href="/admin">
+              <Shield className="h-5 w-5 mr-2" />
+              Admin
+            </Link>
+          </Button>
           <Button variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
             <UserCircle className="h-5 w-5 mr-2" />
             Sign In
