@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 
 const INSERT_PROPERTIES_MUTATION = gql`
-  mutation InsertProperties($price: Int, $location: String, $title: String) {
+  mutation InsertProperties($price: bigint, $location: String, $title: String) {
     insert_properties(objects: {price: $price, location: $location, title: $title}) {
       affected_rows
       returning {
