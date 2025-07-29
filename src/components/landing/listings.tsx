@@ -20,7 +20,7 @@ export const Listings = ({ listings, searchQuery, selectedLocation, selectedCate
 
   return (
     <section className="py-20 bg-background">
-      <div className="container mx-auto">
+      <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-12">
           <span className="text-primary font-semibold">Directory</span>
           <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Our Featured Directory</h2>

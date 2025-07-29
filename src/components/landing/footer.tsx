@@ -7,7 +7,7 @@ import { Twitter, Facebook, Linkedin, Youtube } from 'lucide-react';
 export const Footer = () => {
   return (
     <footer className="bg-secondary text-secondary-foreground border-t">
-      <div className="container py-12">
+      <div className="container py-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Image src="/assets/logo/white-logo.svg" alt="CityZen Logo" width={160} height={40} data-ai-hint="logo" />

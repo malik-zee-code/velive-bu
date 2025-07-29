@@ -22,7 +22,7 @@ const features = [
 export const GrowBusiness = () => {
     return (
         <section className="py-20 bg-secondary text-card-foreground">
-            <div className="container mx-auto text-center">
+            <div className="container mx-auto text-center max-w-7xl">
                 <span className="text-primary font-semibold">FEATURES</span>
                 <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2">Grow Your Business With Us</h2>
                 <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">

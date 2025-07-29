@@ -22,7 +22,7 @@ const steps = [
 export const HowItWorks = () => {
     return (
         <section className="py-20 bg-background">
-            <div className="container mx-auto text-center">
+            <div className="container mx-auto text-center max-w-7xl">
                 <span className="text-primary font-semibold">PROCESS</span>
                 <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">How It Works</h2>
                 <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
