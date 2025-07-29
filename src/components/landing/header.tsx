@@ -11,7 +11,7 @@ import {
 
 export const Header = () => {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-black backdrop-blur supports-[backdrop-filter]:bg-black/60">
       <div className="container flex h-20 items-center">
         <div className="mr-auto flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
@@ -23,9 +23,9 @@ export const Header = () => {
               Home
               <span className="absolute bottom-[-8px] left-0 w-full h-0.5 bg-primary"></span>
             </Link>
-            <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">About</Link>
+            <Link href="#" className="transition-colors hover:text-white/80 text-white/60">About</Link>
             <DropdownMenu>
-              <DropdownMenuTrigger className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-1 outline-none">
+              <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
                 Listing
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -34,7 +34,7 @@ export const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
              <DropdownMenu>
-              <DropdownMenuTrigger className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-1 outline-none">
+              <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
                 Pages
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -43,7 +43,7 @@ export const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
-              <DropdownMenuTrigger className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-1 outline-none">
+              <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
                 Blog
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -51,10 +51,10 @@ export const Header = () => {
                 <DropdownMenuItem>Option 2</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link href="#" className="transition-colors hover:text-foreground/80 text-foreground/60">Contact</Link>
+            <Link href="#" className="transition-colors hover:text-white/80 text-white/60">Contact</Link>
           </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <Button variant="ghost" className="hidden md:flex items-center">
+          <Button variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
             <UserCircle className="h-5 w-5 mr-2" />
             Sign In
           </Button>
