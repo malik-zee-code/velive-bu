@@ -15,7 +15,7 @@ export const Header = () => {
       <div className="container flex h-20 items-center">
         <div className="mr-auto flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Image src="https://placehold.co/200x40.png" alt="Logo" width={160} height={40} data-ai-hint="logo text" />
+            <Image src="https://placehold.co/160x40.png" alt="Logo" width={160} height={40} data-ai-hint="logo text" />
           </Link>
         </div>
         <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
