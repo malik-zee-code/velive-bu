@@ -21,7 +21,7 @@ const mockListings: Listing[] = [
     image: '/assets/images/category/01.jpg',
     rating: 4.8,
     reviews: 120,
-    author: { name: 'Lisa Smith', avatar: '/assets/images/category/01.jpg' },
+    author: { name: 'Lisa Smith', avatar: '/assets/images/testimonial/01.jpg' },
     price: 50,
     status: 'Open',
     date: 'Posted 10 Days Ago'
@@ -35,7 +35,7 @@ const mockListings: Listing[] = [
     image: '/assets/images/category/02.jpg',
     rating: 4.9,
     reviews: 340,
-    author: { name: 'John Doe', avatar: '/assets/images/category/02.jpg' },
+    author: { name: 'John Doe', avatar: '/assets/images/testimonial/02.jpg' },
     price: 250,
     status: 'Open',
     date: 'Posted 5 Days Ago'
@@ -49,7 +49,7 @@ const mockListings: Listing[] = [
     image: '/assets/images/category/03.jpg',
     rating: 4.7,
     reviews: 88,
-    author: { name: 'Jane Roe', avatar: '/assets/images/category/03.jpg' },
+    author: { name: 'Jane Roe', avatar: '/assets/images/testimonial/03.jpg' },
     price: 100,
     status: 'Closed',
     date: 'Posted 1 Day Ago'
@@ -63,7 +63,7 @@ const mockListings: Listing[] = [
     image: '/assets/images/category/04.jpg',
     rating: 4.6,
     reviews: 65,
-    author: { name: 'Peter Pan', avatar: '/assets/images/category/04.jpg' },
+    author: { name: 'Peter Pan', avatar: '/assets/images/testimonial/01.jpg' },
     price: 3000,
     status: 'Open',
     date: 'Posted 2 Weeks Ago'
@@ -77,7 +77,7 @@ const mockListings: Listing[] = [
     image: '/assets/images/category/05.jpg',
     rating: 5.0,
     reviews: 210,
-    author: { name: 'Mike Johnson', avatar: '/assets/images/category/05.jpg' },
+    author: { name: 'Mike Johnson', avatar: '/assets/images/testimonial/02.jpg' },
     price: 75,
     status: 'Open',
     date: 'Posted 1 Month Ago'
@@ -91,7 +91,7 @@ const mockListings: Listing[] = [
     image: '/assets/images/category/06.jpg',
     rating: 4.8,
     reviews: 150,
-    author: { name: 'Sarah Chen', avatar: '/assets/images/category/06.jpg' },
+    author: { name: 'Sarah Chen', avatar: '/assets/images/testimonial/03.jpg' },
     price: 80,
     status: 'Open',
     date: 'Posted 3 Days Ago'
@@ -105,7 +105,7 @@ const mockListings: Listing[] = [
     image: '/assets/images/category/07.jpg',
     rating: 4.5,
     reviews: 20,
-    author: { name: 'Some Guy', avatar: '/assets/images/category/07.jpg' },
+    author: { name: 'Some Guy', avatar: '/assets/images/testimonial/01.jpg' },
     price: 0,
     status: 'Open',
     date: 'Posted 1 week ago'
@@ -124,19 +124,28 @@ export function LandingPage() {
   const handleSearchClick = () => {
     listingsRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
+  
+  const handleClearClick = () => {
+    setSearchQuery('');
+    setSelectedLocation('');
+    setSelectedCategory('');
+  };
 
   return (
     <>
       <Header />
       <main>
         <Hero
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          selectedLocation={selectedLocation}
           setSelectedLocation={setSelectedLocation}
+          selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           locations={locations}
           categories={categories}
           onSearchClick={handleSearchClick}
+          onClearClick={handleClearClick}
         />
         <div ref={listingsRef}>
           <Listings
