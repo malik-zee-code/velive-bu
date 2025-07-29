@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Listing } from '@/types/listing';
 import { Header } from '@/components/landing/header';
 import { Hero } from '@/components/landing/hero';
@@ -119,6 +119,12 @@ export function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const listingsRef = useRef<HTMLDivElement>(null);
+
+  const handleSearchClick = () => {
+    listingsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
 
   return (
     <>
@@ -130,13 +136,16 @@ export function LandingPage() {
           setSelectedCategory={setSelectedCategory}
           locations={locations}
           categories={categories}
+          onSearchClick={handleSearchClick}
         />
-        <Listings
-          listings={mockListings}
-          searchQuery={searchQuery}
-          selectedLocation={selectedLocation}
-          selectedCategory={selectedCategory}
-        />
+        <div ref={listingsRef}>
+          <Listings
+            listings={mockListings}
+            searchQuery={searchQuery}
+            selectedLocation={selectedLocation}
+            selectedCategory={selectedCategory}
+          />
+        </div>
         <GrowBusiness />
         <PopularCities />
         <Testimonials />

@@ -14,6 +14,7 @@ interface HeroProps {
   setSelectedCategory: Dispatch<SetStateAction<string>>;
   locations: string[];
   categories: string[];
+  onSearchClick: () => void;
 }
 
 const categoryItems: { name: string; icon: ElementType }[] = [
@@ -25,7 +26,7 @@ const categoryItems: { name: string; icon: ElementType }[] = [
   { name: 'Fitness', icon: Dumbbell },
 ];
 
-export const Hero = ({ setSearchQuery, setSelectedLocation, setSelectedCategory, locations, categories }: HeroProps) => {
+export const Hero = ({ setSearchQuery, setSelectedLocation, setSelectedCategory, locations, categories, onSearchClick }: HeroProps) => {
   return (
     <section className="relative py-20 md:py-32 bg-card text-card-foreground" style={{
       backgroundImage: 'url(/assets/images/blog/01.jpg)',
@@ -78,7 +79,12 @@ export const Hero = ({ setSearchQuery, setSelectedLocation, setSelectedCategory,
               </Select>
             </div>
             <div className="md:col-span-2">
-              <Button size="lg" className="w-full h-12 text-base rounded-lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
+              <Button 
+                size="lg" 
+                className="w-full h-12 text-base rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 active:translate-y-0 active:shadow-sm" 
+                style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}
+                onClick={onSearchClick}
+                >
                 <Search className="mr-2 h-5 w-5" />
                 Search
               </Button>
