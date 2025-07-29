@@ -42,7 +42,7 @@ export const Hero = ({ setSearchQuery, setSelectedLocation, setSelectedCategory,
             Find Great Places To Stay, Eat, Shop, Or Visit From Local Experts.
           </p>
         </div>
-        <div className="max-w-5xl mx-auto mt-8 p-4 bg-background/10 backdrop-blur-sm rounded-xl">
+        <div className="max-w-5xl mx-auto mt-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg">
             <div className="md:col-span-4 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
