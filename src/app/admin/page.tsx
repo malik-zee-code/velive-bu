@@ -1,3 +1,4 @@
+
 // src/app/admin/page.tsx
 'use client';
 import { useMutation, gql } from '@apollo/client';
