@@ -5,7 +5,7 @@ import { useMutation, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useFileUpload } from '@nhost/react';
+import { useFileUpload, useAuthenticationStatus } from '@nhost/react';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
@@ -90,6 +90,9 @@ const AdminPage = () => {
     refetchQueries: ['GetProperties'],
   });
 
+  const { isAuthenticated, isLoading } = useAuthenticationStatus()
+
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -150,6 +153,31 @@ const AdminPage = () => {
   };
 
   const isMutating = loading || isUploading;
+
+  if (isLoading) {
+    return (
+      <div className="flex-grow bg-background">
+        <Header />
+        <div className="container mx-auto py-20 text-center max-w-7xl">
+          <p>Loading...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex-grow bg-background">
+        <Header />
+        <div className="container mx-auto py-20 text-center max-w-7xl">
+          <h2 className="text-2xl font-bold">Unauthorized</h2>
+          <p>You must be signed in to view this page.</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

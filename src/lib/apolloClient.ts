@@ -7,13 +7,14 @@ const httpLink = createHttpLink({
   uri: "https://kjekkrcmihqxroxgdmpt.hasura.eu-central-1.nhost.run/v1/graphql"
 });
 
-const accessToken = "2Vg2f=tDe*0-Gd1d;lh!^s#G,DSjV!m'";
-
 const authLink = setContext(async (_, { headers }) => {
+  const session = nhost.auth.getSession();
+  const accessToken = session?.accessToken;
+
   return {
     headers: {
       ...headers,
-      "x-hasura-admin-secret": `${accessToken}`,
+      authorization: accessToken ? `Bearer ${accessToken}` : '',
     },
   };
 });
