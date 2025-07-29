@@ -10,7 +10,7 @@ export const Footer = () => {
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <Image src="https://placehold.co/200x40.png" alt="Logo" width={160} height={40} data-ai-hint="logo text" />
+            <Image src="/logo.png" alt="CityZen Logo" width={160} height={40} data-ai-hint="logo" />
             <p className="text-muted-foreground">
               Discover and experience the best your city has to offer.
             </p>
