@@ -11,12 +11,16 @@ const authLink = setContext(async (_, { headers }) => {
   const session = nhost.auth.getSession();
   const accessToken = session?.accessToken;
 
-  return {
-    headers: {
-      ...headers,
-      authorization: accessToken ? `Bearer ${accessToken}` : '',
-    },
-  };
+  if (accessToken) {
+    return {
+      headers: {
+        ...headers,
+        authorization: `Bearer ${accessToken}`,
+      },
+    };
+  }
+
+  return { headers };
 });
 
 const client = new ApolloClient({
