@@ -102,7 +102,7 @@ export const Hero = ({
             <div className="md:col-span-2 flex items-center gap-2">
               <Button 
                 size="lg" 
-                className="w-full h-12 text-base rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 active:translate-y-0 active:shadow-sm" 
+                className="w-full h-12 text-base rounded-lg transition-colors duration-300 ease-in-out hover:opacity-90"
                 style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}
                 onClick={onSearchClick}
                 >
