@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Logo } from './icons';
+import Image from 'next/image';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Twitter, Facebook, Linkedin, Youtube } from 'lucide-react';
@@ -10,7 +10,7 @@ export const Footer = () => {
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <Logo />
+            <Image src="https://placehold.co/200x40.png" alt="Logo" width={160} height={40} data-ai-hint="logo text" />
             <p className="text-muted-foreground">
               Discover and experience the best your city has to offer.
             </p>
@@ -43,7 +43,7 @@ export const Footer = () => {
           </div>
         </div>
         <div className="mt-12 pt-8 border-t border-border/20 flex flex-col sm:flex-row justify-between items-center">
-          <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Direeto. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} CityZen. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 sm:mt-0">
             <Link href="#" className="text-muted-foreground hover:text-primary"><Twitter className="h-5 w-5" /></Link>
             <Link href="#" className="text-muted-foreground hover:text-primary"><Facebook className="h-5 w-5" /></Link>
