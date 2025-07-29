@@ -4,17 +4,28 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Shield } from 'lucide-react';
+import { UserCircle, Shield, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 import { cn } from '@/lib/utils';
+import { useAuthenticationStatus, useSignOut } from '@nhost/react';
+import { useRouter } from 'next/navigation';
 
 export const Header = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuthenticationStatus();
+  const { signOut } = useSignOut();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
 
   const navLinks = [
     { href: '/', text: 'Home' },
@@ -63,16 +74,37 @@ export const Header = () => {
           ))}
         </nav>
         <div className="flex items-center justify-end space-x-2 ml-auto">
-          <Button asChild variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
-            <Link href="/admin">
-              <Shield className="h-5 w-5 mr-2" />
-              Admin
-            </Link>
-          </Button>
-          <Button variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
-            <UserCircle className="h-5 w-5 mr-2" />
-            Sign In
-          </Button>
+          {isLoading ? null : isAuthenticated ? (
+             <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
+                    <UserCircle className="h-5 w-5 mr-2" />
+                    Account
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                   <Link href="/admin">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Admin
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
+              <Link href="/auth/signin">
+                <UserCircle className="h-5 w-5 mr-2" />
+                Sign In
+              </Link>
+            </Button>
+          )}
+
           <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
             Get Quotation
           </Button>
