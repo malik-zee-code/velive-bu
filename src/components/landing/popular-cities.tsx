@@ -6,7 +6,7 @@ const cities = [
     { name: "New York", image: "/assets/images/city/01.jpg", listings: 12 },
     { name: "Los Angeles", image: "/assets/images/city/02.jpg", listings: 8 },
     { name: "London", image: "/assets/images/city/03.jpg", listings: 15 },
-    { name: "Paris", image: "/assets/images/city/04.jpg", listings: 10 },
+    { name: "Paris", image: "/assets/images/city/01.jpg", listings: 10 },
 ];
 
 export const PopularCities = () => {

@@ -26,7 +26,7 @@ const quickLinks = [
 export const Footer = () => {
     return (
         <footer className="bg-black text-white/80 relative">
-            <div className="absolute inset-0 bg-no-repeat bg-right" style={{ backgroundImage: "url('/assets/images/footer-bg.png')" }}></div>
+            <div className="absolute inset-0 bg-no-repeat bg-right"></div>
             <div className="container relative py-20 max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* Column 1: Logo and Contact */}
