@@ -84,7 +84,7 @@ const formSchema = z.object({
 
 const AdminPage = () => {
   const { toast } = useToast();
-  const { upload, isUploading, progress, isError: isUploadError } = useFileUpload();
+  const { upload, isUploading, progress, isError: isUploadError, error: uploadError } = useFileUpload();
   const [insertProperty, { data, loading, error }] = useMutation(INSERT_PROPERTIES_MUTATION, {
     refetchQueries: ['GetProperties'],
   });
@@ -121,8 +121,8 @@ const AdminPage = () => {
     try {
       const { id, isError, error } = await upload({ file });
 
-      if (isError) {
-        throw error;
+      if (isError || error) {
+        throw error || new Error('File upload failed');
       }
       
       const publicUrl = nhost.storage.getPublicUrl({ fileId: id });
@@ -139,9 +139,10 @@ const AdminPage = () => {
       form.reset();
     } catch (e) {
       console.error(e);
+      const errorMessage = e instanceof Error ? e.message : (uploadError?.message || 'An unknown error occurred.');
       toast({
         title: "Error!",
-        description: "Failed to add property. " + (e as Error).message,
+        description: `Failed to add property. ${errorMessage}`,
         variant: "destructive",
       });
     }
@@ -297,5 +298,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-
-    
