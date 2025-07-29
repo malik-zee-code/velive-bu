@@ -3,8 +3,7 @@
 import { useQuery, gql } from '@apollo/client';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
-import { ListingCard } from '@/components/landing/listing-card';
-import type { Listing } from '@/types/listing';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const GET_PROPERTIES = gql`
   query GetProperties {
@@ -49,8 +48,6 @@ const ListingsPage = () => {
     </div>
   );
   
-  const mockAuthor = { name: 'CityZen', avatar: '/assets/images/testimonial/01.jpg' };
-
   return (
     <div className="flex flex-col min-h-screen">
        <Header />
@@ -66,17 +63,14 @@ const ListingsPage = () => {
                 {data.properties.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {data.properties.map((property: any) => (
-                           <ListingCard key={property.id} listing={{
-                             ...property,
-                             // The following fields are mocked as they are not in the graphql query
-                             rating: property.rating || 4.5,
-                             reviews: property.reviews || 100,
-                             author: property.author || mockAuthor,
-                             status: property.status || 'Open',
-                             date: property.date || new Date(property.created_at).toLocaleDateString(),
-                             image: property.image || '/assets/images/category/01.jpg',
-                             category: property.category || 'Business',
-                           } as Listing} />
+                           <Card key={property.id} className="overflow-hidden flex flex-col h-full group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-card text-card-foreground border-border">
+                             <CardHeader>
+                               <CardTitle className="font-bold font-headline text-xl mb-2 text-foreground truncate">{property.title}</CardTitle>
+                             </CardHeader>
+                             <CardContent>
+                               <p className="text-lg font-semibold text-primary">${property.price}</p>
+                             </CardContent>
+                           </Card>
                         ))}
                     </div>
                 ) : (
