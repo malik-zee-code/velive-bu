@@ -79,7 +79,7 @@ const formSchema = z.object({
   ),
   currency: z.string().min(1, { message: "Currency is required." }),
   tagline: z.string().min(1, { message: "Tagline is required." }),
-  imageFile: z.instanceof(FileList).refine(files => files?.length > 0, 'File is required.'),
+  imageFile: z.any().refine(files => files?.length > 0, 'File is required.'),
 });
 
 const AdminPage = () => {
