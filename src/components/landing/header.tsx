@@ -74,7 +74,7 @@ export const Header = () => {
           ))}
         </nav>
         <div className="flex items-center justify-end space-x-2 ml-auto">
-          {isLoading ? null : isAuthenticated ? (
+          {isLoading ? <div className="h-9 w-24 rounded-md animate-pulse bg-gray-700" /> : isAuthenticated ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
