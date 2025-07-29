@@ -21,7 +21,7 @@ const mockListings: Listing[] = [
     image: 'https://placehold.co/400x250.png',
     rating: 4.8,
     reviews: 120,
-    author: { name: 'Lisa Smith', avatar: 'https://placehold.co/40x40.png' },
+    author: { name: 'Lisa Smith', avatar: '/assets/images/listing/author.jpg' },
     price: 50,
     status: 'Open',
     date: 'Posted 10 Days Ago'
@@ -35,7 +35,7 @@ const mockListings: Listing[] = [
     image: 'https://placehold.co/400x250.png',
     rating: 4.9,
     reviews: 340,
-    author: { name: 'John Doe', avatar: 'https://placehold.co/40x40.png' },
+    author: { name: 'John Doe', avatar: '/assets/images/listing/author.jpg' },
     price: 250,
     status: 'Open',
     date: 'Posted 5 Days Ago'
@@ -49,7 +49,7 @@ const mockListings: Listing[] = [
     image: 'https://placehold.co/400x250.png',
     rating: 4.7,
     reviews: 88,
-    author: { name: 'Jane Roe', avatar: 'https://placehold.co/40x40.png' },
+    author: { name: 'Jane Roe', avatar: '/assets/images/listing/author.jpg' },
     price: 100,
     status: 'Closed',
     date: 'Posted 1 Day Ago'
@@ -63,7 +63,7 @@ const mockListings: Listing[] = [
     image: 'https://placehold.co/400x250.png',
     rating: 4.6,
     reviews: 65,
-    author: { name: 'Peter Pan', avatar: 'https://placehold.co/40x40.png' },
+    author: { name: 'Peter Pan', avatar: '/assets/images/listing/author.jpg' },
     price: 3000,
     status: 'Open',
     date: 'Posted 2 Weeks Ago'
@@ -77,7 +77,7 @@ const mockListings: Listing[] = [
     image: 'https://placehold.co/400x250.png',
     rating: 5.0,
     reviews: 210,
-    author: { name: 'Mike Johnson', avatar: 'https://placehold.co/40x40.png' },
+    author: { name: 'Mike Johnson', avatar: '/assets/images/listing/author.jpg' },
     price: 75,
     status: 'Open',
     date: 'Posted 1 Month Ago'
@@ -91,7 +91,7 @@ const mockListings: Listing[] = [
     image: 'https://placehold.co/400x250.png',
     rating: 4.8,
     reviews: 150,
-    author: { name: 'Sarah Chen', avatar: 'https://placehold.co/40x40.png' },
+    author: { name: 'Sarah Chen', avatar: '/assets/images/listing/author.jpg' },
     price: 80,
     status: 'Open',
     date: 'Posted 3 Days Ago'
@@ -105,7 +105,7 @@ const mockListings: Listing[] = [
     image: 'https://placehold.co/400x250.png',
     rating: 4.5,
     reviews: 20,
-    author: { name: 'Some Guy', avatar: 'https://placehold.co/40x40.png' },
+    author: { name: 'Some Guy', avatar: '/assets/images/listing/author.jpg' },
     price: 0,
     status: 'Open',
     date: 'Posted 1 week ago'

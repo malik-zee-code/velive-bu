@@ -12,10 +12,10 @@ import {
 export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-black">
-      <div className="container flex h-20 items-center">
+      <div className="container flex h-20 items-center max-w-7xl mx-auto">
         <div className="mr-auto flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Image src="/assets/logo/white-logo.svg" alt="CityZen Logo" width={160} height={40} data-ai-hint="logo" />
+            <Image src="/assets/images/logo/white-logo.svg" alt="CityZen Logo" width={160} height={40} data-ai-hint="logo" />
           </Link>
         </div>
         <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
