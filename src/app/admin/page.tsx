@@ -4,6 +4,7 @@ import { useMutation, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useFileUpload } from '@nhost/react';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
+import { nhost } from '@/lib/nhost';
 
 const INSERT_PROPERTIES_MUTATION = gql`
   mutation InsertProperties(
@@ -76,18 +79,12 @@ const formSchema = z.object({
   ),
   currency: z.string().min(1, { message: "Currency is required." }),
   tagline: z.string().min(1, { message: "Tagline is required." }),
-  images: z.string().refine((val) => {
-    try {
-      const parsed = JSON.parse(val);
-      return Array.isArray(parsed) && parsed.every(item => typeof item === 'string');
-    } catch (e) {
-      return false;
-    }
-  }, { message: "Must be a valid JSON array of strings." }),
+  imageFile: z.instanceof(FileList).refine(files => files?.length > 0, 'File is required.'),
 });
 
 const AdminPage = () => {
   const { toast } = useToast();
+  const { upload, isUploading, progress, isError: isUploadError } = useFileUpload();
   const [insertProperty, { data, loading, error }] = useMutation(INSERT_PROPERTIES_MUTATION, {
     refetchQueries: ['GetProperties'],
   });
@@ -103,15 +100,36 @@ const AdminPage = () => {
       bedrooms: 0,
       currency: "AED",
       tagline: "",
-      images: '[]',
     },
   });
 
+  const imageFileRef = form.register("imageFile");
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const { imageFile, ...propertyData } = values;
+    const file = imageFile[0];
+
+    if (!file) {
+        toast({
+            title: "Error!",
+            description: "Please select an image to upload.",
+            variant: "destructive",
+        });
+        return;
+    }
+
     try {
+      const { id, isError, error } = await upload({ file });
+
+      if (isError) {
+        throw error;
+      }
+      
+      const publicUrl = nhost.storage.getPublicUrl({ fileId: id });
+
       const submissionValues = {
-        ...values,
-        images: JSON.parse(values.images),
+        ...propertyData,
+        images: [publicUrl], // Nhost storage URL
       };
       await insertProperty({ variables: submissionValues });
       toast({
@@ -128,6 +146,8 @@ const AdminPage = () => {
       });
     }
   };
+
+  const isMutating = loading || isUploading;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -248,19 +268,22 @@ const AdminPage = () => {
                   />
                   <FormField
                     control={form.control}
-                    name="images"
+                    name="imageFile"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Images (JSON Array)</FormLabel>
+                        <FormLabel>Image</FormLabel>
                         <FormControl>
-                          <Textarea placeholder='e.g., ["/path/to/image1.jpg", "/path/to/image2.jpg"]' {...field} />
+                          <Input type="file" accept="image/*" {...imageFileRef} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={loading} className="w-full">
-                    {loading ? "Adding..." : "Add Property"}
+                   {isUploading && (
+                    <Progress value={progress} className="w-full" />
+                  )}
+                  <Button type="submit" disabled={isMutating} className="w-full">
+                    {isMutating ? `Uploading... ${progress}%` : "Add Property"}
                   </Button>
                 </form>
               </Form>
@@ -274,3 +297,5 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
+
+    
