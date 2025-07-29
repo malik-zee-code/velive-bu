@@ -11,7 +11,7 @@ import {
 
 export const Header = () => {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-black backdrop-blur supports-[backdrop-filter]:bg-black/60">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-black">
       <div className="container flex h-20 items-center">
         <div className="mr-auto flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
