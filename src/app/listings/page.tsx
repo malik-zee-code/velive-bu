@@ -14,14 +14,6 @@ const GET_PROPERTIES = gql`
       created_at
       updated_at
       id
-      description
-      category
-      image
-      rating
-      reviews
-      author
-      status
-      date
     }
   }
 `;
