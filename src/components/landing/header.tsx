@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { UserCircle } from 'lucide-react';
 import {
@@ -8,8 +11,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { cn } from '@/lib/utils';
 
 export const Header = () => {
+  const pathname = usePathname();
+
+  const navLinks = [
+    { href: '/', text: 'Home' },
+    { href: '/about', text: 'About' },
+    { href: '/listings', text: 'Listing' },
+    { href: '#', text: 'Pages', isDropdown: true, options: ['Option 1', 'Option 2'] },
+    { href: '#', text: 'Blog', isDropdown: true, options: ['Option 1', 'Option 2'] },
+    { href: '/contact', text: 'Contact' },
+  ];
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-black">
       <div className="container flex h-20 items-center max-w-7xl mx-auto">
@@ -19,32 +34,34 @@ export const Header = () => {
           </Link>
         </div>
         <nav className="hidden md:flex items-center space-x-8 text-sm font-medium ml-auto">
-            <Link href="/" className="transition-colors text-primary hover:text-primary/80 font-bold relative">
-              Home
-              <span className="absolute bottom-[-8px] left-0 w-full h-0.5 bg-primary"></span>
-            </Link>
-            <Link href="#" className="transition-colors hover:text-white/80 text-white/60">About</Link>
-            <Link href="/listings" className="transition-colors hover:text-white/80 text-white/60">Listing</Link>
-             <DropdownMenu>
-              <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
-                Pages
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Option 1</DropdownMenuItem>
-                <DropdownMenuItem>Option 2</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
-                Blog
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Option 1</DropdownMenuItem>
-                <DropdownMenuItem>Option 2</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Link href="#" className="transition-colors hover:text-white/80 text-white/60">Contact</Link>
-          </nav>
+          {navLinks.map((link) => (
+            link.isDropdown ? (
+              <DropdownMenu key={link.text}>
+                <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
+                  {link.text}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {link.options?.map(opt => <DropdownMenuItem key={opt}>{opt}</DropdownMenuItem>)}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn("transition-colors relative", 
+                  pathname === link.href 
+                    ? "text-primary font-bold" 
+                    : "text-white/60 hover:text-white/80"
+                )}
+              >
+                {link.text}
+                {pathname === link.href && (
+                  <span className="absolute bottom-[-8px] left-0 w-full h-0.5 bg-primary"></span>
+                )}
+              </Link>
+            )
+          ))}
+        </nav>
         <div className="flex items-center justify-end space-x-4 ml-8">
           <Button variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
             <UserCircle className="h-5 w-5 mr-2" />
