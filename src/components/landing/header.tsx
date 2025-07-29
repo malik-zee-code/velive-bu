@@ -15,24 +15,16 @@ export const Header = () => {
       <div className="container flex h-20 items-center max-w-7xl mx-auto">
         <div className="flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Image src="/assets/images/logo/white-logo.svg" alt="CityZen Logo" width={160} height={40} data-ai-hint="logo" />
+            <Image src="/assets/logo/white-logo.svg" alt="CityZen Logo" width={160} height={40} data-ai-hint="logo" />
           </Link>
         </div>
-        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium mx-auto">
-            <Link href="#" className="transition-colors text-primary hover:text-primary/80 font-bold relative">
+        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium ml-auto">
+            <Link href="/" className="transition-colors text-primary hover:text-primary/80 font-bold relative">
               Home
               <span className="absolute bottom-[-8px] left-0 w-full h-0.5 bg-primary"></span>
             </Link>
             <Link href="#" className="transition-colors hover:text-white/80 text-white/60">About</Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
-                Listing
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Option 1</DropdownMenuItem>
-                <DropdownMenuItem>Option 2</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link href="/listings" className="transition-colors hover:text-white/80 text-white/60">Listing</Link>
              <DropdownMenu>
               <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
                 Pages
@@ -53,7 +45,7 @@ export const Header = () => {
             </DropdownMenu>
             <Link href="#" className="transition-colors hover:text-white/80 text-white/60">Contact</Link>
           </nav>
-        <div className="flex items-center justify-end space-x-4">
+        <div className="flex items-center justify-end space-x-4 ml-8">
           <Button variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
             <UserCircle className="h-5 w-5 mr-2" />
             Sign In
