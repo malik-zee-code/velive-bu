@@ -1,15 +1,17 @@
 // src/app/listings/page.tsx
 'use client';
+import React, { Suspense } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info, Tag, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info, MapPin, Pencil, Trash2 } from 'lucide-react';
 import { useUserData } from '@nhost/react';
 import {
   AlertDialog,
@@ -23,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useToast } from '@/hooks/use-toast';
+import { SearchComponent } from '@/components/listings/search';
 
 const GET_PROPERTIES = gql`
   query GetProperties {
@@ -43,51 +46,48 @@ const GET_PROPERTIES = gql`
   }
 `;
 
-const ListingsPage = () => {
+const ListingsPageContent = () => {
   const { data, loading, error } = useQuery(GET_PROPERTIES);
   const userData = useUserData();
   const { toast } = useToast();
   const isAdminOrManager = userData?.roles.includes('admin') || userData?.roles.includes('manager');
+
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('q') || '';
+  const locationQuery = searchParams.get('location') || '';
 
   const handleDelete = (id: string) => {
     // Placeholder for delete mutation
     console.log("Deleting property with id:", id);
     toast({ title: "Success!", description: "Property deleted successfully. (Mock)" });
   };
+  
+  const filteredProperties = data?.properties.filter((property: any) => {
+    const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesLocation = locationQuery ? property.location === locationQuery : true;
+    return matchesSearch && matchesLocation;
+  });
 
   if (loading) return (
-    <div className="flex-grow bg-background">
-      <Header />
       <div className="container mx-auto py-20 text-center max-w-7xl">
         <p>Loading...</p>
       </div>
-      <Footer />
-    </div>
   );
   if (error) return (
-    <div className="flex-grow bg-background">
-      <Header />
       <div className="container mx-auto py-20 text-center max-w-7xl">
         <p>Error! {error.message}</p>
       </div>
-      <Footer />
-    </div>
   );
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow py-20 bg-background">
-        <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Our Properties</h2>
-            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-              Explore our curated list of top-rated properties in the city.
-            </p>
-          </div>
-          {data.properties.length > 0 ? (
+    <>
+      <SearchComponent 
+        locations={data?.properties ? [...new Set(data.properties.map((p: any) => p.location).filter(Boolean))] : []}
+      />
+      <div className="container mx-auto max-w-7xl pb-20">
+          {filteredProperties && filteredProperties.length > 0 ? (
             <div className="space-y-8">
-              {data.properties.map((property: any) => {
+              {filteredProperties.map((property: any) => {
                  const images = Array.isArray(property.images) ? property.images.filter(img => typeof img === 'string' && img.startsWith('http')) : [];
                 return (
                   <Card key={property.id} className="overflow-hidden flex flex-col md:flex-row h-full group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
@@ -179,14 +179,26 @@ const ListingsPage = () => {
           ) : (
             <div className="text-center py-16">
               <h3 className="text-2xl font-semibold">No Listings Found</h3>
-              <p className="text-muted-foreground mt-2">There are currently no properties available.</p>
+              <p className="text-muted-foreground mt-2">There are currently no properties matching your search.</p>
             </div>
           )}
         </div>
-      </main>
-      <Footer />
-    </div>
+    </>
   );
-};
+}
+
+
+const ListingsPage = () => (
+  <div className="flex flex-col min-h-screen">
+    <Header />
+    <main className="flex-grow bg-background">
+      <Suspense fallback={<div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading search...</p></div>}>
+        <ListingsPageContent />
+      </Suspense>
+    </main>
+    <Footer />
+  </div>
+);
+
 
 export default ListingsPage;

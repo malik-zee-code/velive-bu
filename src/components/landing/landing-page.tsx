@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Listing } from '@/types/listing';
 import { Header } from '@/components/landing/header';
 import { Hero } from '@/components/landing/hero';
@@ -119,16 +120,26 @@ export function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const listingsRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const handleSearchClick = () => {
-    listingsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', searchQuery);
+    if (selectedLocation) params.set('location', selectedLocation);
+    if (selectedCategory) params.set('category', selectedCategory);
+    router.push(`/listings?${params.toString()}`);
   };
   
   const handleClearClick = () => {
     setSearchQuery('');
     setSelectedLocation('');
     setSelectedCategory('');
+  };
+
+  const handleCategorySelect = (category: string) => {
+    const params = new URLSearchParams();
+    params.set('category', category);
+    router.push(`/listings?${params.toString()}`);
   };
 
   return (
@@ -147,7 +158,7 @@ export function LandingPage() {
           onSearchClick={handleSearchClick}
           onClearClick={handleClearClick}
         />
-        <div ref={listingsRef}>
+        <div id="listings">
           <Listings
             listings={mockListings}
             searchQuery={searchQuery}
