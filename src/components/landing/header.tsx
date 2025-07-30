@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -15,13 +16,19 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuthenticationStatus, useSignOut, useUserData } from '@nhost/react';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuthenticationStatus();
+  const { isAuthenticated, isLoading: authIsLoading } = useAuthenticationStatus();
   const userData = useUserData();
   const { signOut } = useSignOut();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -38,6 +45,8 @@ export const Header = () => {
   ];
   
   const isAdmin = userData?.roles.includes('admin') || userData?.roles.includes('manager');
+
+  const isLoading = authIsLoading || !isClient;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-black">
@@ -77,7 +86,9 @@ export const Header = () => {
           ))}
         </nav>
         <div className="flex items-center justify-end space-x-2 ml-auto">
-          {isLoading ? <div className="h-9 w-24 rounded-md animate-pulse bg-gray-700" /> : isAuthenticated ? (
+          {isLoading ? (
+            <div className="h-9 w-24 rounded-md animate-pulse bg-gray-700" />
+          ) : isAuthenticated ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="hidden md:flex items-center text-white/80 hover:text-white">
