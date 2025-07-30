@@ -45,13 +45,13 @@ const INSERT_PROPERTIES_MUTATION = gql`
   mutation InsertProperties(
     $title: String!, 
     $price: bigint!, 
-    $area: Int!, 
-    $bathrooms: Int!, 
-    $bedrooms: Int!, 
-    $currency: String!, 
-    $tagline: String!, 
+    $area: Int, 
+    $bathrooms: Int, 
+    $bedrooms: Int, 
+    $currency: String, 
+    $tagline: String, 
     $images: jsonb!,
-    $location: String!
+    $location: String
   ) {
     insert_properties_one(object: {
       title: $title, 
@@ -83,34 +83,38 @@ const formSchema = z.object({
   price: z.preprocess(
     (a) => {
         if (typeof a === 'string' && a.trim() === '') return null;
+        if (a === undefined || a === null) return null;
         const parsed = parseInt(z.string().parse(a), 10);
         return isNaN(parsed) ? null : parsed;
     },
-    z.number().positive({ message: "Price must be a positive number." })
+    z.number({ required_error: "Price is required." }).positive({ message: "Price must be a positive number." })
   ),
   area: z.preprocess(
     (a) => {
-        if (typeof a === 'string' && a.trim() === '') return null;
+        if (typeof a === 'string' && a.trim() === '') return undefined;
+        if (a === undefined || a === null) return undefined;
         const parsed = parseInt(z.string().parse(a), 10);
-        return isNaN(parsed) ? null : parsed;
+        return isNaN(parsed) ? undefined : parsed;
     },
-    z.number().positive({ message: "Area must be a positive number." }).optional().nullable()
+    z.number().positive({ message: "Area must be a positive number." }).optional()
   ),
   bathrooms: z.preprocess(
     (a) => {
-        if (typeof a === 'string' && a.trim() === '') return null;
+        if (typeof a === 'string' && a.trim() === '') return undefined;
+        if (a === undefined || a === null) return undefined;
         const parsed = parseInt(z.string().parse(a), 10);
-        return isNaN(parsed) ? null : parsed;
+        return isNaN(parsed) ? undefined : parsed;
     },
-    z.number().positive({ message: "Number of bathrooms must be positive." }).optional().nullable()
+    z.number().positive({ message: "Number of bathrooms must be positive." }).optional()
   ),
   bedrooms: z.preprocess(
     (a) => {
-        if (typeof a === 'string' && a.trim() === '') return null;
+        if (typeof a === 'string' && a.trim() === '') return undefined;
+        if (a === undefined || a === null) return undefined;
         const parsed = parseInt(z.string().parse(a), 10);
-        return isNaN(parsed) ? null : parsed;
+        return isNaN(parsed) ? undefined : parsed;
     },
-    z.number().positive({ message: "Number of bedrooms must be positive." }).optional().nullable()
+    z.number().positive({ message: "Number of bedrooms must be positive." }).optional()
   ),
   currency: z.string().optional(),
   tagline: z.string().optional(),
@@ -143,9 +147,8 @@ const PropertiesForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "", price: 0, area: 0,
-      bathrooms: 0, bedrooms: 0, currency: "AED",
-      tagline: "", location: ""
+      title: "",
+      currency: "AED",
     },
   });
 
@@ -155,12 +158,12 @@ const PropertiesForm = () => {
       form.reset({
         title: p.title,
         price: p.price,
-        area: p.area,
-        bathrooms: p.bathrooms,
-        bedrooms: p.bedrooms,
-        currency: p.currency,
-        tagline: p.tagline,
-        location: p.location,
+        area: p.area || undefined,
+        bathrooms: p.bathrooms || undefined,
+        bedrooms: p.bedrooms || undefined,
+        currency: p.currency || undefined,
+        tagline: p.tagline || undefined,
+        location: p.location || undefined,
       });
     }
   }, [propertyData, isEditMode, form]);
@@ -232,6 +235,16 @@ const PropertiesForm = () => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control} name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price</FormLabel>
+                  <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? null : e.target.value)} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -254,22 +267,12 @@ const PropertiesForm = () => {
                   )}
                 />
             </div>
-            <FormField
-              control={form.control} name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
              <FormField
               control={form.control} name="area"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Area (sqft)</FormLabel>
-                  <FormControl><Input type="number" placeholder="Enter property area" {...field} value={field.value ?? ''} /></FormControl>
+                  <FormControl><Input type="number" placeholder="Enter property area" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.value)} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -279,7 +282,7 @@ const PropertiesForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bathrooms</FormLabel>
-                  <FormControl><Input type="number" placeholder="Enter number of bathrooms" {...field} value={field.value ?? ''} /></FormControl>
+                  <FormControl><Input type="number" placeholder="Enter number of bathrooms" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.value)} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -289,7 +292,7 @@ const PropertiesForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bedrooms</FormLabel>
-                  <FormControl><Input type="number" placeholder="Enter number of bedrooms" {...field} value={field.value ?? ''} /></FormControl>
+                  <FormControl><Input type="number" placeholder="Enter number of bedrooms" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.value)} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
