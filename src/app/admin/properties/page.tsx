@@ -32,7 +32,7 @@ const mockLocationsData = [
 
 const GET_PROPERTY_BY_ID = gql`
   query GetPropertyById($id: uuid!) {
-    property(id: $id) {
+    properties_by_pk(id: $id) {
       id
       title
       price
@@ -145,8 +145,8 @@ const PropertiesForm = () => {
   });
 
   useEffect(() => {
-    if (isEditMode && propertyData?.property) {
-      const p = propertyData.property;
+    if (isEditMode && propertyData?.properties_by_pk) {
+      const p = propertyData.properties_by_pk;
       form.reset({
         title: p.title,
         price: p.price,
@@ -164,8 +164,8 @@ const PropertiesForm = () => {
   const imageFileRef = form.register("imageFile");
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { imageFile, ...propertyData } = values;
-    let imageUrls = isEditMode && propertyData.images ? propertyData.images : [];
+    const { imageFile, ...propertyDataValues } = values;
+    let imageUrls = isEditMode && propertyData?.properties_by_pk?.images ? propertyData.properties_by_pk.images : [];
 
     try {
       if (imageFile && imageFile.length > 0) {
@@ -179,7 +179,7 @@ const PropertiesForm = () => {
       if (isEditMode) {
         // MOCK: Replace with actual update mutation call
         await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log("Updating property:", propertyId, { ...propertyData, images: imageUrls });
+        console.log("Updating property:", propertyId, { ...propertyDataValues, images: imageUrls });
         toast({ title: "Success!", description: "Property updated successfully. (Mock)" });
 
         /*
@@ -187,7 +187,7 @@ const PropertiesForm = () => {
         await updateProperty({
           variables: {
             id: propertyId,
-            data: { ...propertyData, images: imageUrls },
+            data: { ...propertyDataValues, images: imageUrls },
           },
         });
         toast({ title: "Success!", description: "Property updated successfully." });
@@ -198,7 +198,7 @@ const PropertiesForm = () => {
           toast({ title: "Error!", description: "Please select an image to upload.", variant: "destructive" });
           return;
         }
-        await insertProperty({ variables: { ...propertyData, images: imageUrls } });
+        await insertProperty({ variables: { ...propertyDataValues, images: imageUrls } });
         toast({ title: "Success!", description: "Property has been added successfully." });
         form.reset();
       }
