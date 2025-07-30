@@ -1,3 +1,4 @@
+
 // src/app/listings/page.tsx
 'use client';
 import { useQuery, gql } from '@apollo/client';
@@ -8,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info } from 'lucide-react';
+import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info, Tag } from 'lucide-react';
 
 const GET_PROPERTIES = gql`
   query GetProperties {
@@ -20,11 +21,16 @@ const GET_PROPERTIES = gql`
       created_at
       currency
       images
-      location
       price
       tagline
       title
       updated_at
+      category {
+        name
+      }
+      location {
+        name
+      }
     }
   }
 `;
@@ -91,8 +97,11 @@ const ListingsPage = () => {
                     </div>
                     <div className="w-full md:w-3/5 p-6 flex flex-col justify-between">
                       <div>
-                        <h3 className="font-bold font-headline text-2xl mb-2 text-foreground">{property.title}</h3>
-                        <p className="text-muted-foreground mb-4">{property.location}</p>
+                        <div className='flex justify-between items-start'>
+                           <h3 className="font-bold font-headline text-2xl mb-2 text-foreground">{property.title}</h3>
+                           {property.category && <div className="flex items-center text-sm text-muted-foreground"><Tag className="w-4 h-4 mr-1" />{property.category.name}</div>}
+                        </div>
+                        <p className="text-muted-foreground mb-4">{property.location.name}</p>
                         <p className="text-lg font-semibold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
                         <p className="text-muted-foreground mb-4 italic">"{property.tagline}"</p>
                         <Separator className="my-4" />
@@ -135,3 +144,4 @@ const ListingsPage = () => {
 };
 
 export default ListingsPage;
+

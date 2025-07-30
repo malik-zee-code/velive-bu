@@ -1,6 +1,7 @@
+
 // src/app/admin/properties/page.tsx
 'use client';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,52 +14,58 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { nhost } from '@/lib/nhost';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const GET_CATEGORIES = gql`
+  query GetCategories {
+    categories {
+      id
+      name
+    }
+  }
+`;
+
+const GET_LOCATIONS = gql`
+  query GetLocations {
+    locations {
+      id
+      name
+    }
+  }
+`;
 
 const INSERT_PROPERTIES_MUTATION = gql`
   mutation InsertProperties(
     $title: String!, 
-    $location: String!, 
     $price: bigint!, 
     $area: Int!, 
     $bathrooms: Int!, 
     $bedrooms: Int!, 
     $currency: String!, 
     $tagline: String!, 
-    $images: jsonb!
+    $images: jsonb!,
+    $category_id: uuid!,
+    $location_id: uuid!
   ) {
-    insert_properties(objects: {
+    insert_properties_one(object: {
       title: $title, 
-      location: $location, 
       price: $price, 
       area: $area, 
       bathrooms: $bathrooms, 
       bedrooms: $bedrooms, 
       currency: $currency, 
       tagline: $tagline, 
-      images: $images
+      images: $images,
+      category_id: $category_id,
+      location_id: $location_id
     }) {
-      affected_rows
-      returning {
-        id
-        title
-        location
-        price
-        area
-        bathrooms
-        bedrooms
-        currency
-        tagline
-        images
-        created_at
-        updated_at
-      }
+      id
     }
   }
 `;
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
-  location: z.string().min(1, { message: "Location is required." }),
   price: z.preprocess(
     (a) => parseInt(z.string().parse(a), 10),
     z.number().positive({ message: "Price must be a positive number." })
@@ -78,6 +85,8 @@ const formSchema = z.object({
   currency: z.string().min(1, { message: "Currency is required." }),
   tagline: z.string().min(1, { message: "Tagline is required." }),
   imageFile: z.any().refine(files => files?.length > 0, 'File is required.'),
+  category_id: z.string().uuid({ message: "Please select a category." }),
+  location_id: z.string().uuid({ message: "Please select a location." }),
 });
 
 const PropertiesPage = () => {
@@ -87,11 +96,13 @@ const PropertiesPage = () => {
     refetchQueries: ['GetProperties'],
   });
 
+  const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
+  const { data: locationsData, loading: locationsLoading } = useQuery(GET_LOCATIONS);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      location: "",
       price: 0,
       area: 0,
       bathrooms: 0,
@@ -170,19 +181,53 @@ const PropertiesPage = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter location" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <FormField
+                  control={form.control}
+                  name="category_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={categoriesLoading}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categoriesData?.categories.map((cat: any) => (
+                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="location_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={locationsLoading}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a location" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                           {locationsData?.locations.map((loc: any) => (
+                            <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
+
             <FormField
               control={form.control}
               name="price"
