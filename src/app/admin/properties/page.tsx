@@ -16,23 +16,19 @@ import { Progress } from '@/components/ui/progress';
 import { nhost } from '@/lib/nhost';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const GET_CATEGORIES = gql`
-  query GetCategories {
-    categories {
-      id
-      name
-    }
-  }
-`;
+const mockCategoriesData = [
+    { id: '1', name: 'Restaurants' },
+    { id: '2', name: 'Hotels' },
+    { id: '3', name: 'Shopping' },
+    { id: '4', name: 'Business' },
+];
 
-const GET_LOCATIONS = gql`
-  query GetLocations {
-    locations {
-      id
-      name
-    }
-  }
-`;
+const mockLocationsData = [
+    { id: '1', name: 'New York' },
+    { id: '2', name: 'Los Angeles' },
+    { id: '3', name: 'London' },
+];
+
 
 const INSERT_PROPERTIES_MUTATION = gql`
   mutation InsertProperties(
@@ -85,8 +81,8 @@ const formSchema = z.object({
   currency: z.string().min(1, { message: "Currency is required." }),
   tagline: z.string().min(1, { message: "Tagline is required." }),
   imageFile: z.any().refine(files => files?.length > 0, 'File is required.'),
-  category_id: z.string().uuid({ message: "Please select a category." }),
-  location_id: z.string().uuid({ message: "Please select a location." }),
+  category_id: z.string().min(1, { message: "Please select a category." }),
+  location_id: z.string().min(1, { message: "Please select a location." }),
 });
 
 const PropertiesPage = () => {
@@ -95,9 +91,6 @@ const PropertiesPage = () => {
   const [insertProperty, { data, loading, error }] = useMutation(INSERT_PROPERTIES_MUTATION, {
     refetchQueries: ['GetProperties'],
   });
-
-  const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
-  const { data: locationsData, loading: locationsLoading } = useQuery(GET_LOCATIONS);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -188,14 +181,14 @@ const PropertiesPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={categoriesLoading}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {categoriesData?.categories.map((cat: any) => (
+                          {mockCategoriesData.map((cat: any) => (
                             <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                           ))}
                         </SelectContent>
@@ -210,14 +203,14 @@ const PropertiesPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Location</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={locationsLoading}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a location" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                           {locationsData?.locations.map((loc: any) => (
+                           {mockLocationsData.map((loc: any) => (
                             <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
                           ))}
                         </SelectContent>

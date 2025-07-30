@@ -1,6 +1,5 @@
 
 'use client';
-import { useQuery, useMutation, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,40 +23,11 @@ import {
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
-const GET_LOCATIONS = gql`
-  query GetLocations {
-    locations {
-      id
-      name
-    }
-  }
-`;
-
-const INSERT_LOCATION = gql`
-  mutation InsertLocation($name: String!) {
-    insert_locations_one(object: { name: $name }) {
-      id
-      name
-    }
-  }
-`;
-
-const UPDATE_LOCATION = gql`
-    mutation UpdateLocation($id: uuid!, $name: String!) {
-        update_locations_by_pk(pk_columns: {id: $id}, _set: {name: $name}) {
-            id
-            name
-        }
-    }
-`;
-
-const DELETE_LOCATION = gql`
-  mutation DeleteLocation($id: uuid!) {
-    delete_locations_by_pk(id: $id) {
-      id
-    }
-  }
-`;
+const mockLocationsData = [
+    { id: '1', name: 'New York' },
+    { id: '2', name: 'Los Angeles' },
+    { id: '3', name: 'London' },
+];
 
 const formSchema = z.object({
   name: z.string().min(1, "Location name is required."),
@@ -65,36 +35,8 @@ const formSchema = z.object({
 
 const LocationsPage = () => {
   const { toast } = useToast();
+  const [locations, setLocations] = useState(mockLocationsData);
   const [editingLocation, setEditingLocation] = useState<any>(null);
-
-  const { data, loading, error, refetch } = useQuery(GET_LOCATIONS);
-  const [insertLocation, { loading: insertLoading }] = useMutation(INSERT_LOCATION, {
-    onCompleted: () => {
-        refetch();
-        toast({ title: "Success!", description: "Location added successfully." });
-        form.reset();
-        setEditingLocation(null);
-    },
-    onError: (e) => toast({ title: "Error!", description: e.message, variant: 'destructive' })
-  });
-
-  const [updateLocation, { loading: updateLoading }] = useMutation(UPDATE_LOCATION, {
-    onCompleted: () => {
-        refetch();
-        toast({ title: "Success!", description: "Location updated successfully." });
-        form.reset();
-        setEditingLocation(null);
-    },
-    onError: (e) => toast({ title: "Error!", description: e.message, variant: 'destructive' })
-  });
-
-  const [deleteLocation] = useMutation(DELETE_LOCATION, {
-    onCompleted: () => {
-        refetch();
-        toast({ title: "Success!", description: "Location deleted successfully." });
-    },
-    onError: (e) => toast({ title: "Error!", description: e.message, variant: 'destructive' })
-  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -103,10 +45,20 @@ const LocationsPage = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (editingLocation) {
-        updateLocation({ variables: { id: editingLocation.id, name: values.name } });
+        setLocations(locations.map(l => l.id === editingLocation.id ? { ...l, name: values.name } : l));
+        toast({ title: "Success!", description: "Location updated successfully." });
     } else {
-        insertLocation({ variables: { name: values.name } });
+        const newLocation = { id: (locations.length + 1).toString(), name: values.name };
+        setLocations([...locations, newLocation]);
+        toast({ title: "Success!", description: "Location added successfully." });
     }
+    form.reset();
+    setEditingLocation(null);
+  };
+  
+  const handleDelete = (id: string) => {
+    setLocations(locations.filter(l => l.id !== id));
+    toast({ title: "Success!", description: "Location deleted successfully." });
   };
   
   const handleEdit = (location: any) => {
@@ -118,8 +70,6 @@ const LocationsPage = () => {
     setEditingLocation(null);
     form.reset();
   };
-
-  if (error) return <p>Error: {error.message}</p>;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -148,7 +98,7 @@ const LocationsPage = () => {
                             )}
                             />
                              <div className="flex gap-2">
-                                <Button type="submit" disabled={insertLoading || updateLoading}>
+                                <Button type="submit">
                                     {editingLocation ? 'Update' : 'Add'} Location
                                 </Button>
                                 {editingLocation && (
@@ -171,51 +121,47 @@ const LocationsPage = () => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                   {loading ? (
-                        <p>Loading...</p>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {data?.locations.map((location: any) => (
-                                <TableRow key={location.id}>
-                                    <TableCell>{location.name}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(location)}>
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon">
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete the location.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => deleteLocation({ variables: { id: location.id } })}>
-                                                        Delete
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                   )}
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {locations.map((location: any) => (
+                            <TableRow key={location.id}>
+                                <TableCell>{location.name}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEdit(location)}>
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon">
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This action cannot be undone. This will permanently delete the location.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(location.id)}>
+                                                    Delete
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
+                            </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </div>
