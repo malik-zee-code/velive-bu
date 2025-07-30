@@ -196,10 +196,6 @@ const PropertiesForm = () => {
         });
         toast({ title: "Success!", description: "Property updated successfully." });
       } else {
-        if (!imageUrls.length) {
-          toast({ title: "Error!", description: "Please select an image to upload.", variant: "destructive" });
-          return;
-        }
         await insertProperty({ variables: { ...submissionData, images: imageUrls } });
         toast({ title: "Success!", description: "Property has been added successfully." });
         form.reset();
@@ -322,7 +318,7 @@ const PropertiesForm = () => {
               name="imageFile"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image {isEditMode && "(Optional: only to replace)"}</FormLabel>
+                  <FormLabel>Image (Optional)</FormLabel>
                   <FormControl><Input type="file" accept="image/*" {...imageFileRef} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -347,3 +343,5 @@ const PropertiesPage = () => (
 
 
 export default PropertiesPage;
+
+    
