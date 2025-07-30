@@ -1,3 +1,4 @@
+
 // src/app/admin/properties/page.tsx
 'use client';
 import React, { useEffect, Suspense } from 'react';
@@ -68,7 +69,6 @@ const INSERT_PROPERTIES_MUTATION = gql`
   }
 `;
 
-// NOTE: Please provide the actual update mutation
 const UPDATE_PROPERTY_MUTATION = gql`
   mutation UpdateProperty($id: uuid!, $data: properties_set_input!) {
     update_properties_by_pk(pk_columns: {id: $id}, _set: $data) {
@@ -114,7 +114,6 @@ const PropertiesForm = () => {
     refetchQueries: ['GetProperties'],
   });
 
-  // You need to provide the actual update mutation
   const [updateProperty, { loading: updateLoading }] = useMutation(UPDATE_PROPERTY_MUTATION, {
     refetchQueries: ['GetProperties', 'GetPropertyById'],
   });
@@ -165,13 +164,6 @@ const PropertiesForm = () => {
       }
 
       if (isEditMode) {
-        // MOCK: Replace with actual update mutation call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log("Updating property:", propertyId, { ...propertyDataValues, images: imageUrls });
-        toast({ title: "Success!", description: "Property updated successfully. (Mock)" });
-
-        /*
-        // UNCOMMENT WHEN YOU HAVE THE MUTATION
         await updateProperty({
           variables: {
             id: propertyId,
@@ -179,8 +171,6 @@ const PropertiesForm = () => {
           },
         });
         toast({ title: "Success!", description: "Property updated successfully." });
-        */
-
       } else {
         if (!imageUrls.length) {
           toast({ title: "Error!", description: "Please select an image to upload.", variant: "destructive" });
