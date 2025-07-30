@@ -81,26 +81,43 @@ const UPDATE_PROPERTY_MUTATION = gql`
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
   price: z.preprocess(
-    (a) => parseInt(z.string().parse(a), 10),
+    (a) => {
+        if (typeof a === 'string' && a.trim() === '') return null;
+        const parsed = parseInt(z.string().parse(a), 10);
+        return isNaN(parsed) ? null : parsed;
+    },
     z.number().positive({ message: "Price must be a positive number." })
   ),
   area: z.preprocess(
-    (a) => parseInt(z.string().parse(a), 10),
-    z.number().positive({ message: "Area must be a positive number." })
+    (a) => {
+        if (typeof a === 'string' && a.trim() === '') return null;
+        const parsed = parseInt(z.string().parse(a), 10);
+        return isNaN(parsed) ? null : parsed;
+    },
+    z.number().positive({ message: "Area must be a positive number." }).optional().nullable()
   ),
   bathrooms: z.preprocess(
-    (a) => parseInt(z.string().parse(a), 10),
-    z.number().positive({ message: "Number of bathrooms must be positive." })
+    (a) => {
+        if (typeof a === 'string' && a.trim() === '') return null;
+        const parsed = parseInt(z.string().parse(a), 10);
+        return isNaN(parsed) ? null : parsed;
+    },
+    z.number().positive({ message: "Number of bathrooms must be positive." }).optional().nullable()
   ),
   bedrooms: z.preprocess(
-    (a) => parseInt(z.string().parse(a), 10),
-    z.number().positive({ message: "Number of bedrooms must be positive." })
+    (a) => {
+        if (typeof a === 'string' && a.trim() === '') return null;
+        const parsed = parseInt(z.string().parse(a), 10);
+        return isNaN(parsed) ? null : parsed;
+    },
+    z.number().positive({ message: "Number of bedrooms must be positive." }).optional().nullable()
   ),
-  currency: z.string().min(1, { message: "Currency is required." }),
-  tagline: z.string().min(1, { message: "Tagline is required." }),
+  currency: z.string().optional(),
+  tagline: z.string().optional(),
   imageFile: z.any().optional(),
-  location: z.string().min(1, { message: "Please select a location." }),
+  location: z.string().optional(),
 });
+
 
 const PropertiesForm = () => {
   const searchParams = useSearchParams();
@@ -163,11 +180,15 @@ const PropertiesForm = () => {
         imageUrls = [publicUrl];
       }
 
+      const submissionData = Object.fromEntries(
+        Object.entries(propertyDataValues).filter(([_, v]) => v !== null && v !== undefined)
+      );
+
       if (isEditMode) {
         await updateProperty({
           variables: {
             id: propertyId,
-            data: { ...propertyDataValues, images: imageUrls },
+            data: { ...submissionData, images: imageUrls },
           },
         });
         toast({ title: "Success!", description: "Property updated successfully." });
@@ -176,7 +197,7 @@ const PropertiesForm = () => {
           toast({ title: "Error!", description: "Please select an image to upload.", variant: "destructive" });
           return;
         }
-        await insertProperty({ variables: { ...propertyDataValues, images: imageUrls } });
+        await insertProperty({ variables: { ...submissionData, images: imageUrls } });
         toast({ title: "Success!", description: "Property has been added successfully." });
         form.reset();
       }
@@ -218,7 +239,7 @@ const PropertiesForm = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Location</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger>
                         </FormControl>
@@ -238,7 +259,7 @@ const PropertiesForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Price</FormLabel>
-                  <FormControl><Input type="number" placeholder="Enter price" {...field} /></FormControl>
+                  <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -248,7 +269,7 @@ const PropertiesForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Area (sqft)</FormLabel>
-                  <FormControl><Input type="number" placeholder="Enter property area" {...field} /></FormControl>
+                  <FormControl><Input type="number" placeholder="Enter property area" {...field} value={field.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -258,7 +279,7 @@ const PropertiesForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bathrooms</FormLabel>
-                  <FormControl><Input type="number" placeholder="Enter number of bathrooms" {...field} /></FormControl>
+                  <FormControl><Input type="number" placeholder="Enter number of bathrooms" {...field} value={field.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -268,7 +289,7 @@ const PropertiesForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bedrooms</FormLabel>
-                  <FormControl><Input type="number" placeholder="Enter number of bedrooms" {...field} /></FormControl>
+                  <FormControl><Input type="number" placeholder="Enter number of bedrooms" {...field} value={field.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -278,7 +299,7 @@ const PropertiesForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Currency</FormLabel>
-                  <FormControl><Input placeholder="Enter currency (e.g., AED)" {...field} /></FormControl>
+                  <FormControl><Input placeholder="Enter currency (e.g., AED)" {...field} value={field.value ?? ''}/></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -288,7 +309,7 @@ const PropertiesForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tagline</FormLabel>
-                  <FormControl><Input placeholder="Enter a catchy tagline" {...field} /></FormControl>
+                  <FormControl><Input placeholder="Enter a catchy tagline" {...field} value={field.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
