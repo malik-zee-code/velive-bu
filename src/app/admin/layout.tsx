@@ -1,10 +1,9 @@
 'use client';
-import { SidebarProvider, Sidebar, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { Header } from '@/components/landing/header';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, MapPin, Tag, Building2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { MapPin, Tag, Building2 } from 'lucide-react';
 import { useAuthenticationStatus } from '@nhost/react';
 import { Footer } from '@/components/landing/footer';
 
@@ -20,9 +19,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     
     if (isLoading) {
         return (
-          <div className="flex-grow bg-background">
+          <div className="flex flex-col min-h-screen">
             <Header />
-            <div className="container mx-auto py-20 text-center max-w-7xl">
+            <div className="flex-grow container mx-auto py-20 text-center max-w-7xl">
               <p>Loading...</p>
             </div>
             <Footer />
@@ -32,9 +31,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
     if (!isAuthenticated) {
         return (
-            <div className="flex-grow bg-background">
+            <div className="flex flex-col min-h-screen">
               <Header />
-              <div className="container mx-auto py-20 text-center max-w-7xl">
+              <div className="flex-grow container mx-auto py-20 text-center max-w-7xl">
                 <h2 className="text-2xl font-bold">Unauthorized</h2>
                 <p>You must be signed in to view this page.</p>
               </div>
@@ -46,13 +45,13 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <SidebarProvider>
-            <div className="flex flex-col w-full min-h-screen bg-background">
+            <div className="flex flex-col min-h-screen bg-background">
                 <Header />
                 <div className="flex flex-1">
-                    <Sidebar>
+                    <Sidebar className='mt-20'>
                         <SidebarMenu>
                             {navItems.map((item) => (
-                                <SidebarMenuItem key={item.href}>
+                                <SidebarMenuItem key={item.href} className="py-2">
                                     <Link href={item.href} passHref>
                                         <SidebarMenuButton
                                             isActive={pathname.startsWith(item.href)}
