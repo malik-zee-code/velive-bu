@@ -1,15 +1,28 @@
-
 // src/app/listings/page.tsx
 'use client';
 import { useQuery, gql } from '@apollo/client';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info, Tag, MapPin } from 'lucide-react';
+import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info, Tag, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { useUserData } from '@nhost/react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useToast } from '@/hooks/use-toast';
 
 const GET_PROPERTIES = gql`
   query GetProperties {
@@ -32,6 +45,15 @@ const GET_PROPERTIES = gql`
 
 const ListingsPage = () => {
   const { data, loading, error } = useQuery(GET_PROPERTIES);
+  const userData = useUserData();
+  const { toast } = useToast();
+  const isAdminOrManager = userData?.roles.includes('admin') || userData?.roles.includes('manager');
+
+  const handleDelete = (id: string) => {
+    // Placeholder for delete mutation
+    console.log("Deleting property with id:", id);
+    toast({ title: "Success!", description: "Property deleted successfully. (Mock)" });
+  };
 
   if (loading) return (
     <div className="flex-grow bg-background">
@@ -94,6 +116,36 @@ const ListingsPage = () => {
                       <div>
                         <div className='flex justify-between items-start'>
                            <h3 className="font-bold font-headline text-2xl mb-2 text-foreground">{property.title}</h3>
+                           {isAdminOrManager && (
+                              <div className="flex items-center space-x-1">
+                                <Button variant="ghost" size="icon" asChild>
+                                  <Link href={`/admin/properties?id=${property.id}`}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Link>
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete the property.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDelete(property.id)}>
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            )}
                         </div>
                         <p className="flex items-center text-muted-foreground mb-4"><MapPin className="w-4 h-4 mr-2" />{property.location}</p>
                         <p className="text-lg font-semibold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>

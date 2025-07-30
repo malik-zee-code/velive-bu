@@ -1,6 +1,6 @@
-
 // src/app/admin/properties/page.tsx
 'use client';
+import React, { useEffect, Suspense } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { nhost } from '@/lib/nhost';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useSearchParams } from 'next/navigation';
 
 const mockCategoriesData = [
     { id: '1', name: 'Restaurants' },
@@ -29,6 +30,23 @@ const mockLocationsData = [
     { id: '3', name: 'London' },
 ];
 
+const GET_PROPERTY_BY_ID = gql`
+  query GetPropertyById($id: uuid!) {
+    property(id: $id) {
+      id
+      title
+      price
+      area
+      bathrooms
+      bedrooms
+      currency
+      tagline
+      images
+      category_id
+      location_id
+    }
+  }
+`;
 
 const INSERT_PROPERTIES_MUTATION = gql`
   mutation InsertProperties(
@@ -60,6 +78,16 @@ const INSERT_PROPERTIES_MUTATION = gql`
   }
 `;
 
+// NOTE: Please provide the actual update mutation
+const UPDATE_PROPERTY_MUTATION = gql`
+  mutation UpdateProperty($id: uuid!, $data: properties_set_input!) {
+    update_properties_by_pk(pk_columns: {id: $id}, _set: $data) {
+      id
+    }
+  }
+`;
+
+
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
   price: z.preprocess(
@@ -80,83 +108,116 @@ const formSchema = z.object({
   ),
   currency: z.string().min(1, { message: "Currency is required." }),
   tagline: z.string().min(1, { message: "Tagline is required." }),
-  imageFile: z.any().refine(files => files?.length > 0, 'File is required.'),
+  imageFile: z.any().optional(),
   category_id: z.string().min(1, { message: "Please select a category." }),
   location_id: z.string().min(1, { message: "Please select a location." }),
 });
 
-const PropertiesPage = () => {
+const PropertiesForm = () => {
+  const searchParams = useSearchParams();
+  const propertyId = searchParams.get('id');
+  const isEditMode = !!propertyId;
+  
   const { toast } = useToast();
-  const { upload, isUploading, progress, isError: isUploadError, error: uploadError } = useFileUpload();
-  const [insertProperty, { data, loading, error }] = useMutation(INSERT_PROPERTIES_MUTATION, {
+  const { upload, isUploading, progress } = useFileUpload();
+  
+  const [insertProperty, { loading: insertLoading }] = useMutation(INSERT_PROPERTIES_MUTATION, {
     refetchQueries: ['GetProperties'],
+  });
+
+  // You need to provide the actual update mutation
+  const [updateProperty, { loading: updateLoading }] = useMutation(UPDATE_PROPERTY_MUTATION, {
+    refetchQueries: ['GetProperties', 'GetPropertyById'],
+  });
+
+  const { data: propertyData, loading: queryLoading } = useQuery(GET_PROPERTY_BY_ID, {
+    variables: { id: propertyId },
+    skip: !isEditMode,
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      price: 0,
-      area: 0,
-      bathrooms: 0,
-      bedrooms: 0,
-      currency: "AED",
-      tagline: "",
+      title: "", price: 0, area: 0,
+      bathrooms: 0, bedrooms: 0, currency: "AED",
+      tagline: "", category_id: "", location_id: ""
     },
   });
+
+  useEffect(() => {
+    if (isEditMode && propertyData?.property) {
+      const p = propertyData.property;
+      form.reset({
+        title: p.title,
+        price: p.price,
+        area: p.area,
+        bathrooms: p.bathrooms,
+        bedrooms: p.bedrooms,
+        currency: p.currency,
+        tagline: p.tagline,
+        category_id: p.category_id,
+        location_id: p.location_id,
+      });
+    }
+  }, [propertyData, isEditMode, form]);
 
   const imageFileRef = form.register("imageFile");
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { imageFile, ...propertyData } = values;
-    const file = imageFile[0];
-
-    if (!file) {
-        toast({
-            title: "Error!",
-            description: "Please select an image to upload.",
-            variant: "destructive",
-        });
-        return;
-    }
+    let imageUrls = isEditMode && propertyData.images ? propertyData.images : [];
 
     try {
-      const { id, isError, error } = await upload({ file });
-
-      if (isError || error) {
-        throw error || new Error('File upload failed');
+      if (imageFile && imageFile.length > 0) {
+        const file = imageFile[0];
+        const { id, isError, error } = await upload({ file });
+        if (isError) throw error;
+        const publicUrl = nhost.storage.getPublicUrl({ fileId: id });
+        imageUrls = [publicUrl];
       }
-      
-      const publicUrl = nhost.storage.getPublicUrl({ fileId: id });
 
-      const submissionValues = {
-        ...propertyData,
-        images: [publicUrl], // Nhost storage URL
-      };
-      await insertProperty({ variables: submissionValues });
-      toast({
-        title: "Success!",
-        description: "Property has been added successfully.",
-      });
-      form.reset();
+      if (isEditMode) {
+        // MOCK: Replace with actual update mutation call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log("Updating property:", propertyId, { ...propertyData, images: imageUrls });
+        toast({ title: "Success!", description: "Property updated successfully. (Mock)" });
+
+        /*
+        // UNCOMMENT WHEN YOU HAVE THE MUTATION
+        await updateProperty({
+          variables: {
+            id: propertyId,
+            data: { ...propertyData, images: imageUrls },
+          },
+        });
+        toast({ title: "Success!", description: "Property updated successfully." });
+        */
+
+      } else {
+        if (!imageUrls.length) {
+          toast({ title: "Error!", description: "Please select an image to upload.", variant: "destructive" });
+          return;
+        }
+        await insertProperty({ variables: { ...propertyData, images: imageUrls } });
+        toast({ title: "Success!", description: "Property has been added successfully." });
+        form.reset();
+      }
     } catch (e) {
       console.error(e);
-      const errorMessage = e instanceof Error ? e.message : (uploadError?.message || 'An unknown error occurred.');
-      toast({
-        title: "Error!",
-        description: `Failed to add property. ${errorMessage}`,
-        variant: "destructive",
-      });
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+      toast({ title: "Error!", description: `Failed to save property. ${errorMessage}`, variant: "destructive" });
     }
   };
 
-  const isMutating = loading || isUploading;
+  const isMutating = insertLoading || updateLoading || isUploading;
+
+  if (queryLoading) return <p>Loading property data...</p>;
 
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="font-headline">Add New Property</CardTitle>
-        <CardDescription>Fill out the form below to add a new property listing.</CardDescription>
+        <CardTitle className="font-headline">{isEditMode ? 'Edit Property' : 'Add New Property'}</CardTitle>
+        <CardDescription>{isEditMode ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -167,9 +228,7 @@ const PropertiesPage = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter property title" {...field} />
-                  </FormControl>
+                  <FormControl><Input placeholder="Enter property title" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -181,11 +240,9 @@ const PropertiesPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {mockCategoriesData.map((cat: any) => (
@@ -203,11 +260,9 @@ const PropertiesPage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Location</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a location" />
-                          </SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                            {mockLocationsData.map((loc: any) => (
@@ -220,81 +275,62 @@ const PropertiesPage = () => {
                   )}
                 />
             </div>
-
             <FormField
-              control={form.control}
-              name="price"
+              control={form.control} name="price"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Enter price" {...field} />
-                  </FormControl>
+                  <FormControl><Input type="number" placeholder="Enter price" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
              <FormField
-              control={form.control}
-              name="area"
+              control={form.control} name="area"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Area (sqft)</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Enter property area" {...field} />
-                  </FormControl>
+                  <FormControl><Input type="number" placeholder="Enter property area" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
              <FormField
-              control={form.control}
-              name="bathrooms"
+              control={form.control} name="bathrooms"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bathrooms</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Enter number of bathrooms" {...field} />
-                  </FormControl>
+                  <FormControl><Input type="number" placeholder="Enter number of bathrooms" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
              <FormField
-              control={form.control}
-              name="bedrooms"
+              control={form.control} name="bedrooms"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bedrooms</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Enter number of bedrooms" {...field} />
-                  </FormControl>
+                  <FormControl><Input type="number" placeholder="Enter number of bedrooms" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
-              control={form.control}
-              name="currency"
+              control={form.control} name="currency"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Currency</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter currency (e.g., AED)" {...field} />
-                  </FormControl>
+                  <FormControl><Input placeholder="Enter currency (e.g., AED)" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
-              control={form.control}
-              name="tagline"
+              control={form.control} name="tagline"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tagline</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter a catchy tagline" {...field} />
-                  </FormControl>
+                  <FormControl><Input placeholder="Enter a catchy tagline" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -304,19 +340,15 @@ const PropertiesPage = () => {
               name="imageFile"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image</FormLabel>
-                  <FormControl>
-                    <Input type="file" accept="image/*" {...imageFileRef} />
-                  </FormControl>
+                  <FormLabel>Image {isEditMode && "(Optional: only to replace)"}</FormLabel>
+                  <FormControl><Input type="file" accept="image/*" {...imageFileRef} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-             {isUploading && (
-              <Progress value={progress} className="w-full" />
-            )}
+             {isUploading && <Progress value={progress} className="w-full" />}
             <Button type="submit" disabled={isMutating} className="w-full">
-              {isMutating ? `Uploading... ${progress}%` : "Add Property"}
+              {isMutating ? `Uploading... ${progress}%` : (isEditMode ? "Update Property" : "Add Property")}
             </Button>
           </form>
         </Form>
@@ -324,5 +356,12 @@ const PropertiesPage = () => {
     </Card>
   );
 };
+
+const PropertiesPage = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <PropertiesForm />
+  </Suspense>
+);
+
 
 export default PropertiesPage;
