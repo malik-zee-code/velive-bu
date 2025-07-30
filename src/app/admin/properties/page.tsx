@@ -17,13 +17,6 @@ import { nhost } from '@/lib/nhost';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSearchParams } from 'next/navigation';
 
-const mockCategoriesData = [
-    { id: 'Restaurants', name: 'Restaurants' },
-    { id: 'Hotels', name: 'Hotels' },
-    { id: 'Shopping', name: 'Shopping' },
-    { id: 'Business', name: 'Business' },
-];
-
 const mockLocationsData = [
     { id: 'New York', name: 'New York' },
     { id: 'Los Angeles', name: 'Los Angeles' },
@@ -42,7 +35,6 @@ const GET_PROPERTY_BY_ID = gql`
       currency
       tagline
       images
-      category
       location
     }
   }
@@ -58,7 +50,6 @@ const INSERT_PROPERTIES_MUTATION = gql`
     $currency: String!, 
     $tagline: String!, 
     $images: jsonb!,
-    $category: String!,
     $location: String!
   ) {
     insert_properties_one(object: {
@@ -70,7 +61,6 @@ const INSERT_PROPERTIES_MUTATION = gql`
       currency: $currency, 
       tagline: $tagline, 
       images: $images,
-      category: $category,
       location: $location
     }) {
       id
@@ -109,7 +99,6 @@ const formSchema = z.object({
   currency: z.string().min(1, { message: "Currency is required." }),
   tagline: z.string().min(1, { message: "Tagline is required." }),
   imageFile: z.any().optional(),
-  category: z.string().min(1, { message: "Please select a category." }),
   location: z.string().min(1, { message: "Please select a location." }),
 });
 
@@ -140,7 +129,7 @@ const PropertiesForm = () => {
     defaultValues: {
       title: "", price: 0, area: 0,
       bathrooms: 0, bedrooms: 0, currency: "AED",
-      tagline: "", category: "", location: ""
+      tagline: "", location: ""
     },
   });
 
@@ -155,7 +144,6 @@ const PropertiesForm = () => {
         bedrooms: p.bedrooms,
         currency: p.currency,
         tagline: p.tagline,
-        category: p.category,
         location: p.location,
       });
     }
@@ -234,26 +222,6 @@ const PropertiesForm = () => {
               )}
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {mockCategoriesData.map((cat: any) => (
-                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="location"
