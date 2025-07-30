@@ -45,13 +45,13 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <SidebarProvider>
-            <div className="flex flex-col min-h-screen bg-background">
+            <div className="flex flex-col w-full min-h-screen bg-background">
                 <Header />
                 <div className="flex flex-1">
                     <Sidebar className='mt-20'>
-                        <SidebarMenu>
+                        <SidebarMenu className='pt-4'>
                             {navItems.map((item) => (
-                                <SidebarMenuItem key={item.href} className="py-2">
+                                <SidebarMenuItem key={item.href} className="px-2 py-1">
                                     <Link href={item.href} passHref>
                                         <SidebarMenuButton
                                             isActive={pathname.startsWith(item.href)}
@@ -65,7 +65,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                             ))}
                         </SidebarMenu>
                     </Sidebar>
-                    <main className="flex-1 p-8 overflow-auto mt-20">
+                    <main className="flex-1 p-8 overflow-auto">
                         {children}
                     </main>
                 </div>
