@@ -13,13 +13,14 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 import { cn } from '@/lib/utils';
-import { useAuthenticationStatus, useSignOut } from '@nhost/react';
+import { useAuthenticationStatus, useSignOut, useUserData } from '@nhost/react';
 import { useRouter } from 'next/navigation';
 
 export const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuthenticationStatus();
+  const userData = useUserData();
   const { signOut } = useSignOut();
 
   const handleSignOut = async () => {
@@ -35,6 +36,8 @@ export const Header = () => {
     { href: '#', text: 'Blog', isDropdown: true, options: ['Option 1', 'Option 2'] },
     { href: '/contact', text: 'Contact' },
   ];
+  
+  const isAdmin = userData?.roles.includes('admin') || userData?.roles.includes('manager');
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-black">
@@ -83,13 +86,15 @@ export const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                   <Link href="/admin">
-                    <Shield className="h-4 w-4 mr-2" />
-                    Admin
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">
+                      <Shield className="h-4 w-4 mr-2" />
+                      Admin
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {isAdmin && <DropdownMenuSeparator />}
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
