@@ -18,16 +18,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useSearchParams } from 'next/navigation';
 
 const mockCategoriesData = [
-    { id: '1', name: 'Restaurants' },
-    { id: '2', name: 'Hotels' },
-    { id: '3', name: 'Shopping' },
-    { id: '4', name: 'Business' },
+    { id: 'Restaurants', name: 'Restaurants' },
+    { id: 'Hotels', name: 'Hotels' },
+    { id: 'Shopping', name: 'Shopping' },
+    { id: 'Business', name: 'Business' },
 ];
 
 const mockLocationsData = [
-    { id: '1', name: 'New York' },
-    { id: '2', name: 'Los Angeles' },
-    { id: '3', name: 'London' },
+    { id: 'New York', name: 'New York' },
+    { id: 'Los Angeles', name: 'Los Angeles' },
+    { id: 'London', name: 'London' },
 ];
 
 const GET_PROPERTY_BY_ID = gql`
@@ -42,8 +42,8 @@ const GET_PROPERTY_BY_ID = gql`
       currency
       tagline
       images
-      category_id
-      location_id
+      category
+      location
     }
   }
 `;
@@ -58,8 +58,8 @@ const INSERT_PROPERTIES_MUTATION = gql`
     $currency: String!, 
     $tagline: String!, 
     $images: jsonb!,
-    $category_id: uuid!,
-    $location_id: uuid!
+    $category: String!,
+    $location: String!
   ) {
     insert_properties_one(object: {
       title: $title, 
@@ -70,8 +70,8 @@ const INSERT_PROPERTIES_MUTATION = gql`
       currency: $currency, 
       tagline: $tagline, 
       images: $images,
-      category_id: $category_id,
-      location_id: $location_id
+      category: $category,
+      location: $location
     }) {
       id
     }
@@ -109,8 +109,8 @@ const formSchema = z.object({
   currency: z.string().min(1, { message: "Currency is required." }),
   tagline: z.string().min(1, { message: "Tagline is required." }),
   imageFile: z.any().optional(),
-  category_id: z.string().min(1, { message: "Please select a category." }),
-  location_id: z.string().min(1, { message: "Please select a location." }),
+  category: z.string().min(1, { message: "Please select a category." }),
+  location: z.string().min(1, { message: "Please select a location." }),
 });
 
 const PropertiesForm = () => {
@@ -140,7 +140,7 @@ const PropertiesForm = () => {
     defaultValues: {
       title: "", price: 0, area: 0,
       bathrooms: 0, bedrooms: 0, currency: "AED",
-      tagline: "", category_id: "", location_id: ""
+      tagline: "", category: "", location: ""
     },
   });
 
@@ -155,8 +155,8 @@ const PropertiesForm = () => {
         bedrooms: p.bedrooms,
         currency: p.currency,
         tagline: p.tagline,
-        category_id: p.category_id,
-        location_id: p.location_id,
+        category: p.category,
+        location: p.location,
       });
     }
   }, [propertyData, isEditMode, form]);
@@ -236,7 +236,7 @@ const PropertiesForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <FormField
                   control={form.control}
-                  name="category_id"
+                  name="category"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
@@ -256,7 +256,7 @@ const PropertiesForm = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="location_id"
+                  name="location"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Location</FormLabel>
