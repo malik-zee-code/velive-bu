@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info, Tag } from 'lucide-react';
+import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info, Tag, MapPin } from 'lucide-react';
 
 const GET_PROPERTIES = gql`
   query GetProperties {
@@ -25,12 +25,7 @@ const GET_PROPERTIES = gql`
       tagline
       title
       updated_at
-      category {
-        name
-      }
-      location {
-        name
-      }
+      location
     }
   }
 `;
@@ -99,9 +94,8 @@ const ListingsPage = () => {
                       <div>
                         <div className='flex justify-between items-start'>
                            <h3 className="font-bold font-headline text-2xl mb-2 text-foreground">{property.title}</h3>
-                           {property.category && <div className="flex items-center text-sm text-muted-foreground"><Tag className="w-4 h-4 mr-1" />{property.category.name}</div>}
                         </div>
-                        <p className="text-muted-foreground mb-4">{property.location.name}</p>
+                        <p className="flex items-center text-muted-foreground mb-4"><MapPin className="w-4 h-4 mr-2" />{property.location}</p>
                         <p className="text-lg font-semibold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
                         <p className="text-muted-foreground mb-4 italic">"{property.tagline}"</p>
                         <Separator className="my-4" />
@@ -144,4 +138,3 @@ const ListingsPage = () => {
 };
 
 export default ListingsPage;
-
