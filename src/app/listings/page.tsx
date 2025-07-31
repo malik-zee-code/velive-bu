@@ -34,28 +34,13 @@ const GET_PROPERTIES = gql`
       id
       title
       price
-      long_description
-      area_in_feet
+      area
       bathrooms
       bedrooms
       currency
-      is_available
-      is_featured
-      created_at
-      updated_at
-      category {
-        id
-        title
-      }
-      location {
-        id
-        name
-      }
-      properties_images {
-        id
-        file_id
-        is_primary
-      }
+      tagline
+      images
+      location
     }
   }
 `;
@@ -79,8 +64,8 @@ const ListingsPageContent = () => {
   
   const filteredProperties = data?.properties.filter((property: any) => {
     const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = locationQuery ? property.location?.name === locationQuery : true;
-    const matchesCategory = categoryQuery ? property.category?.title === categoryQuery : true;
+    const matchesLocation = locationQuery ? property.location === locationQuery : true;
+    const matchesCategory = categoryQuery ? property.category?.title === categoryQuery : true; // Assuming category object for now
     return matchesSearch && matchesLocation && matchesCategory;
   });
 
@@ -95,7 +80,7 @@ const ListingsPageContent = () => {
       </div>
   );
   
-  const allLocations = data?.properties ? [...new Set(data.properties.map((p: any) => p.location?.name).filter(Boolean))] : [];
+  const allLocations = data?.properties ? [...new Set(data.properties.map((p: any) => p.location).filter(Boolean))] : [];
   const allCategories = data?.properties ? [...new Set(data.properties.map((p: any) => p.category?.title).filter(Boolean))] : [];
 
   return (
@@ -108,7 +93,7 @@ const ListingsPageContent = () => {
           {filteredProperties && filteredProperties.length > 0 ? (
             <div className="space-y-8">
               {filteredProperties.map((property: any) => {
-                 const images = property.properties_images.map((img: any) => nhost.storage.getPublicUrl({ fileId: img.file_id })).filter(Boolean);
+                 const images = Array.isArray(property.images) ? property.images : [];
                 return (
                   <Card key={property.id} className="overflow-hidden flex flex-col md:flex-row h-full group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
                     <div className="w-full md:w-2/5">
@@ -167,9 +152,9 @@ const ListingsPageContent = () => {
                               </div>
                             )}
                         </div>
-                        <p className="flex items-center text-muted-foreground mb-4"><MapPin className="w-4 h-4 mr-2" />{property.location?.name}</p>
+                        <p className="flex items-center text-muted-foreground mb-4"><MapPin className="w-4 h-4 mr-2" />{property.location}</p>
                         <p className="text-lg font-semibold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
-                        <p className="text-muted-foreground mb-4 italic">"{property.long_description}"</p>
+                        <p className="text-muted-foreground mb-4 italic">"{property.tagline}"</p>
                         <Separator className="my-4" />
                         <div className="flex items-center space-x-6 text-muted-foreground mb-6">
                             <div className="flex items-center space-x-2">
@@ -182,7 +167,7 @@ const ListingsPageContent = () => {
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Ruler className="w-5 h-5" />
-                                <span>{property.area_in_feet} sqft</span>
+                                <span>{property.area} sqft</span>
                             </div>
                         </div>
                       </div>
