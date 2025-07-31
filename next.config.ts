@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'kjekkrcmihqxroxgdmpt.storage.eu-central-1.nhost.run',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
