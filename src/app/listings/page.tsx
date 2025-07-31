@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -26,22 +26,36 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from '@/hooks/use-toast';
 import { SearchComponent } from '@/components/listings/search';
+import { nhost } from '@/lib/nhost';
 
 const GET_PROPERTIES = gql`
   query GetProperties {
     properties {
       id
-      area
+      title
+      price
+      long_description
+      area_in_feet
       bathrooms
       bedrooms
-      created_at
       currency
-      images
-      price
-      tagline
-      title
+      is_available
+      is_featured
+      created_at
       updated_at
-      location
+      category {
+        id
+        title
+      }
+      location {
+        id
+        name
+      }
+      properties_images {
+        id
+        file_id
+        is_primary
+      }
     }
   }
 `;
@@ -55,6 +69,7 @@ const ListingsPageContent = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('q') || '';
   const locationQuery = searchParams.get('location') || '';
+  const categoryQuery = searchParams.get('category') || '';
 
   const handleDelete = (id: string) => {
     // Placeholder for delete mutation
@@ -64,8 +79,9 @@ const ListingsPageContent = () => {
   
   const filteredProperties = data?.properties.filter((property: any) => {
     const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = locationQuery ? property.location === locationQuery : true;
-    return matchesSearch && matchesLocation;
+    const matchesLocation = locationQuery ? property.location?.name === locationQuery : true;
+    const matchesCategory = categoryQuery ? property.category?.title === categoryQuery : true;
+    return matchesSearch && matchesLocation && matchesCategory;
   });
 
   if (loading) return (
@@ -78,17 +94,21 @@ const ListingsPageContent = () => {
         <p>Error! {error.message}</p>
       </div>
   );
+  
+  const allLocations = data?.properties ? [...new Set(data.properties.map((p: any) => p.location?.name).filter(Boolean))] : [];
+  const allCategories = data?.properties ? [...new Set(data.properties.map((p: any) => p.category?.title).filter(Boolean))] : [];
 
   return (
     <>
       <SearchComponent 
-        locations={data?.properties ? [...new Set(data.properties.map((p: any) => p.location).filter(Boolean))] : []}
+        locations={allLocations}
+        categories={allCategories}
       />
       <div className="container mx-auto max-w-7xl pb-20">
           {filteredProperties && filteredProperties.length > 0 ? (
             <div className="space-y-8">
               {filteredProperties.map((property: any) => {
-                 const images = Array.isArray(property.images) ? property.images.filter(img => typeof img === 'string' && img.startsWith('http')) : [];
+                 const images = property.properties_images.map((img: any) => nhost.storage.getPublicUrl({ fileId: img.file_id })).filter(Boolean);
                 return (
                   <Card key={property.id} className="overflow-hidden flex flex-col md:flex-row h-full group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
                     <div className="w-full md:w-2/5">
@@ -147,9 +167,9 @@ const ListingsPageContent = () => {
                               </div>
                             )}
                         </div>
-                        <p className="flex items-center text-muted-foreground mb-4"><MapPin className="w-4 h-4 mr-2" />{property.location}</p>
+                        <p className="flex items-center text-muted-foreground mb-4"><MapPin className="w-4 h-4 mr-2" />{property.location?.name}</p>
                         <p className="text-lg font-semibold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
-                        <p className="text-muted-foreground mb-4 italic">"{property.tagline}"</p>
+                        <p className="text-muted-foreground mb-4 italic">"{property.long_description}"</p>
                         <Separator className="my-4" />
                         <div className="flex items-center space-x-6 text-muted-foreground mb-6">
                             <div className="flex items-center space-x-2">
@@ -162,7 +182,7 @@ const ListingsPageContent = () => {
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Ruler className="w-5 h-5" />
-                                <span>{property.area} sqft</span>
+                                <span>{property.area_in_feet} sqft</span>
                             </div>
                         </div>
                       </div>
