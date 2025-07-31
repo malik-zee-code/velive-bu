@@ -94,7 +94,7 @@ export const ContactDetails = () => {
                     ))}
                 </div>
                  <div className="mt-8">
-                    <Image src="https://placehold.co/600x400.png" alt="Map" width={600} height={400} className="rounded-lg shadow-lg w-full" data-ai-hint="map location" />
+                    <Image src="/assets/images/city/01.jpg" alt="Map" width={600} height={400} className="rounded-lg shadow-lg w-full" data-ai-hint="map location" />
                 </div>
             </div>
         </div>
