@@ -118,6 +118,7 @@ export function LandingPage() {
           selectedLocation={selectedLocation}
           setSelectedLocation={setSelectedLocation}
           selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
           locations={locationsData?.locations || []}
           categories={categoriesData?.categories || []}
           onSearchClick={handleSearchClick}
