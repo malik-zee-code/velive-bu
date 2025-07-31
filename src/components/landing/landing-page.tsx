@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery, gql } from '@apollo/client';
 import type { Listing } from '@/types/listing';
 import { Header } from '@/components/landing/header';
 import { Hero } from '@/components/landing/hero';
@@ -11,6 +12,25 @@ import { GrowBusiness } from './grow-business';
 import { PopularCities } from './popular-cities';
 import { Testimonials } from './testimonials';
 import { HowItWorks } from './how-it-works';
+
+const GET_CATEGORIES = gql`
+  query GetCategories {
+    categories {
+      id
+      title
+    }
+  }
+`;
+
+const GET_LOCATIONS = gql`
+  query GetLocations {
+    locations {
+      id
+      name
+    }
+  }
+`;
+
 
 const mockListings: Listing[] = [
   {
@@ -113,14 +133,14 @@ const mockListings: Listing[] = [
   }
 ];
 
-const locations = [...new Set(mockListings.map(l => l.location))];
-const categories = [...new Set(mockListings.map(l => l.category))];
-
 export function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const router = useRouter();
+
+  const { data: categoriesData } = useQuery(GET_CATEGORIES);
+  const { data: locationsData } = useQuery(GET_LOCATIONS);
 
   const handleSearchClick = () => {
     const params = new URLSearchParams();
@@ -138,7 +158,10 @@ export function LandingPage() {
 
   const handleCategorySelect = (category: string) => {
     const params = new URLSearchParams();
-    params.set('category', category);
+    const categoryObj = categoriesData?.categories.find((c: any) => c.title === category);
+    if (categoryObj) {
+      params.set('category', categoryObj.id);
+    }
     router.push(`/listings?${params.toString()}`);
   };
 
@@ -153,10 +176,11 @@ export function LandingPage() {
           setSelectedLocation={setSelectedLocation}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
-          locations={locations}
-          categories={categories}
+          locations={locationsData?.locations || []}
+          categories={categoriesData?.categories || []}
           onSearchClick={handleSearchClick}
           onClearClick={handleClearClick}
+          onCategorySelect={handleCategorySelect}
         />
         <div id="listings">
           <Listings

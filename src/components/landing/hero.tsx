@@ -15,10 +15,11 @@ interface HeroProps {
   setSelectedLocation: Dispatch<SetStateAction<string>>;
   selectedCategory: string;
   setSelectedCategory: Dispatch<SetStateAction<string>>;
-  locations: string[];
-  categories: string[];
+  locations: { id: string; name: string }[];
+  categories: { id: string; title: string }[];
   onSearchClick: () => void;
   onClearClick: () => void;
+  onCategorySelect: (category: string) => void;
 }
 
 const categoryItems: { name: string; icon: ElementType }[] = [
@@ -34,7 +35,7 @@ export const Hero = ({
   searchQuery, setSearchQuery, 
   selectedLocation, setSelectedLocation, 
   selectedCategory, setSelectedCategory, 
-  locations, categories, onSearchClick, onClearClick 
+  locations, categories, onSearchClick, onClearClick, onCategorySelect
 }: HeroProps) => {
   
   const handleLocationChange = (value: string) => {
@@ -46,6 +47,8 @@ export const Hero = ({
   };
 
   const isFiltered = searchQuery || selectedLocation || selectedCategory;
+
+  const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.title;
 
   return (
     <section className="relative py-20 md:py-32 bg-card text-card-foreground" style={{
@@ -83,7 +86,7 @@ export const Hero = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Locations</SelectItem>
-                  {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                  {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -95,7 +98,7 @@ export const Hero = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                    {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>)}
                   </SelectContent>
               </Select>
             </div>
@@ -128,15 +131,12 @@ export const Hero = ({
                 {categoryItems.map(({ name, icon: Icon }) => (
                     <button
                     key={name}
-                    onClick={() => {
-                      setSelectedCategory(name);
-                      onSearchClick();
-                    }}
+                    onClick={() => onCategorySelect(name)}
                     className="w-full"
                     >
                     <Card className={cn("group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 bg-white hover:bg-gray-100 rounded-lg", {
-                        "border-primary": selectedCategory === name,
-                        "border-transparent": selectedCategory !== name
+                        "border-primary": selectedCategoryName === name,
+                        "border-transparent": selectedCategoryName !== name
                     })}>
                         <CardContent className="p-0">
                         <div className="mx-auto h-16 w-16 rounded-lg flex items-center justify-center bg-primary/20 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
