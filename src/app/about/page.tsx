@@ -26,7 +26,7 @@ const AboutPage = () => {
             <div className="container mx-auto max-w-7xl">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <Image src="https://placehold.co/600x400.png" alt="Our Mission" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="office team" />
+                        <Image src="/assets/images/blog/01.jpg" alt="Our Mission" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="office team" />
                     </div>
                     <div>
                         <span className="text-primary font-semibold">OUR STORY</span>

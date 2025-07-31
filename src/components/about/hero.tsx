@@ -24,7 +24,7 @@ export const AboutHero = () => {
               <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
                 <Link href="/listings">Explore Listings</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black">
+              <Button asChild size="lg" variant="outline" className="bg-white text-black hover:bg-white/90">
                 <Link href="/contact">Contact Us</Link>
               </Button>
             </div>
