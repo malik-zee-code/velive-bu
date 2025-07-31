@@ -1,22 +1,16 @@
+
 'use client';
 
 import type { Listing } from '@/types/listing';
 import { ListingCard } from '@/components/landing/listing-card';
+import { Skeleton } from '../ui/skeleton';
 
 interface ListingsProps {
   listings: Listing[];
-  searchQuery: string;
-  selectedLocation: string;
-  selectedCategory: string;
+  loading: boolean;
 }
 
-export const Listings = ({ listings, searchQuery, selectedLocation, selectedCategory }: ListingsProps) => {
-  const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = selectedLocation ? listing.location === selectedLocation : true;
-    const matchesCategory = selectedCategory ? listing.category === selectedCategory : true;
-    return matchesSearch && matchesLocation && matchesCategory;
-  });
+export const Listings = ({ listings, loading }: ListingsProps) => {
 
   return (
     <section className="py-20 bg-background">
@@ -28,16 +22,28 @@ export const Listings = ({ listings, searchQuery, selectedLocation, selectedCate
             Explore our curated list of top-rated places and services in the city, reviewed by our community.
           </p>
         </div>
-        {filteredListings.length > 0 ? (
+        {loading ? (
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="h-[225px] w-full rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[250px]" />
+                  <Skeleton className="h-4 w-[200px]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : listings.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredListings.map(listing => (
+            {listings.map(listing => (
               <ListingCard key={listing.id} listing={listing} />
             ))}
           </div>
         ) : (
           <div className="text-center py-16">
-            <h3 className="text-2xl font-semibold">No Listings Found</h3>
-            <p className="text-muted-foreground mt-2">Try adjusting your search filters.</p>
+            <h3 className="text-2xl font-semibold">No Featured Listings Found</h3>
+            <p className="text-muted-foreground mt-2">Check back later for our featured properties.</p>
           </div>
         )}
       </div>

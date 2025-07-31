@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import type { Listing } from '@/types/listing';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bookmark, Star, MapPin, CalendarDays, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface ListingCardProps {
   listing: Listing;
@@ -13,7 +15,7 @@ interface ListingCardProps {
 
 export const ListingCard = ({ listing }: ListingCardProps) => {
   const getCategoryIcon = (category: Listing['category']) => {
-    const icons = {
+    const icons: { [key: string]: string } = {
       'Restaurants': '🍽️',
       'Hotels': '🏨',
       'Shopping': '🛍️',
@@ -70,8 +72,8 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
           </Avatar>
           <span className="text-sm font-medium text-muted-foreground">{listing.author.name}</span>
         </div>
-        <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} size="sm" >
-          Details
+        <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} size="sm" >
+          <Link href={`/listings?q=${encodeURIComponent(listing.title)}`}>Details</Link>
         </Button>
       </CardFooter>
     </Card>

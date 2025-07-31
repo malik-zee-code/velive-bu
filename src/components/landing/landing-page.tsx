@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,6 +13,7 @@ import { GrowBusiness } from './grow-business';
 import { PopularCities } from './popular-cities';
 import { Testimonials } from './testimonials';
 import { HowItWorks } from './how-it-works';
+import { nhost } from '@/lib/nhost';
 
 const GET_CATEGORIES = gql`
   query GetCategories {
@@ -31,107 +33,32 @@ const GET_LOCATIONS = gql`
   }
 `;
 
-
-const mockListings: Listing[] = [
-  {
-    id: 1,
-    title: 'Sapori Pane Italian Restaurant',
-    description: 'Authentic Italian cuisine in the heart of the city.',
-    category: 'Restaurants',
-    location: 'New York',
-    image: '/assets/images/category/01.jpg',
-    rating: 4.8,
-    reviews: 120,
-    author: { name: 'Lisa Smith', avatar: '/assets/images/testimonial/01.jpg' },
-    price: 50,
-    status: 'Open',
-    date: 'Posted 10 Days Ago'
-  },
-  {
-    id: 2,
-    title: 'Ramada Bay Hotel Elite',
-    description: 'Luxury hotel with stunning city views.',
-    category: 'Hotels',
-    location: 'Los Angeles',
-    image: '/assets/images/category/02.jpg',
-    rating: 4.9,
-    reviews: 340,
-    author: { name: 'John Doe', avatar: '/assets/images/testimonial/02.jpg' },
-    price: 250,
-    status: 'Open',
-    date: 'Posted 5 Days Ago'
-  },
-  {
-    id: 3,
-    title: 'Hentrix Fashion Clothing Store',
-    description: 'The latest trends in fashion and apparel.',
-    category: 'Shopping',
-    location: 'London',
-    image: '/assets/images/category/03.jpg',
-    rating: 4.7,
-    reviews: 88,
-    author: { name: 'Jane Roe', avatar: '/assets/images/testimonial/03.jpg' },
-    price: 100,
-    status: 'Closed',
-    date: 'Posted 1 Day Ago'
-  },
-  {
-    id: 4,
-    title: 'Feroda Lake View Apartments',
-    description: 'Modern apartments with a beautiful lake view.',
-    category: 'Apartment',
-    location: 'New York',
-    image: '/assets/images/category/04.jpg',
-    rating: 4.6,
-    reviews: 65,
-    author: { name: 'Peter Pan', avatar: '/assets/images/testimonial/01.jpg' },
-    price: 3000,
-    status: 'Open',
-    date: 'Posted 2 Weeks Ago'
-  },
-  {
-    id: 5,
-    title: 'Leradoc Band in Marquee Club',
-    description: 'Live music event featuring the Leradoc Band.',
-    category: 'Events',
-    location: 'London',
-    image: '/assets/images/category/05.jpg',
-    rating: 5.0,
-    reviews: 210,
-    author: { name: 'Mike Johnson', avatar: '/assets/images/testimonial/02.jpg' },
-    price: 75,
-    status: 'Open',
-    date: 'Posted 1 Month Ago'
-  },
-  {
-    id: 6,
-    title: 'Alora Premium Fitness Gym',
-    description: 'State-of-the-art fitness center with personal trainers.',
-    category: 'Fitness',
-    location: 'Los Angeles',
-    image: '/assets/images/category/06.jpg',
-    rating: 4.8,
-    reviews: 150,
-    author: { name: 'Sarah Chen', avatar: '/assets/images/testimonial/03.jpg' },
-    price: 80,
-    status: 'Open',
-    date: 'Posted 3 Days Ago'
-  },
-   {
-    id: 7,
-    title: 'Some Business',
-    description: 'A great business to work with.',
-    category: 'Business',
-    location: 'New York',
-    image: '/assets/images/category/07.jpg',
-    rating: 4.5,
-    reviews: 20,
-    author: { name: 'Some Guy', avatar: '/assets/images/testimonial/01.jpg' },
-    price: 0,
-    status: 'Open',
-    date: 'Posted 1 week ago'
+const GET_FEATURED_PROPERTIES = gql`
+  query GetFeaturedProperties {
+    properties(where: {is_featured: {_eq: true}}) {
+      id
+      title
+      tagline
+      price
+      currency
+      bedrooms
+      bathrooms
+      area_in_feet
+      category {
+        id
+        title
+      }
+      location {
+        id
+        name
+      }
+      properties_images(where: {is_primary: {_eq: true}}, limit: 1) {
+        file_id
+      }
+    }
   }
-];
+`;
+
 
 export function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -141,6 +68,7 @@ export function LandingPage() {
 
   const { data: categoriesData } = useQuery(GET_CATEGORIES);
   const { data: locationsData } = useQuery(GET_LOCATIONS);
+  const { data: featuredPropertiesData, loading: featuredLoading } = useQuery(GET_FEATURED_PROPERTIES);
 
   const handleSearchClick = () => {
     const params = new URLSearchParams();
@@ -165,6 +93,21 @@ export function LandingPage() {
     router.push(`/listings?${params.toString()}`);
   };
 
+  const listings: Listing[] = featuredPropertiesData?.properties.map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      description: p.tagline,
+      category: p.category.title,
+      location: p.location.name,
+      image: p.properties_images[0] ? nhost.storage.getPublicUrl({ fileId: p.properties_images[0].file_id }) : 'https://placehold.co/400x250.png',
+      rating: 4.5, // Mocked
+      reviews: 100, // Mocked
+      author: { name: 'CityZen', avatar: '/assets/images/testimonial/01.jpg' }, // Mocked
+      price: p.price,
+      status: 'Open', // Mocked
+      date: 'Posted recently' // Mocked
+  })) || [];
+
   return (
     <>
       <Header />
@@ -175,7 +118,6 @@ export function LandingPage() {
           selectedLocation={selectedLocation}
           setSelectedLocation={setSelectedLocation}
           selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
           locations={locationsData?.locations || []}
           categories={categoriesData?.categories || []}
           onSearchClick={handleSearchClick}
@@ -184,10 +126,8 @@ export function LandingPage() {
         />
         <div id="listings">
           <Listings
-            listings={mockListings}
-            searchQuery={searchQuery}
-            selectedLocation={selectedLocation}
-            selectedCategory={selectedCategory}
+            listings={listings}
+            loading={featuredLoading}
           />
         </div>
         <GrowBusiness />
