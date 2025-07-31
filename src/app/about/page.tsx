@@ -32,7 +32,7 @@ const AboutPage = () => {
                         <span className="text-primary font-semibold">OUR STORY</span>
                         <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Our Mission is to Connect You With Your City</h2>
                         <p className="mt-4 text-muted-foreground">
-                            At CityZen, we believe that the best experiences are local. Our platform was born from a desire to bridge the gap between residents, visitors, and the incredible businesses that make each city unique. We're passionate about helping people discover hidden gems and supporting local economies.
+                            At VE LIVE, we believe that the best experiences are local. Our platform was born from a desire to bridge the gap between residents, visitors, and the incredible businesses that make each city unique. We're passionate about helping people discover hidden gems and supporting local economies.
                         </p>
                         <div className="mt-8 space-y-6">
                             <div className="flex items-start gap-4">

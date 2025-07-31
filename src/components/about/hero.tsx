@@ -15,7 +15,7 @@ export const AboutHero = () => {
       <div className="container relative mx-auto text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-4">
-            About <span className="text-primary">CityZen</span>
+            About <span className="text-primary">VE LIVE</span>
           </h1>
           <p className="text-lg md:text-xl text-white/80 mb-8">
             We are a passionate team dedicated to helping you find the best places and experiences your city has to offer.

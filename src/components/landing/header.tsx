@@ -53,7 +53,7 @@ export const Header = () => {
       <div className="container flex h-20 items-center max-w-7xl mx-auto">
         <div className="flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Image src="/assets/images/logo/white-logo.svg" alt="CityZen Logo" width={160} height={40} data-ai-hint="logo" />
+            <Image src="/assets/images/logo/white-logo.svg" alt="VE LIVE Logo" width={160} height={40} data-ai-hint="logo" />
           </Link>
         </div>
         <nav className="hidden md:flex items-center space-x-8 text-sm font-medium ml-auto">

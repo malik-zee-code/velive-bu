@@ -102,7 +102,7 @@ export function LandingPage() {
       image: p.properties_images[0] ? nhost.storage.getPublicUrl({ fileId: p.properties_images[0].file_id }) : 'https://placehold.co/400x250.png',
       rating: 4.5, // Mocked
       reviews: 100, // Mocked
-      author: { name: 'CityZen', avatar: '/assets/images/testimonial/01.jpg' }, // Mocked
+      author: { name: 'VE LIVE', avatar: '/assets/images/testimonial/01.jpg' }, // Mocked
       price: p.price,
       status: 'Open', // Mocked
       date: 'Posted recently' // Mocked

@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import LayoutClient from './LayoutClient';
 
 export const metadata: Metadata = {
-  title: 'CityZen',
+  title: 'VE LIVE',
   description: 'Discover Your Amazing City',
 };
 
