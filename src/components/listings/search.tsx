@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -7,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, MapPin, X, ListFilter } from 'lucide-react';
 
 interface SearchComponentProps {
-  locations: string[];
+  locations: { id: string; name: string }[];
   categories: { id: string; title: string }[];
 }
 
@@ -81,7 +82,7 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Locations</SelectItem>
-                            {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                            {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>

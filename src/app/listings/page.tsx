@@ -1,3 +1,4 @@
+
 // src/app/listings/page.tsx
 'use client';
 import React, { Suspense } from 'react';
@@ -77,9 +78,19 @@ const GET_CATEGORIES = gql`
   }
 `;
 
+const GET_LOCATIONS = gql`
+  query GetLocations {
+    locations {
+      id
+      name
+    }
+  }
+`;
+
 const ListingsPageContent = () => {
   const { data, loading, error } = useQuery(GET_PROPERTIES);
   const { data: categoriesData, loading: categoriesLoading, error: categoriesError } = useQuery(GET_CATEGORIES);
+  const { data: locationsData, loading: locationsLoading, error: locationsError } = useQuery(GET_LOCATIONS);
 
   const userData = useUserData();
   const { toast } = useToast();
@@ -98,12 +109,12 @@ const ListingsPageContent = () => {
   
   const filteredProperties = data?.properties.filter((property: any) => {
     const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = locationQuery ? property.location?.name === locationQuery : true;
+    const matchesLocation = locationQuery ? property.location?.id === locationQuery : true;
     const matchesCategory = categoryQuery ? property.category?.id === categoryQuery : true;
     return matchesSearch && matchesLocation && matchesCategory;
   });
 
-  if (loading || categoriesLoading) return (
+  if (loading || categoriesLoading || locationsLoading) return (
       <div className="container mx-auto py-20 text-center max-w-7xl">
         <p>Loading...</p>
       </div>
@@ -118,13 +129,16 @@ const ListingsPageContent = () => {
         <p>Error loading categories! {categoriesError.message}</p>
       </div>
   );
-  
-  const allLocations = data?.properties ? [...new Set(data.properties.map((p: any) => p.location?.name).filter(Boolean))] : [];
+  if (locationsError) return (
+      <div className="container mx-auto py-20 text-center max-w-7xl">
+        <p>Error loading locations! {locationsError.message}</p>
+      </div>
+  );
 
   return (
     <>
       <SearchComponent 
-        locations={allLocations}
+        locations={locationsData?.locations || []}
         categories={categoriesData?.categories || []}
       />
       <div className="container mx-auto max-w-7xl pb-20">
