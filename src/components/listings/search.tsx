@@ -8,7 +8,7 @@ import { Search, MapPin, X, ListFilter } from 'lucide-react';
 
 interface SearchComponentProps {
   locations: string[];
-  categories: string[];
+  categories: { id: string; title: string }[];
 }
 
 export const SearchComponent = ({ locations, categories }: SearchComponentProps) => {
@@ -93,7 +93,7 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Categories</SelectItem>
-                            {categories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                            {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>

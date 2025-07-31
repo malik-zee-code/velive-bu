@@ -31,33 +31,56 @@ import { nhost } from '@/lib/nhost';
 const GET_PROPERTIES = gql`
   query GetProperties {
     properties {
-      id
-      title
-      price
       area_in_feet
       bathrooms
       bedrooms
+      category_id
       currency
-      tagline
+      created_at
+      id
+      is_available
+      is_featured
+      location_id
+      long_description
+      price
       short_description
+      slug
+      tagline
+      title
+      updated_at
+      properties_images {
+        created_at
+        file_id
+        id
+        is_primary
+      }
+      category {
+        title
+        created_at
+        id
+      }
       location {
         id
         name
+        created_at
       }
-      category {
-        id
-        title
-      }
-      properties_images {
-        file_id
-        is_primary
-      }
+    }
+  }
+`;
+
+const GET_CATEGORIES = gql`
+  query GetCategories {
+    categories {
+      id
+      title
     }
   }
 `;
 
 const ListingsPageContent = () => {
   const { data, loading, error } = useQuery(GET_PROPERTIES);
+  const { data: categoriesData, loading: categoriesLoading, error: categoriesError } = useQuery(GET_CATEGORIES);
+
   const userData = useUserData();
   const { toast } = useToast();
   const isAdminOrManager = userData?.roles.includes('admin') || userData?.roles.includes('manager');
@@ -76,11 +99,11 @@ const ListingsPageContent = () => {
   const filteredProperties = data?.properties.filter((property: any) => {
     const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesLocation = locationQuery ? property.location?.name === locationQuery : true;
-    const matchesCategory = categoryQuery ? property.category?.title === categoryQuery : true;
+    const matchesCategory = categoryQuery ? property.category?.id === categoryQuery : true;
     return matchesSearch && matchesLocation && matchesCategory;
   });
 
-  if (loading) return (
+  if (loading || categoriesLoading) return (
       <div className="container mx-auto py-20 text-center max-w-7xl">
         <p>Loading...</p>
       </div>
@@ -90,15 +113,19 @@ const ListingsPageContent = () => {
         <p>Error! {error.message}</p>
       </div>
   );
+   if (categoriesError) return (
+      <div className="container mx-auto py-20 text-center max-w-7xl">
+        <p>Error loading categories! {categoriesError.message}</p>
+      </div>
+  );
   
   const allLocations = data?.properties ? [...new Set(data.properties.map((p: any) => p.location?.name).filter(Boolean))] : [];
-  const allCategories = data?.properties ? [...new Set(data.properties.map((p: any) => p.category?.title).filter(Boolean))] : [];
 
   return (
     <>
       <SearchComponent 
         locations={allLocations}
-        categories={allCategories}
+        categories={categoriesData?.categories || []}
       />
       <div className="container mx-auto max-w-7xl pb-20">
           {filteredProperties && filteredProperties.length > 0 ? (
