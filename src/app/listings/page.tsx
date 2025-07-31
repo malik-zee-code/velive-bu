@@ -1,4 +1,3 @@
-
 // src/app/listings/page.tsx
 'use client';
 import React, { Suspense } from 'react';
@@ -226,7 +225,7 @@ const ListingsPageContent = () => {
                        <div className="flex items-center space-x-2">
                           <Button variant="outline"><Phone className="mr-2 h-4 w-4" /> Call</Button>
                           <Button variant="outline"><MessageSquare className="mr-2 h-4 w-4" /> Whatsapp</Button>
-                          <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}><Info className="mr-2 h-4 w-4" /> More Info</Button>
+                          <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}><Link href={`/listings/${property.slug}`}><Info className="mr-2 h-4 w-4" /> More Info</Link></Button>
                        </div>
                     </div>
                   </Card>

@@ -1,6 +1,6 @@
-
 export type Listing = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   category: 'Restaurants' | 'Hotels' | 'Shopping' | 'Business' | 'Events' | 'Fitness' | 'Apartment';

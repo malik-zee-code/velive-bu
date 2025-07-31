@@ -1,4 +1,3 @@
-
 import Image from 'next/image';
 import type { Listing } from '@/types/listing';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -73,7 +72,7 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
           <span className="text-sm font-medium text-muted-foreground">{listing.author.name}</span>
         </div>
         <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} size="sm" >
-          <Link href={`/listings?q=${encodeURIComponent(listing.title)}`}>Details</Link>
+          <Link href={`/listings/${listing.slug}`}>Details</Link>
         </Button>
       </CardFooter>
     </Card>

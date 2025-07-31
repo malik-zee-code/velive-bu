@@ -37,6 +37,7 @@ const GET_FEATURED_PROPERTIES = gql`
   query GetFeaturedProperties {
     properties(where: {is_featured: {_eq: true}}) {
       id
+      slug
       title
       tagline
       price
@@ -95,6 +96,7 @@ export function LandingPage() {
 
   const listings: Listing[] = featuredPropertiesData?.properties.map((p: any) => ({
       id: p.id,
+      slug: p.slug,
       title: p.title,
       description: p.tagline,
       category: p.category.title,
