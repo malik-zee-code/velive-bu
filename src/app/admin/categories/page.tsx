@@ -22,49 +22,114 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
-const mockCategoriesData = [
-    { id: '1', name: 'Restaurants' },
-    { id: '2', name: 'Hotels' },
-    { id: '3', name: 'Shopping' },
-    { id: '4', name: 'Business' },
-];
+const GET_CATEGORIES = gql`
+  query GetCategories {
+    categories {
+      id
+      title
+    }
+  }
+`;
+
+const ADD_CATEGORY = gql`
+  mutation AddCategory($title: String!) {
+    insert_categories_one(object: {title: $title}) {
+      id
+      title
+    }
+  }
+`;
+
+const UPDATE_CATEGORY = gql`
+  mutation UpdateCategory($id: uuid!, $title: String!) {
+    update_categories_by_pk(pk_columns: {id: $id}, _set: {title: $title}) {
+      id
+      title
+    }
+  }
+`;
+
+const DELETE_CATEGORY = gql`
+  mutation DeleteCategory($id: uuid!) {
+    delete_categories_by_pk(id: $id) {
+      id
+    }
+  }
+`;
+
 
 const formSchema = z.object({
-  name: z.string().min(1, "Category name is required."),
+  title: z.string().min(1, "Category name is required."),
 });
+
+type Category = {
+    id: string;
+    title: string;
+}
 
 const CategoriesPage = () => {
   const { toast } = useToast();
-  const [categories, setCategories] = useState(mockCategoriesData);
-  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  const { data, loading, error, refetch } = useQuery(GET_CATEGORIES);
+
+  const [addCategory, { loading: addLoading }] = useMutation(ADD_CATEGORY, {
+    onCompleted: () => {
+        refetch();
+        toast({ title: "Success!", description: "Category added successfully." });
+        form.reset();
+        setEditingCategory(null);
+    },
+    onError: (error) => {
+        toast({ title: "Error!", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const [updateCategory, { loading: updateLoading }] = useMutation(UPDATE_CATEGORY, {
+     onCompleted: () => {
+        refetch();
+        toast({ title: "Success!", description: "Category updated successfully." });
+        form.reset();
+        setEditingCategory(null);
+    },
+    onError: (error) => {
+        toast({ title: "Error!", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const [deleteCategory] = useMutation(DELETE_CATEGORY, {
+    onCompleted: () => {
+        refetch();
+        toast({ title: "Success!", description: "Category deleted successfully." });
+    },
+    onError: (error) => {
+        toast({ title: "Error!", description: error.message, variant: "destructive" });
+    }
+  });
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "" },
+    defaultValues: { title: "" },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (editingCategory) {
-        setCategories(categories.map(c => c.id === editingCategory.id ? { ...c, name: values.name } : c));
-        toast({ title: "Success!", description: "Category updated successfully." });
+        updateCategory({ variables: { id: editingCategory.id, title: values.title } });
     } else {
-        const newCategory = { id: (categories.length + 1).toString(), name: values.name };
-        setCategories([...categories, newCategory]);
-        toast({ title: "Success!", description: "Category added successfully." });
+        addCategory({ variables: { title: values.title } });
     }
-    form.reset();
-    setEditingCategory(null);
   };
   
   const handleDelete = (id: string) => {
-    setCategories(categories.filter(c => c.id !== id));
-    toast({ title: "Success!", description: "Category deleted successfully." });
+    deleteCategory({ variables: { id } });
   };
 
-  const handleEdit = (category: any) => {
+  const handleEdit = (category: Category) => {
     setEditingCategory(category);
-    form.setValue("name", category.name);
+    form.setValue("title", category.title);
   };
   
   const handleCancelEdit = () => {
@@ -72,8 +137,10 @@ const CategoriesPage = () => {
     form.reset();
   };
 
+  const isMutating = addLoading || updateLoading;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-4 md:p-0">
         <div className="md:col-span-1">
             <Card>
                 <CardHeader>
@@ -87,7 +154,7 @@ const CategoriesPage = () => {
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                             <FormField
                             control={form.control}
-                            name="name"
+                            name="title"
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Category Name</FormLabel>
@@ -99,8 +166,8 @@ const CategoriesPage = () => {
                             )}
                             />
                             <div className="flex gap-2">
-                                <Button type="submit">
-                                    {editingCategory ? 'Update' : 'Add'} Category
+                                <Button type="submit" disabled={isMutating}>
+                                    {isMutating ? 'Saving...' : (editingCategory ? 'Update Category' : 'Add Category')}
                                 </Button>
                                 {editingCategory && (
                                     <Button variant="outline" onClick={handleCancelEdit}>
@@ -122,47 +189,51 @@ const CategoriesPage = () => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {categories.map((category: any) => (
-                            <TableRow key={category.id}>
-                                <TableCell>{category.name}</TableCell>
-                                <TableCell className="text-right">
-                                <Button variant="ghost" size="icon" onClick={() => handleEdit(category)}>
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon">
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This action cannot be undone. This will permanently delete the category.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDelete(category.id)}>
-                                                Delete
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                                </TableCell>
-                            </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                     {loading && <p>Loading...</p>}
+                     {error && <p>Error loading categories: {error.message}</p>}
+                     {!loading && !error && (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {data?.categories.map((category: Category) => (
+                                <TableRow key={category.id}>
+                                    <TableCell>{category.title}</TableCell>
+                                    <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEdit(category)}>
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon">
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This action cannot be undone. This will permanently delete the category.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(category.id)}>
+                                                    Delete
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                     )}
                 </CardContent>
             </Card>
         </div>
