@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useAuthenticationStatus, useSignOut, useUserData } from '@nhost/react';
 import { useRouter } from 'next/navigation';
@@ -138,6 +138,7 @@ export const Header = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="bg-background text-foreground w-3/4">
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                   <div className="p-6">
                       <Link href="/" onClick={handleLinkClick} className="flex items-center space-x-2 mb-8">
                         <Image src="/assets/images/logo/logo.svg" alt="VE LIVE Logo" width={160} height={40} data-ai-hint="logo" />
