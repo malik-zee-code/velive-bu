@@ -1,3 +1,4 @@
+
 // src/app/admin/properties/page.tsx
 'use client';
 import React, { useEffect, Suspense } from 'react';
@@ -23,6 +24,7 @@ const GET_PROPERTY_BY_ID = gql`
     properties_by_pk(id: $id) {
       id
       title
+      slug
       price
       area_in_feet
       bathrooms
@@ -63,6 +65,7 @@ const GET_CATEGORIES = gql`
 const INSERT_PROPERTY = gql`
   mutation InsertProperty(
     $title: String!, 
+    $slug: String!,
     $price: bigint!, 
     $long_description: String, 
     $tagline: String, 
@@ -77,6 +80,7 @@ const INSERT_PROPERTY = gql`
   ) {
     insert_properties_one(object: {
       title: $title, 
+      slug: $slug,
       price: $price, 
       long_description: $long_description, 
       tagline: $tagline, 
@@ -113,6 +117,7 @@ const INSERT_PROPERTY_IMAGE = gql`
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
+  slug: z.string().optional(),
   price: z.preprocess(
     (a) => {
         if (typeof a === 'string' && a.trim() === '') return null;
@@ -143,6 +148,13 @@ const formSchema = z.object({
   is_available: z.boolean().default(true),
 });
 
+const generateSlug = (title: string) => {
+    return title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+}
 
 const PropertiesForm = () => {
   const searchParams = useSearchParams();
@@ -168,6 +180,7 @@ const PropertiesForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
+      slug: "",
       currency: "AED",
       is_featured: false,
       is_available: true,
@@ -179,6 +192,7 @@ const PropertiesForm = () => {
       const p = propertyData.properties_by_pk;
       form.reset({
         title: p.title,
+        slug: p.slug,
         price: p.price,
         area_in_feet: p.area_in_feet || undefined,
         bathrooms: p.bathrooms || undefined,
@@ -199,8 +213,11 @@ const PropertiesForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { imageFile, ...propertyDataValues } = values;
     
+    const slug = generateSlug(values.title);
+
     const submissionData = {
         ...propertyDataValues,
+        slug,
         location_id: parseInt(values.location_id, 10),
         category_id: values.category_id,
     };
@@ -468,5 +485,3 @@ const PropertiesPage = () => (
 
 
 export default PropertiesPage;
-
-    
