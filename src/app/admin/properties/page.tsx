@@ -331,7 +331,7 @@ const PropertiesForm = () => {
                         </FormControl>
                         <SelectContent>
                            {categoriesData?.categories.map((cat: any) => (
-                            <SelectItem key={cat.id} value={cat.id.toString()}>{cat.title}</SelectItem>
+                            <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -485,3 +485,5 @@ const PropertiesPage = () => (
 
 
 export default PropertiesPage;
+
+    
