@@ -70,10 +70,8 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                     </Sidebar>
                     <main className="flex-1 p-4 md:p-8 overflow-auto">
                         <div className="md:hidden mb-4">
-                            <SidebarTrigger asChild>
-                                <Button variant="outline" size="icon">
-                                    <PanelLeft className="h-5 w-5" />
-                                </Button>
+                            <SidebarTrigger variant="outline" size="icon">
+                                <PanelLeft className="h-5 w-5" />
                             </SidebarTrigger>
                         </div>
                         {children}
