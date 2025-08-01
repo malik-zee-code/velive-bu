@@ -48,7 +48,7 @@ const GET_COUNTRIES = gql`
 `;
 
 const ADD_LOCATION = gql`
-  mutation AddLocation($name: String!, $country_id: uuid!) {
+  mutation AddLocation($name: String!, $country_id: bigint!) {
     insert_locations_one(object: {name: $name, country_id: $country_id}) {
       id
       name
@@ -57,7 +57,7 @@ const ADD_LOCATION = gql`
 `;
 
 const UPDATE_LOCATION = gql`
-  mutation UpdateLocation($id: uuid!, $name: String!, $country_id: uuid!) {
+  mutation UpdateLocation($id: bigint!, $name: String!, $country_id: bigint!) {
     update_locations_by_pk(pk_columns: {id: $id}, _set: {name: $name, country_id: $country_id}) {
       id
       name
@@ -66,7 +66,7 @@ const UPDATE_LOCATION = gql`
 `;
 
 const DELETE_LOCATION = gql`
-  mutation DeleteLocation($id: uuid!) {
+  mutation DeleteLocation($id: bigint!) {
     delete_locations_by_pk(id: $id) {
       id
     }
@@ -140,15 +140,20 @@ const LocationsPage = () => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const mutationVariables = {
+        name: values.name,
+        country_id: parseInt(values.country_id, 10),
+    };
+
     if (editingLocation) {
-        updateLocation({ variables: { id: editingLocation.id, name: values.name, country_id: values.country_id } });
+        updateLocation({ variables: { id: parseInt(editingLocation.id, 10), ...mutationVariables } });
     } else {
-        addLocation({ variables: { name: values.name, country_id: values.country_id } });
+        addLocation({ variables: mutationVariables });
     }
   };
   
   const handleDelete = (id: string) => {
-    deleteLocation({ variables: { id } });
+    deleteLocation({ variables: { id: parseInt(id, 10) } });
   };
 
   const handleEdit = (location: Location) => {
