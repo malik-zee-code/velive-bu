@@ -23,10 +23,24 @@ import {
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const GET_LOCATIONS = gql`
   query GetLocations {
     locations {
+      id
+      name
+      country {
+        id
+        name
+      }
+    }
+  }
+`;
+
+const GET_COUNTRIES = gql`
+  query GetCountries {
+    countries {
       id
       name
     }
@@ -34,8 +48,8 @@ const GET_LOCATIONS = gql`
 `;
 
 const ADD_LOCATION = gql`
-  mutation AddLocation($name: String!) {
-    insert_locations_one(object: {name: $name}) {
+  mutation AddLocation($name: String!, $country_id: uuid!) {
+    insert_locations_one(object: {name: $name, country_id: $country_id}) {
       id
       name
     }
@@ -43,8 +57,8 @@ const ADD_LOCATION = gql`
 `;
 
 const UPDATE_LOCATION = gql`
-  mutation UpdateLocation($id: uuid!, $name: String!) {
-    update_locations_by_pk(pk_columns: {id: $id}, _set: {name: $name}) {
+  mutation UpdateLocation($id: uuid!, $name: String!, $country_id: uuid!) {
+    update_locations_by_pk(pk_columns: {id: $id}, _set: {name: $name, country_id: $country_id}) {
       id
       name
     }
@@ -61,9 +75,19 @@ const DELETE_LOCATION = gql`
 
 const formSchema = z.object({
   name: z.string().min(1, "Location name is required."),
+  country_id: z.string().min(1, "Country is required."),
 });
 
 type Location = {
+    id: string;
+    name: string;
+    country: {
+        id: string;
+        name: string;
+    }
+}
+
+type Country = {
     id: string;
     name: string;
 }
@@ -73,6 +97,7 @@ const LocationsPage = () => {
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_LOCATIONS);
+  const { data: countriesData, loading: countriesLoading, error: countriesError } = useQuery(GET_COUNTRIES);
 
   const [addLocation, { loading: addLoading }] = useMutation(ADD_LOCATION, {
     onCompleted: () => {
@@ -111,14 +136,14 @@ const LocationsPage = () => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "" },
+    defaultValues: { name: "", country_id: "" },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (editingLocation) {
-        updateLocation({ variables: { id: editingLocation.id, name: values.name } });
+        updateLocation({ variables: { id: editingLocation.id, name: values.name, country_id: values.country_id } });
     } else {
-        addLocation({ variables: { name: values.name } });
+        addLocation({ variables: { name: values.name, country_id: values.country_id } });
     }
   };
   
@@ -129,6 +154,7 @@ const LocationsPage = () => {
   const handleEdit = (location: Location) => {
     setEditingLocation(location);
     form.setValue("name", location.name);
+    form.setValue("country_id", location.country.id);
   };
   
   const handleCancelEdit = () => {
@@ -145,27 +171,52 @@ const LocationsPage = () => {
                 <CardHeader>
                     <CardTitle>{editingLocation ? 'Edit Location' : 'Add Location'}</CardTitle>
                     <CardDescription>
-                       {editingLocation ? 'Update the location name.' : 'Create a new location for your properties.'}
+                       {editingLocation ? 'Update the location name and country.' : 'Create a new location for your properties.'}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                             <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Location Name</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="e.g., Dubai Marina" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Location Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g., Dubai Marina" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="country_id"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Country</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a country" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {countriesLoading && <SelectItem value="loading" disabled>Loading...</SelectItem>}
+                                                {countriesData?.countries.map((country: Country) => (
+                                                    <SelectItem key={country.id} value={country.id}>
+                                                        {country.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
                              <div className="flex gap-2">
-                                <Button type="submit" disabled={isMutating}>
+                                <Button type="submit" disabled={isMutating || countriesLoading}>
                                     {isMutating ? 'Saving...' : (editingLocation ? 'Update Location' : 'Add Location')}
                                 </Button>
                                 {editingLocation && (
@@ -188,13 +239,15 @@ const LocationsPage = () => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {loading && <p>Loading...</p>}
-                    {error && <p>Error loading locations: {error.message}</p>}
-                    {!loading && !error && (
+                     {loading && <p>Loading...</p>}
+                     {error && <p>Error loading locations: {error.message}</p>}
+                     {countriesError && <p>Error loading countries: {countriesError.message}</p>}
+                     {!loading && !error && (
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                 <TableHead>Name</TableHead>
+                                <TableHead>Country</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -202,6 +255,7 @@ const LocationsPage = () => {
                                 {data?.locations.map((location: Location) => (
                                 <TableRow key={location.id}>
                                     <TableCell>{location.name}</TableCell>
+                                    <TableCell>{location.country?.name || 'N/A'}</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon" onClick={() => handleEdit(location)}>
                                             <Pencil className="h-4 w-4" />
@@ -232,7 +286,7 @@ const LocationsPage = () => {
                                 ))}
                             </TableBody>
                         </Table>
-                    )}
+                     )}
                 </CardContent>
             </Card>
         </div>
