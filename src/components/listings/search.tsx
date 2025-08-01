@@ -82,7 +82,7 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Locations</SelectItem>
-                            {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
+                            {locations.map(loc => <SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>
