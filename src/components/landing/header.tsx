@@ -92,7 +92,7 @@ export const Header = () => {
         <div className="hidden md:flex items-center justify-end space-x-2 ml-auto">
           {isLoading ? (
             <div className="h-9 w-24 rounded-md animate-pulse bg-gray-700" />
-          ) : isAuthenticated ? (
+          ) : isAuthenticated && (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center text-white/80 hover:text-white">
@@ -116,13 +116,6 @@ export const Header = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <Button asChild variant="ghost" className="flex items-center text-white/80 hover:text-white">
-              <Link href="/auth/signin">
-                <UserCircle className="h-5 w-5 mr-2" />
-                Sign In
-              </Link>
-            </Button>
           )}
 
           <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
@@ -148,7 +141,7 @@ export const Header = () => {
                       <div className="mt-8 pt-4 border-t">
                         {isLoading ? (
                            <div className="h-9 w-24 rounded-md animate-pulse bg-gray-200" />
-                        ) : isAuthenticated ? (
+                        ) : isAuthenticated && (
                           <>
                            {isAdmin && (
                              <Button asChild variant="ghost" className="w-full justify-start mb-2" onClick={handleLinkClick}>
@@ -161,12 +154,6 @@ export const Header = () => {
                              <LogOut className="h-4 w-4 mr-2" /> Sign Out
                            </Button>
                           </>
-                        ) : (
-                          <Button asChild variant="ghost" className="w-full justify-start" onClick={handleLinkClick}>
-                            <Link href="/auth/signin">
-                              <UserCircle className="h-5 w-5 mr-2" /> Sign In
-                            </Link>
-                          </Button>
                         )}
                         <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold w-full mt-4">
                           Get Quotation
