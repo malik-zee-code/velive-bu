@@ -3,14 +3,16 @@
 import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { Header } from '@/components/landing/header';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { MapPin, Tag, Building2, PanelLeft, Globe } from 'lucide-react';
 import { useAuthenticationStatus } from '@nhost/react';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     const pathname = usePathname();
+    const router = useRouter();
     const { isAuthenticated, isLoading } = useAuthenticationStatus();
 
     const navItems = [
@@ -20,7 +22,13 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         { href: '/admin/countries', label: 'Countries', icon: Globe },
     ];
     
-    if (isLoading) {
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+            router.push('/auth/signin');
+        }
+    }, [isLoading, isAuthenticated, router]);
+
+    if (isLoading || !isAuthenticated) {
         return (
           <div className="flex flex-col min-h-screen">
             <Header />
@@ -30,19 +38,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <Footer />
           </div>
         );
-    }
-
-    if (!isAuthenticated) {
-        return (
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <div className="flex-grow container mx-auto py-20 text-center max-w-7xl">
-                <h2 className="text-2xl font-bold">Unauthorized</h2>
-                <p>You must be signed in to view this page.</p>
-              </div>
-              <Footer />
-            </div>
-          );
     }
 
 
