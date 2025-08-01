@@ -16,9 +16,9 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [selectedLocation, setSelectedLocation] = useState(searchParams.get('location') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
