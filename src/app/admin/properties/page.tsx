@@ -1,7 +1,7 @@
 
 // src/app/admin/properties/page.tsx
 'use client';
-import React, { useEffect, Suspense } from 'react';
+import React, { useEffect, Suspense, useState } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -185,6 +185,12 @@ const formSchema = z.object({
   is_available: z.boolean().default(true),
 });
 
+type ImagePreview = {
+  file: File;
+  previewUrl: string;
+  isPrimary: boolean;
+};
+
 const generateSlug = (title: string) => {
     return title
         .toLowerCase()
@@ -208,6 +214,8 @@ const PropertiesForm = () => {
   const [deletePropertyImage] = useMutation(DELETE_PROPERTY_IMAGE);
   const [unsetPrimaryImage] = useMutation(UNSET_PRIMARY_IMAGE);
   const [setPrimaryImage] = useMutation(SET_PRIMARY_IMAGE);
+  
+  const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
 
 
   const { data: propertyData, loading: queryLoading, refetch: refetchProperty } = useQuery(GET_PROPERTY_BY_ID, {
@@ -248,10 +256,48 @@ const PropertiesForm = () => {
       });
     }
   }, [propertyData, isEditMode, form]);
+  
+  useEffect(() => {
+    // Clean up preview URLs
+    return () => {
+      imagePreviews.forEach(p => URL.revokeObjectURL(p.previewUrl));
+    };
+  }, [imagePreviews]);
 
-  const imageFilesRef = form.register("imageFiles");
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const newPreviews = Array.from(files).map((file, index) => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+        isPrimary: index === 0, // Make the first image primary by default
+      }));
+      setImagePreviews(newPreviews);
+    }
+  };
+
+  const setPreviewAsPrimary = (index: number) => {
+    setImagePreviews(previews => 
+      previews.map((p, i) => ({
+        ...p,
+        isPrimary: i === index,
+      }))
+    );
+  };
+  
+  const removePreview = (index: number) => {
+    setImagePreviews(previews => {
+        const newPreviews = previews.filter((_, i) => i !== index);
+        // If the removed image was primary, make the new first image primary
+        if (previews[index].isPrimary && newPreviews.length > 0) {
+            newPreviews[0].isPrimary = true;
+        }
+        return newPreviews;
+    });
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // We handle images from state, so remove from form values
     const { imageFiles, ...propertyDataValues } = values;
     
     const slug = generateSlug(values.title);
@@ -282,22 +328,31 @@ const PropertiesForm = () => {
         router.push(`/admin/properties?id=${currentPropertyId}`);
       }
 
-       if (imageFiles && imageFiles.length > 0 && currentPropertyId) {
-        for (const file of imageFiles) {
-            const { id, isError, error } = await upload({ file });
+       if (imagePreviews.length > 0 && currentPropertyId) {
+        // If there are no existing images and the user is adding new ones,
+        // and one of them is marked as primary, we don't need to unset anything.
+        const hasExistingImages = propertyData?.properties_by_pk.properties_images.length > 0;
+        const newPrimaryImage = imagePreviews.find(p => p.isPrimary);
+
+        if (hasExistingImages && newPrimaryImage) {
+            await unsetPrimaryImage({ variables: { property_id: currentPropertyId } });
+        }
+        
+        for (const preview of imagePreviews) {
+            const { id, isError, error } = await upload({ file: preview.file });
             if (isError) throw error;
             
-            // If this is the first image, make it primary
-            const isFirstImage = propertyData?.properties_by_pk.properties_images.length === 0;
-            
+            const isFirstImageUpload = !hasExistingImages && imagePreviews.length === 1;
+
             await insertPropertyImage({
                 variables: { 
                     property_id: currentPropertyId, 
                     file_id: id,
-                    is_primary: isFirstImage && imageFiles.length === 1
+                    is_primary: preview.isPrimary || isFirstImageUpload
                 }
             });
         }
+        setImagePreviews([]);
       }
       
       refetchProperty();
@@ -483,18 +538,44 @@ const PropertiesForm = () => {
                         </FormItem>
                     )}
                     />
-                    <FormField
-                    control={form.control}
-                    name="imageFiles"
-                    render={({ field }) => (
-                        <FormItem>
+                    <FormItem>
                         <FormLabel>Upload Images</FormLabel>
-                        <FormControl><Input type="file" accept="image/*" multiple {...imageFilesRef} /></FormControl>
+                        <FormControl><Input type="file" accept="image/*" multiple onChange={handleFileChange} /></FormControl>
                         <FormMessage />
-                        </FormItem>
-                    )}
-                    />
+                    </FormItem>
                 </div>
+
+                {imagePreviews.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {imagePreviews.map((preview, index) => (
+                            <div key={index} className="relative group">
+                                <Image
+                                    src={preview.previewUrl}
+                                    alt={`Preview ${index + 1}`}
+                                    width={200}
+                                    height={150}
+                                    className="rounded-md object-cover w-full h-32"
+                                />
+                                {preview.isPrimary && (
+                                    <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1 text-xs flex items-center">
+                                        <Star className="w-3 h-3 mr-1" />
+                                        Primary
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                    {!preview.isPrimary && (
+                                        <Button size="sm" type="button" onClick={() => setPreviewAsPrimary(index)}>
+                                            <Star className="w-4 h-4" />
+                                        </Button>
+                                    )}
+                                    <Button size="sm" type="button" variant="destructive" onClick={() => removePreview(index)}>
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
                 
                 <div className="flex items-center space-x-4">
                     <FormField
@@ -625,3 +706,5 @@ const PropertiesPage = () => (
 
 
 export default PropertiesPage;
+
+    
