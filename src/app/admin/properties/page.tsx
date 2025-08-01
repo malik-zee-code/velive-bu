@@ -485,5 +485,3 @@ const PropertiesPage = () => (
 
 
 export default PropertiesPage;
-
-    
