@@ -1,7 +1,7 @@
 // src/app/listings/page.tsx
 'use client';
 import React, { Suspense } from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql, useMutation } from '@apollo/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -48,7 +48,7 @@ const GET_PROPERTIES = gql`
       tagline
       title
       updated_at
-      properties_images {
+      properties_images(where: {is_primary: {_eq: true}}, limit: 1) {
         created_at
         file_id
         id
@@ -86,11 +86,20 @@ const GET_LOCATIONS = gql`
   }
 `;
 
+const DELETE_PROPERTY = gql`
+    mutation DeleteProperty($id: uuid!) {
+        delete_properties_by_pk(id: $id) {
+            id
+        }
+    }
+`;
+
 const ListingsPageContent = () => {
-  const { data, loading, error } = useQuery(GET_PROPERTIES);
+  const { data, loading, error, refetch } = useQuery(GET_PROPERTIES);
   const { data: categoriesData, loading: categoriesLoading, error: categoriesError } = useQuery(GET_CATEGORIES);
   const { data: locationsData, loading: locationsLoading, error: locationsError } = useQuery(GET_LOCATIONS);
 
+  const [deleteProperty] = useMutation(DELETE_PROPERTY);
   const userData = useUserData();
   const { toast } = useToast();
   const isAdminOrManager = userData?.roles.includes('admin') || userData?.roles.includes('manager');
@@ -100,10 +109,16 @@ const ListingsPageContent = () => {
   const locationQuery = searchParams.get('location');
   const categoryQuery = searchParams.get('category');
 
-  const handleDelete = (id: string) => {
-    // Placeholder for delete mutation
-    console.log("Deleting property with id:", id);
-    toast({ title: "Success!", description: "Property deleted successfully. (Mock)" });
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteProperty({ variables: { id } });
+      toast({ title: "Success!", description: "Property deleted successfully." });
+      refetch();
+    } catch (e) {
+      console.error(e);
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+      toast({ title: "Error!", description: `Failed to delete property. ${errorMessage}`, variant: "destructive" });
+    }
   };
   
   const filteredProperties = data?.properties.filter((property: any) => {
@@ -144,29 +159,21 @@ const ListingsPageContent = () => {
           {filteredProperties && filteredProperties.length > 0 ? (
             <div className="space-y-8">
               {filteredProperties.map((property: any) => {
-                 const images = (property.properties_images || []).map((img: { file_id: string }) => nhost.storage.getPublicUrl({ fileId: img.file_id }));
+                 const imageUrl = property.properties_images && property.properties_images.length > 0
+                    ? nhost.storage.getPublicUrl({ fileId: property.properties_images[0].file_id })
+                    : 'https://placehold.co/600x400.png';
+
                 return (
                   <Card key={property.id} className="overflow-hidden flex flex-col md:flex-row h-full group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
-                    <div className="w-full md:w-2/5">
-                       <Carousel className="relative w-full h-full">
-                          <CarouselContent>
-                           {images.length > 0 ? images.map((img: string, index: number) => (
-                             <CarouselItem key={index}>
-                               <Image src={img} alt={property.title} width={600} height={400} className="w-full h-64 object-cover" data-ai-hint="apartment building" />
-                             </CarouselItem>
-                           )) : (
-                             <CarouselItem>
-                               <Image src='https://placehold.co/600x400.png' alt='Placeholder' width={600} height={400} className="w-full h-64 object-cover" data-ai-hint="placeholder image" />
-                             </CarouselItem>
-                           )}
-                          </CarouselContent>
-                          {images.length > 1 && (
-                            <>
-                              <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2" />
-                              <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2" />
-                            </>
-                          )}
-                       </Carousel>
+                    <div className="w-full md:w-2/5 relative">
+                       <Image 
+                        src={imageUrl} 
+                        alt={property.title} 
+                        width={600} 
+                        height={400} 
+                        className="w-full h-full object-cover" 
+                        data-ai-hint="apartment building" 
+                      />
                     </div>
                     <div className="w-full md:w-3/5 p-6 flex flex-col justify-between">
                       <div>

@@ -18,6 +18,19 @@ import { nhost } from '@/lib/nhost';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
+import Image from 'next/image';
+import { Trash2, Star, X } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const GET_PROPERTY_BY_ID = gql`
   query GetPropertyById($id: uuid!) {
@@ -36,8 +49,10 @@ const GET_PROPERTY_BY_ID = gql`
       category_id
       is_featured
       is_available
-      properties_images(limit: 1, order_by: {created_at: asc}) {
+      properties_images(order_by: {created_at: asc}) {
+        id
         file_id
+        is_primary
       }
     }
   }
@@ -60,7 +75,6 @@ const GET_CATEGORIES = gql`
     }
   }
 `;
-
 
 const INSERT_PROPERTY = gql`
   mutation InsertProperty(
@@ -107,13 +121,36 @@ const UPDATE_PROPERTY = gql`
 `;
 
 const INSERT_PROPERTY_IMAGE = gql`
-  mutation InsertPropertyImage($property_id: uuid!, $file_id: uuid!) {
-    insert_properties_images_one(object: {property_id: $property_id, file_id: $file_id}) {
+  mutation InsertPropertyImage($property_id: uuid!, $file_id: uuid!, $is_primary: Boolean) {
+    insert_properties_images_one(object: {property_id: $property_id, file_id: $file_id, is_primary: $is_primary}) {
       id
     }
   }
 `;
 
+const DELETE_PROPERTY_IMAGE = gql`
+  mutation DeletePropertyImage($id: uuid!) {
+    delete_properties_images_by_pk(id: $id) {
+      id
+    }
+  }
+`;
+
+const UNSET_PRIMARY_IMAGE = gql`
+  mutation UnsetPrimaryImage($property_id: uuid!) {
+    update_properties_images(where: {property_id: {_eq: $property_id}}, _set: {is_primary: false}) {
+      affected_rows
+    }
+  }
+`;
+
+const SET_PRIMARY_IMAGE = gql`
+  mutation SetPrimaryImage($id: uuid!) {
+    update_properties_images_by_pk(pk_columns: {id: $id}, _set: {is_primary: true}) {
+      id
+    }
+  }
+`;
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
@@ -141,7 +178,7 @@ const formSchema = z.object({
   currency: z.string().optional(),
   tagline: z.string().optional(),
   long_description: z.string().optional(),
-  imageFile: z.any().optional(),
+  imageFiles: z.any().optional(),
   location_id: z.string().min(1, "Location is required."),
   category_id: z.string().min(1, "Category is required."),
   is_featured: z.boolean().default(false),
@@ -168,6 +205,10 @@ const PropertiesForm = () => {
   const [insertProperty, { loading: insertLoading }] = useMutation(INSERT_PROPERTY);
   const [updateProperty, { loading: updateLoading }] = useMutation(UPDATE_PROPERTY);
   const [insertPropertyImage] = useMutation(INSERT_PROPERTY_IMAGE);
+  const [deletePropertyImage] = useMutation(DELETE_PROPERTY_IMAGE);
+  const [unsetPrimaryImage] = useMutation(UNSET_PRIMARY_IMAGE);
+  const [setPrimaryImage] = useMutation(SET_PRIMARY_IMAGE);
+
 
   const { data: propertyData, loading: queryLoading, refetch: refetchProperty } = useQuery(GET_PROPERTY_BY_ID, {
     variables: { id: propertyId },
@@ -208,10 +249,10 @@ const PropertiesForm = () => {
     }
   }, [propertyData, isEditMode, form]);
 
-  const imageFileRef = form.register("imageFile");
+  const imageFilesRef = form.register("imageFiles");
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { imageFile, ...propertyDataValues } = values;
+    const { imageFiles, ...propertyDataValues } = values;
     
     const slug = generateSlug(values.title);
 
@@ -241,14 +282,22 @@ const PropertiesForm = () => {
         router.push(`/admin/properties?id=${currentPropertyId}`);
       }
 
-       if (imageFile && imageFile.length > 0 && currentPropertyId) {
-        const file = imageFile[0];
-        const { id, isError, error } = await upload({ file });
-        if (isError) throw error;
-        
-        await insertPropertyImage({
-            variables: { property_id: currentPropertyId, file_id: id }
-        });
+       if (imageFiles && imageFiles.length > 0 && currentPropertyId) {
+        for (const file of imageFiles) {
+            const { id, isError, error } = await upload({ file });
+            if (isError) throw error;
+            
+            // If this is the first image, make it primary
+            const isFirstImage = propertyData?.properties_by_pk.properties_images.length === 0;
+            
+            await insertPropertyImage({
+                variables: { 
+                    property_id: currentPropertyId, 
+                    file_id: id,
+                    is_primary: isFirstImage && imageFiles.length === 1
+                }
+            });
+        }
       }
       
       refetchProperty();
@@ -260,220 +309,311 @@ const PropertiesForm = () => {
     }
   };
 
+  const handleDeleteImage = async (imageId: string) => {
+    try {
+        await deletePropertyImage({ variables: { id: imageId }});
+        toast({ title: "Success!", description: "Image deleted." });
+        refetchProperty();
+    } catch(e) {
+        console.error(e);
+        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+        toast({ title: "Error!", description: `Failed to delete image. ${errorMessage}`, variant: "destructive" });
+    }
+  };
+
+  const handleSetPrimaryImage = async (imageId: string) => {
+    try {
+      await unsetPrimaryImage({ variables: { property_id: propertyId }});
+      await setPrimaryImage({ variables: { id: imageId }});
+      toast({ title: "Success!", description: "Primary image updated." });
+      refetchProperty();
+    } catch(e) {
+      console.error(e);
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+      toast({ title: "Error!", description: `Failed to set primary image. ${errorMessage}`, variant: "destructive" });
+    }
+  }
+
   const isMutating = insertLoading || updateLoading || isUploading;
   const isLoading = queryLoading || locationsLoading || categoriesLoading;
 
-  if (isLoading) return <p>Loading property data...</p>;
+  const propertyImages = propertyData?.properties_by_pk?.properties_images || [];
 
   return (
-    <Card className="max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="font-headline">{isEditMode ? 'Edit Property' : 'Add New Property'}</CardTitle>
-        <CardDescription>{isEditMode ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl><Input placeholder="Enter property title" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control} name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price</FormLabel>
-                      <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="location_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                           {locationsData?.locations.map((loc: any) => (
-                            <SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="category_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                           {categoriesData?.categories.map((cat: any) => (
-                            <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            </div>
+    <div className="space-y-8">
+      <Card className="max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle className="font-headline">{isEditMode ? 'Edit Property' : 'Add New Property'}</CardTitle>
+          <CardDescription>{isEditMode ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? <p>Loading property data...</p> : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title</FormLabel>
+                          <FormControl><Input placeholder="Enter property title" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control} name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price</FormLabel>
+                          <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="location_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Location</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
+                            <FormControl>
+                              <SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                               {locationsData?.locations.map((loc: any) => (
+                                <SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="category_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
+                            <FormControl>
+                              <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                               {categoriesData?.categories.map((cat: any) => (
+                                <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 <FormField
-                  control={form.control} name="area_in_feet"
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                     <FormField
+                      control={form.control} name="area_in_feet"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Area (sqft)</FormLabel>
+                          <FormControl><Input type="number" placeholder="e.g., 1200" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control} name="bathrooms"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bathrooms</FormLabel>
+                          <FormControl><Input type="number" placeholder="e.g., 2" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control} name="bedrooms"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bedrooms</FormLabel>
+                          <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
+
+                <FormField
+                  control={form.control} name="tagline"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Area (sqft)</FormLabel>
-                      <FormControl><Input type="number" placeholder="e.g., 1200" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                      <FormLabel>Tagline</FormLabel>
+                      <FormControl><Input placeholder="Enter a catchy tagline" {...field} value={field.value ?? ''} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                 <FormField
-                  control={form.control} name="bathrooms"
+
+                <FormField
+                  control={form.control} name="long_description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Bathrooms</FormLabel>
-                      <FormControl><Input type="number" placeholder="e.g., 2" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                      <FormLabel>Long Description</FormLabel>
+                      <FormControl><Textarea rows={5} placeholder="Describe the property in detail" {...field} value={field.value ?? ''} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                 <FormField
-                  control={form.control} name="bedrooms"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bedrooms</FormLabel>
-                      <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            </div>
 
-            <FormField
-              control={form.control} name="tagline"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tagline</FormLabel>
-                  <FormControl><Input placeholder="Enter a catchy tagline" {...field} value={field.value ?? ''} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control} name="long_description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Long Description</FormLabel>
-                  <FormControl><Textarea rows={5} placeholder="Describe the property in detail" {...field} value={field.value ?? ''} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                control={form.control} name="currency"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Currency</FormLabel>
-                    <FormControl><Input placeholder="e.g., AED" {...field} value={field.value ?? ''}/></FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                control={form.control}
-                name="imageFile"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Primary Image</FormLabel>
-                    <FormControl><Input type="file" accept="image/*" {...imageFileRef} /></FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-            </div>
-            
-            <div className="flex items-center space-x-4">
-                <FormField
-                    control={form.control}
-                    name="is_featured"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                    control={form.control} name="currency"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5 mr-4">
-                            <FormLabel>Featured</FormLabel>
-                            <FormMessage />
-                        </div>
-                        <FormControl>
-                            <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
+                        <FormItem>
+                        <FormLabel>Currency</FormLabel>
+                        <FormControl><Input placeholder="e.g., AED" {...field} value={field.value ?? ''}/></FormControl>
+                        <FormMessage />
                         </FormItem>
                     )}
-                />
-                 <FormField
+                    />
+                    <FormField
                     control={form.control}
-                    name="is_available"
+                    name="imageFiles"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5 mr-4">
-                            <FormLabel>Available</FormLabel>
-                            <FormMessage />
-                        </div>
-                        <FormControl>
-                            <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
+                        <FormItem>
+                        <FormLabel>Upload Images</FormLabel>
+                        <FormControl><Input type="file" accept="image/*" multiple {...imageFilesRef} /></FormControl>
+                        <FormMessage />
                         </FormItem>
                     )}
-                />
-            </div>
+                    />
+                </div>
+                
+                <div className="flex items-center space-x-4">
+                    <FormField
+                        control={form.control}
+                        name="is_featured"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5 mr-4">
+                                <FormLabel>Featured</FormLabel>
+                                <FormMessage />
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="is_available"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5 mr-4">
+                                <FormLabel>Available</FormLabel>
+                                <FormMessage />
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
-            
-            {isUploading && <Progress value={progress} className="w-full" />}
+                
+                {isUploading && <Progress value={progress} className="w-full" />}
 
-            <div className="flex justify-end space-x-4">
-                <Button type="button" variant="outline" onClick={() => router.push('/listings')}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isMutating} className="w-48">
-                  {isMutating ? `Saving... ${progress ? `${progress}%` : ''}`.trim() : (isEditMode ? "Update Property" : "Add Property")}
-                </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+                <div className="flex justify-end space-x-4">
+                    <Button type="button" variant="outline" onClick={() => router.push('/listings')}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isMutating} className="w-48">
+                      {isMutating ? `Saving... ${progress ? `${progress}%` : ''}`.trim() : (isEditMode ? "Update Property" : "Add Property")}
+                    </Button>
+                </div>
+              </form>
+            </Form>
+          )}
+        </CardContent>
+      </Card>
+
+      {isEditMode && (
+        <Card className="max-w-4xl mx-auto">
+            <CardHeader>
+                <CardTitle>Property Images</CardTitle>
+                <CardDescription>Manage the images associated with this property.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {propertyImages.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {propertyImages.map((image: any) => (
+                    <div key={image.id} className="relative group">
+                        <Image
+                            src={nhost.storage.getPublicUrl({ fileId: image.file_id })}
+                            alt="Property Image"
+                            width={200}
+                            height={150}
+                            className="rounded-md object-cover w-full h-32"
+                        />
+                         {image.is_primary && (
+                            <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1 text-xs flex items-center">
+                                <Star className="w-3 h-3 mr-1" />
+                                Primary
+                            </div>
+                         )}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                           {!image.is_primary && (
+                                <Button size="sm" onClick={() => handleSetPrimaryImage(image.id)}>
+                                    <Star className="w-4 h-4" />
+                                </Button>
+                           )}
+                           <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="destructive">
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the image.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteImage(image.id)}>
+                                            Delete
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    </div>
+                    ))}
+                </div>
+                ) : (
+                <p className="text-muted-foreground">No images uploaded for this property yet.</p>
+                )}
+            </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
 
