@@ -4,7 +4,7 @@ import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButt
 import { Header } from '@/components/landing/header';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { MapPin, Tag, Building2, PanelLeft, Globe } from 'lucide-react';
+import { MapPin, Tag, Building2, PanelLeft, Globe, LayoutDashboard } from 'lucide-react';
 import { useAuthenticationStatus } from '@nhost/react';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,8 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, isLoading } = useAuthenticationStatus();
 
     const navItems = [
-        { href: '/admin/properties', label: 'Properties', icon: Building2 },
+        { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { href: '/listings', label: 'Properties', icon: Building2 },
         { href: '/admin/categories', label: 'Categories', icon: Tag },
         { href: '/admin/locations', label: 'Locations', icon: MapPin },
         { href: '/admin/countries', label: 'Countries', icon: Globe },
