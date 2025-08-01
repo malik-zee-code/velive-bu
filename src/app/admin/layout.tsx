@@ -4,7 +4,7 @@ import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButt
 import { Header } from '@/components/landing/header';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MapPin, Tag, Building2, PanelLeft } from 'lucide-react';
+import { MapPin, Tag, Building2, PanelLeft, Globe } from 'lucide-react';
 import { useAuthenticationStatus } from '@nhost/react';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         { href: '/admin/properties', label: 'Properties', icon: Building2 },
         { href: '/admin/categories', label: 'Categories', icon: Tag },
         { href: '/admin/locations', label: 'Locations', icon: MapPin },
+        { href: '/admin/countries', label: 'Countries', icon: Globe },
     ];
     
     if (isLoading) {
@@ -70,7 +71,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                     </Sidebar>
                     <main className="flex-1 p-4 md:p-8 overflow-auto">
                         <div className="md:hidden mb-4">
-                            <SidebarTrigger variant="outline" size="icon">
+                            <SidebarTrigger>
                                 <PanelLeft className="h-5 w-5" />
                             </SidebarTrigger>
                         </div>
