@@ -210,7 +210,7 @@ const LocationsPage = () => {
                                             <SelectContent>
                                                 {countriesLoading && <SelectItem value="loading" disabled>Loading...</SelectItem>}
                                                 {countriesData?.countries.map((country: Country) => (
-                                                    <SelectItem key={country.id} value={country.id}>
+                                                    <SelectItem key={country.id} value={country.id.toString()}>
                                                         {country.name}
                                                     </SelectItem>
                                                 ))}
