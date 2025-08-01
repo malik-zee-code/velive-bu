@@ -39,8 +39,7 @@ export const Header = () => {
     { href: '/', text: 'Home' },
     { href: '/about', text: 'About' },
     { href: '/listings', text: 'Listing' },
-    { href: '#', text: 'Pages', isDropdown: true, options: ['Option 1', 'Option 2'] },
-    { href: '#', text: 'Blog', isDropdown: true, options: ['Option 1', 'Option 2'] },
+    { href: '/blog', text: 'Blog' },
     { href: '/contact', text: 'Contact' },
   ];
   
@@ -58,31 +57,20 @@ export const Header = () => {
         </div>
         <nav className="hidden md:flex items-center space-x-8 text-sm font-medium ml-auto">
           {navLinks.map((link) => (
-            link.isDropdown ? (
-              <DropdownMenu key={link.text}>
-                <DropdownMenuTrigger className="transition-colors hover:text-white/80 text-white/60 flex items-center gap-1 outline-none">
-                  {link.text}
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {link.options?.map(opt => <DropdownMenuItem key={opt}>{opt}</DropdownMenuItem>)}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn("transition-colors relative", 
-                  pathname === link.href 
-                    ? "text-primary font-bold" 
-                    : "text-white/60 hover:text-white/80"
-                )}
-              >
-                {link.text}
-                {pathname === link.href && (
-                  <span className="absolute bottom-[-8px] left-0 w-full h-0.5 bg-primary"></span>
-                )}
-              </Link>
-            )
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn("transition-colors relative", 
+                pathname === link.href 
+                  ? "text-primary font-bold" 
+                  : "text-white/60 hover:text-white/80"
+              )}
+            >
+              {link.text}
+              {pathname === link.href && (
+                <span className="absolute bottom-[-8px] left-0 w-full h-0.5 bg-primary"></span>
+              )}
+            </Link>
           ))}
         </nav>
         <div className="flex items-center justify-end space-x-2 ml-auto">
