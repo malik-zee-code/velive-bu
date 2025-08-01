@@ -17,7 +17,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
     const navItems = [
         { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/listings', label: 'Properties', icon: Building2 },
+        { href: '/admin/properties', label: 'Properties', icon: Building2 },
         { href: '/admin/categories', label: 'Categories', icon: Tag },
         { href: '/admin/locations', label: 'Locations', icon: MapPin },
         { href: '/admin/countries', label: 'Countries', icon: Globe },
