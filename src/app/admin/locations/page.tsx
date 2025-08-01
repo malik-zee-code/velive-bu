@@ -22,21 +22,92 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
-const mockLocationsData = [
-    { id: '1', name: 'New York' },
-    { id: '2', name: 'Los Angeles' },
-    { id: '3', name: 'London' },
-];
+const GET_LOCATIONS = gql`
+  query GetLocations {
+    locations {
+      id
+      name
+    }
+  }
+`;
+
+const ADD_LOCATION = gql`
+  mutation AddLocation($name: String!) {
+    insert_locations_one(object: {name: $name}) {
+      id
+      name
+    }
+  }
+`;
+
+const UPDATE_LOCATION = gql`
+  mutation UpdateLocation($id: uuid!, $name: String!) {
+    update_locations_by_pk(pk_columns: {id: $id}, _set: {name: $name}) {
+      id
+      name
+    }
+  }
+`;
+
+const DELETE_LOCATION = gql`
+  mutation DeleteLocation($id: uuid!) {
+    delete_locations_by_pk(id: $id) {
+      id
+    }
+  }
+`;
 
 const formSchema = z.object({
   name: z.string().min(1, "Location name is required."),
 });
 
+type Location = {
+    id: string;
+    name: string;
+}
+
 const LocationsPage = () => {
   const { toast } = useToast();
-  const [locations, setLocations] = useState(mockLocationsData);
-  const [editingLocation, setEditingLocation] = useState<any>(null);
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+
+  const { data, loading, error, refetch } = useQuery(GET_LOCATIONS);
+
+  const [addLocation, { loading: addLoading }] = useMutation(ADD_LOCATION, {
+    onCompleted: () => {
+        refetch();
+        toast({ title: "Success!", description: "Location added successfully." });
+        form.reset();
+        setEditingLocation(null);
+    },
+    onError: (error) => {
+        toast({ title: "Error!", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const [updateLocation, { loading: updateLoading }] = useMutation(UPDATE_LOCATION, {
+     onCompleted: () => {
+        refetch();
+        toast({ title: "Success!", description: "Location updated successfully." });
+        form.reset();
+        setEditingLocation(null);
+    },
+    onError: (error) => {
+        toast({ title: "Error!", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const [deleteLocation] = useMutation(DELETE_LOCATION, {
+    onCompleted: () => {
+        refetch();
+        toast({ title: "Success!", description: "Location deleted successfully." });
+    },
+    onError: (error) => {
+        toast({ title: "Error!", description: error.message, variant: "destructive" });
+    }
+  });
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,34 +116,30 @@ const LocationsPage = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (editingLocation) {
-        setLocations(locations.map(l => l.id === editingLocation.id ? { ...l, name: values.name } : l));
-        toast({ title: "Success!", description: "Location updated successfully." });
+        updateLocation({ variables: { id: editingLocation.id, name: values.name } });
     } else {
-        const newLocation = { id: (locations.length + 1).toString(), name: values.name };
-        setLocations([...locations, newLocation]);
-        toast({ title: "Success!", description: "Location added successfully." });
+        addLocation({ variables: { name: values.name } });
     }
-    form.reset();
-    setEditingLocation(null);
   };
   
   const handleDelete = (id: string) => {
-    setLocations(locations.filter(l => l.id !== id));
-    toast({ title: "Success!", description: "Location deleted successfully." });
+    deleteLocation({ variables: { id } });
   };
-  
-  const handleEdit = (location: any) => {
+
+  const handleEdit = (location: Location) => {
     setEditingLocation(location);
     form.setValue("name", location.name);
   };
-
+  
   const handleCancelEdit = () => {
     setEditingLocation(null);
     form.reset();
   };
 
+  const isMutating = addLoading || updateLoading;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-4 md:p-0">
         <div className="md:col-span-1">
             <Card>
                 <CardHeader>
@@ -98,8 +165,8 @@ const LocationsPage = () => {
                             )}
                             />
                              <div className="flex gap-2">
-                                <Button type="submit">
-                                    {editingLocation ? 'Update' : 'Add'} Location
+                                <Button type="submit" disabled={isMutating}>
+                                    {isMutating ? 'Saving...' : (editingLocation ? 'Update Location' : 'Add Location')}
                                 </Button>
                                 {editingLocation && (
                                     <Button variant="outline" onClick={handleCancelEdit}>
@@ -121,47 +188,51 @@ const LocationsPage = () => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {locations.map((location: any) => (
-                            <TableRow key={location.id}>
-                                <TableCell>{location.name}</TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" onClick={() => handleEdit(location)}>
-                                        <Pencil className="h-4 w-4" />
-                                    </Button>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <Trash2 className="h-4 w-4 text-destructive" />
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    This action cannot be undone. This will permanently delete the location.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDelete(location.id)}>
-                                                    Delete
-                                                </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                </TableCell>
-                            </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    {loading && <p>Loading...</p>}
+                    {error && <p>Error loading locations: {error.message}</p>}
+                    {!loading && !error && (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {data?.locations.map((location: Location) => (
+                                <TableRow key={location.id}>
+                                    <TableCell>{location.name}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(location)}>
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the location.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(location.id)}>
+                                                        Delete
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
                 </CardContent>
             </Card>
         </div>
