@@ -55,7 +55,7 @@ export const Header = () => {
   };
 
   const renderNavLinks = (isMobile: boolean) => (
-    <nav className={cn(isMobile ? "flex flex-col space-y-4" : "hidden md:flex items-center space-x-8 text-sm font-medium ml-auto")}>
+    <nav className={cn(isMobile ? "flex flex-col space-y-4" : "hidden md:flex items-center space-x-8 text-sm font-medium")}>
       {navLinks.map((link) => (
         <Link
           key={link.href}
@@ -85,14 +85,14 @@ export const Header = () => {
           </Link>
         </div>
         
-        <div className="hidden md:flex flex-grow items-center">
+        <div className="hidden md:flex flex-grow items-center justify-end">
           {renderNavLinks(false)}
         </div>
         
-        <div className="hidden md:flex items-center justify-end space-x-2 ml-auto">
+        <div className="hidden md:flex items-center justify-end space-x-2 ml-4">
           {isLoading ? (
             <div className="h-9 w-24 rounded-md animate-pulse bg-gray-700" />
-          ) : isAuthenticated && (
+          ) : isAuthenticated ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center text-white/80 hover:text-white">
@@ -116,7 +116,7 @@ export const Header = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          ) : null}
 
           <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
             Get Quotation
@@ -141,7 +141,7 @@ export const Header = () => {
                       <div className="mt-8 pt-4 border-t">
                         {isLoading ? (
                            <div className="h-9 w-24 rounded-md animate-pulse bg-gray-200" />
-                        ) : isAuthenticated && (
+                        ) : isAuthenticated ? (
                           <>
                            {isAdmin && (
                              <Button asChild variant="ghost" className="w-full justify-start mb-2" onClick={handleLinkClick}>
@@ -154,7 +154,7 @@ export const Header = () => {
                              <LogOut className="h-4 w-4 mr-2" /> Sign Out
                            </Button>
                           </>
-                        )}
+                        ) : null}
                         <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold w-full mt-4">
                           Get Quotation
                         </Button>
