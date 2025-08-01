@@ -141,7 +141,7 @@ export const Header = () => {
                   <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                   <div className="p-6">
                       <Link href="/" onClick={handleLinkClick} className="flex items-center space-x-2 mb-8">
-                        <Image src="/assets/images/logo/logo.svg" alt="VE LIVE Logo" width={160} height={40} data-ai-hint="logo" />
+                        <Image src="/assets/images/logo/white-logo.svg" alt="VE LIVE Logo" width={160} height={40} data-ai-hint="logo" />
                       </Link>
                       {renderNavLinks(true)}
 
