@@ -97,8 +97,8 @@ const ListingsPageContent = () => {
 
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('q') || '';
-  const locationQuery = searchParams.get('location') || '';
-  const categoryQuery = searchParams.get('category') || '';
+  const locationQuery = searchParams.get('location');
+  const categoryQuery = searchParams.get('category');
 
   const handleDelete = (id: string) => {
     // Placeholder for delete mutation
@@ -108,7 +108,7 @@ const ListingsPageContent = () => {
   
   const filteredProperties = data?.properties.filter((property: any) => {
     const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = locationQuery ? property.location?.id === locationQuery : true;
+    const matchesLocation = locationQuery ? property.location?.id === parseInt(locationQuery, 10) : true;
     const matchesCategory = categoryQuery ? property.category?.id === categoryQuery : true;
     return matchesSearch && matchesLocation && matchesCategory;
   });
