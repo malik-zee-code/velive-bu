@@ -25,8 +25,9 @@ const GET_PROPERTY_BY_SLUG = gql`
       bathrooms
       area_in_feet
       long_description
-      properties_images {
+      properties_images(order_by: {is_primary: desc}) {
         file_id
+        is_primary
       }
       location {
         name
