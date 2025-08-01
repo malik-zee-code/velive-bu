@@ -26,6 +26,7 @@ const GET_PROPERTY_BY_SLUG = gql`
       area_in_feet
       long_description
       properties_images(order_by: {is_primary: desc}) {
+        id
         file_id
         is_primary
       }
@@ -65,7 +66,7 @@ const PropertyDetailPageContent = () => {
             <div className="lg:col-span-2">
                  <Card className="overflow-hidden">
                     <CardContent className="p-0">
-                        <Carousel className="w-full">
+                        <Carousel className="w-full group">
                             <CarouselContent>
                                 {images.length > 0 ? images.map((img: string, index: number) => (
                                 <CarouselItem key={index}>
@@ -79,8 +80,8 @@ const PropertyDetailPageContent = () => {
                             </CarouselContent>
                              {images.length > 1 && (
                                 <>
-                                <CarouselPrevious />
-                                <CarouselNext />
+                                <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/70 hover:bg-white text-foreground h-10 w-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/70 hover:bg-white text-foreground h-10 w-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </>
                             )}
                         </Carousel>
