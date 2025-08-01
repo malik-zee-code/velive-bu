@@ -71,7 +71,7 @@ const INSERT_PROPERTY = gql`
     $bathrooms: Int, 
     $area_in_feet: Int, 
     $location_id: bigint!, 
-    $category_id: bigint!,
+    $category_id: uuid!,
     $is_featured: Boolean,
     $is_available: Boolean,
   ) {
@@ -202,7 +202,7 @@ const PropertiesForm = () => {
     const submissionData = {
         ...propertyDataValues,
         location_id: parseInt(values.location_id, 10),
-        category_id: parseInt(values.category_id, 10),
+        category_id: values.category_id,
     };
 
     try {
@@ -468,3 +468,5 @@ const PropertiesPage = () => (
 
 
 export default PropertiesPage;
+
+    
