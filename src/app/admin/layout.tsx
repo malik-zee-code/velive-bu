@@ -1,11 +1,13 @@
+
 'use client';
-import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { Header } from '@/components/landing/header';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MapPin, Tag, Building2 } from 'lucide-react';
+import { MapPin, Tag, Building2, PanelLeft } from 'lucide-react';
 import { useAuthenticationStatus } from '@nhost/react';
 import { Footer } from '@/components/landing/footer';
+import { Button } from '@/components/ui/button';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     const pathname = usePathname();
@@ -56,6 +58,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                                         <SidebarMenuButton
                                             isActive={pathname.startsWith(item.href)}
                                             className="w-full justify-start"
+                                            tooltip={item.label}
                                         >
                                             <item.icon className="h-5 w-5 mr-3" />
                                             <span>{item.label}</span>
@@ -65,7 +68,14 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                             ))}
                         </SidebarMenu>
                     </Sidebar>
-                    <main className="flex-1 p-8 overflow-auto">
+                    <main className="flex-1 p-4 md:p-8 overflow-auto">
+                        <div className="md:hidden mb-4">
+                            <SidebarTrigger asChild>
+                                <Button variant="outline" size="icon">
+                                    <PanelLeft className="h-5 w-5" />
+                                </Button>
+                            </SidebarTrigger>
+                        </div>
                         {children}
                     </main>
                 </div>
