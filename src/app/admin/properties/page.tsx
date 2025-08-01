@@ -270,9 +270,9 @@ const PropertiesForm = () => {
       const newPreviews = Array.from(files).map((file, index) => ({
         file,
         previewUrl: URL.createObjectURL(file),
-        isPrimary: index === 0, // Make the first image primary by default
+        isPrimary: imagePreviews.length === 0 && index === 0, // Make the first image primary by default if no other images exist
       }));
-      setImagePreviews(newPreviews);
+      setImagePreviews(previews => [...previews, ...newPreviews]);
     }
   };
 
@@ -324,14 +324,12 @@ const PropertiesForm = () => {
         const { data } = await insertProperty({ variables: submissionData });
         currentPropertyId = data.insert_properties_one.id;
         toast({ title: "Success!", description: "Property has been added successfully." });
-        form.reset();
+        // Don't reset form, but navigate to edit page
         router.push(`/admin/properties?id=${currentPropertyId}`);
       }
 
        if (imagePreviews.length > 0 && currentPropertyId) {
-        // If there are no existing images and the user is adding new ones,
-        // and one of them is marked as primary, we don't need to unset anything.
-        const hasExistingImages = propertyData?.properties_by_pk.properties_images.length > 0;
+        const hasExistingImages = propertyData?.properties_by_pk?.properties_images.length > 0;
         const newPrimaryImage = imagePreviews.find(p => p.isPrimary);
 
         if (hasExistingImages && newPrimaryImage) {
@@ -342,7 +340,8 @@ const PropertiesForm = () => {
             const { id, isError, error } = await upload({ file: preview.file });
             if (isError) throw error;
             
-            const isFirstImageUpload = !hasExistingImages && imagePreviews.length === 1;
+            // First image uploaded is primary if none is set
+            const isFirstImageUpload = !hasExistingImages && imagePreviews.length > 0 && imagePreviews.findIndex(p => p.file === preview.file) === 0;
 
             await insertPropertyImage({
                 variables: { 
@@ -355,7 +354,10 @@ const PropertiesForm = () => {
         setImagePreviews([]);
       }
       
-      refetchProperty();
+      if(currentPropertyId) {
+        refetchProperty({id: currentPropertyId});
+      }
+
 
     } catch (e) {
       console.error(e);
@@ -706,5 +708,3 @@ const PropertiesPage = () => (
 
 
 export default PropertiesPage;
-
-    
