@@ -17,7 +17,7 @@ import { nhost } from '@/lib/nhost';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import Image from 'next/image';
-import { Trash2, Star, Pencil } from 'lucide-react';
+import { Trash2, Star, Pencil, PlusCircle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   AlertDialog,
@@ -231,6 +231,22 @@ const generateSlug = (title: string) => {
         .replace(/-+/g, '-');
 }
 
+const defaultFormValues = {
+  title: "",
+  slug: "",
+  currency: "AED",
+  is_featured: false,
+  is_available: true,
+  price: undefined,
+  area_in_feet: undefined,
+  bathrooms: undefined,
+  bedrooms: undefined,
+  tagline: "",
+  long_description: "",
+  location_id: "",
+  category_id: "",
+};
+
 const PropertiesPage = () => {
   const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
   
@@ -258,38 +274,24 @@ const PropertiesPage = () => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      slug: "",
-      currency: "AED",
-      is_featured: false,
-      is_available: true,
-      price: undefined,
-      area_in_feet: undefined,
-      bathrooms: undefined,
-      bedrooms: undefined,
-      tagline: "",
-      long_description: "",
-      location_id: "",
-      category_id: "",
-    },
+    defaultValues: defaultFormValues,
   });
 
   useEffect(() => {
     if (editingPropertyId && propertyData?.properties_by_pk) {
       const p = propertyData.properties_by_pk;
       form.reset({
-        title: p.title,
-        slug: p.slug,
+        title: p.title || "",
+        slug: p.slug || "",
         price: p.price,
         area_in_feet: p.area_in_feet || undefined,
         bathrooms: p.bathrooms || undefined,
         bedrooms: p.bedrooms || undefined,
-        currency: p.currency || undefined,
-        tagline: p.tagline || undefined,
-        long_description: p.long_description || undefined,
-        location_id: p.location_id?.toString() || undefined,
-        category_id: p.category_id?.toString() || undefined,
+        currency: p.currency || "AED",
+        tagline: p.tagline || "",
+        long_description: p.long_description || "",
+        location_id: p.location_id?.toString() || "",
+        category_id: p.category_id?.toString() || "",
         is_featured: p.is_featured || false,
         is_available: p.is_available ?? true,
       });
@@ -384,13 +386,13 @@ const PropertiesPage = () => {
       }
       
       if(currentPropertyId) {
-        refetchProperty({id: currentPropertyId});
+        await refetchProperty({id: currentPropertyId});
       }
 
       if (!editingPropertyId && currentPropertyId) {
         setEditingPropertyId(currentPropertyId);
       } else if (!editingPropertyId) {
-        form.reset();
+        form.reset(defaultFormValues);
       }
 
     } catch (e) {
@@ -418,7 +420,7 @@ const PropertiesPage = () => {
         refetchProperties();
         if (editingPropertyId === propertyId) {
             setEditingPropertyId(null);
-            form.reset();
+            form.reset(defaultFormValues);
         }
     } catch(e) {
         const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
@@ -443,9 +445,9 @@ const PropertiesPage = () => {
     setImagePreviews([]);
   };
 
-  const handleCancelEdit = () => {
+  const handleAddNewClick = () => {
     setEditingPropertyId(null);
-    form.reset();
+    form.reset(defaultFormValues);
     setImagePreviews([]);
   };
 
@@ -459,8 +461,18 @@ const PropertiesPage = () => {
         <div className="md:col-span-1 space-y-8">
             <Card>
                 <CardHeader>
-                <CardTitle className="font-headline">{editingPropertyId ? 'Edit Property' : 'Add New Property'}</CardTitle>
-                <CardDescription>{editingPropertyId ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</CardDescription>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle className="font-headline">{editingPropertyId ? 'Edit Property' : 'Add New Property'}</CardTitle>
+                            <CardDescription>{editingPropertyId ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</CardDescription>
+                        </div>
+                        {editingPropertyId && (
+                            <Button variant="outline" size="sm" onClick={handleAddNewClick}>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add New
+                            </Button>
+                        )}
+                    </div>
                 </CardHeader>
                 <CardContent>
                 {isLoading && editingPropertyId ? <p>Loading property data...</p> : (
@@ -674,7 +686,7 @@ const PropertiesPage = () => {
 
                         <div className="flex justify-end space-x-4">
                            {editingPropertyId && (
-                            <Button type="button" variant="outline" onClick={handleCancelEdit}>
+                            <Button type="button" variant="outline" onClick={handleAddNewClick}>
                                 Cancel
                             </Button>
                            )}
@@ -822,5 +834,3 @@ const PropertiesPage = () => {
 };
 
 export default PropertiesPage;
-
-    
