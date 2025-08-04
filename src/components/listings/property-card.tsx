@@ -40,7 +40,7 @@ export const PropertyCard = ({ property }: { property: any }) => {
         <Card className="overflow-hidden w-full transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
             <div className="flex flex-col md:flex-row">
                 {/* Image Carousel Section */}
-                <div className="w-full md:w-3/5 p-2">
+                <div className="w-full md:w-1/2 p-2">
                      <Link href={`/listings/${property.slug}`}>
                         <div className="relative group">
                             <Image
@@ -84,7 +84,7 @@ export const PropertyCard = ({ property }: { property: any }) => {
                 </div>
 
                 {/* Details Section */}
-                <div className="w-full md:w-2/5 p-6 flex flex-col justify-between">
+                <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
                     <div>
                         <div className="flex justify-between items-center mb-2">
                              <p className="text-3xl font-bold text-primary">
