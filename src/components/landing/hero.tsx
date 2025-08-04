@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Dispatch, SetStateAction, ElementType } from 'react';
@@ -22,14 +23,15 @@ interface HeroProps {
   onCategorySelect: (category: string) => void;
 }
 
-const categoryItems: { name: string; icon: ElementType }[] = [
-  { name: 'Restaurants', icon: Utensils },
-  { name: 'Hotels', icon: Hotel },
-  { name: 'Shopping', icon: ShoppingBag },
-  { name: 'Business', icon: Briefcase },
-  { name: 'Events', icon: Calendar },
-  { name: 'Fitness', icon: Dumbbell },
-];
+const categoryIconMap: { [key: string]: ElementType } = {
+  'Restaurants': Utensils,
+  'Hotels': Hotel,
+  'Shopping': ShoppingBag,
+  'Business': Briefcase,
+  'Events': Calendar,
+  'Fitness': Dumbbell,
+  'Apartment': Briefcase, // Example, adjust as needed
+};
 
 export const Hero = ({ 
   searchQuery, setSearchQuery, 
@@ -128,25 +130,28 @@ export const Hero = ({
         <div className="mt-12 max-w-7xl mx-auto">
             <p className="text-white mb-6">Or Browse Featured Categories</p>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mx-auto">
-                {categoryItems.map(({ name, icon: Icon }) => (
-                    <button
-                    key={name}
-                    onClick={() => onCategorySelect(name)}
-                    className="w-full"
-                    >
-                    <Card className={cn("group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 bg-white hover:bg-gray-100 rounded-lg", {
-                        "border-primary": selectedCategoryName === name,
-                        "border-transparent": selectedCategoryName !== name
-                    })}>
-                        <CardContent className="p-0">
-                        <div className="mx-auto h-16 w-16 rounded-lg flex items-center justify-center bg-primary/20 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                            <Icon className="h-8 w-8" />
-                        </div>
-                        <h3 className="mt-4 font-semibold text-lg text-foreground">{name}</h3>
-                        </CardContent>
-                    </Card>
-                    </button>
-                ))}
+                {categories.slice(0, 6).map((category) => {
+                    const Icon = categoryIconMap[category.title] || Briefcase; // Default icon
+                    return (
+                        <button
+                        key={category.id}
+                        onClick={() => onCategorySelect(category.title)}
+                        className="w-full"
+                        >
+                        <Card className={cn("group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 bg-white hover:bg-gray-100 rounded-lg", {
+                            "border-primary": selectedCategoryName === category.title,
+                            "border-transparent": selectedCategoryName !== category.title
+                        })}>
+                            <CardContent className="p-0">
+                            <div className="mx-auto h-16 w-16 rounded-lg flex items-center justify-center bg-primary/20 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                                <Icon className="h-8 w-8" />
+                            </div>
+                            <h3 className="mt-4 font-semibold text-lg text-foreground">{category.title}</h3>
+                            </CardContent>
+                        </Card>
+                        </button>
+                    );
+                })}
             </div>
         </div>
       </div>
