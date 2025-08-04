@@ -78,6 +78,7 @@ export const Hero = ({
                 className="pl-10 h-12 text-base bg-transparent border-0 text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
               />
             </div>
             <div className="md:col-span-3 relative">
