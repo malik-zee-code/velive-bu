@@ -41,7 +41,7 @@ const SignInPage = () => {
           title: "Success!",
           description: "You have been signed in successfully.",
         });
-        router.push('/');
+        router.push('/admin/dashboard');
       } else if (isError) {
          throw error || new Error('Sign in failed');
       }
