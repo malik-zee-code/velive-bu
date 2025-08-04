@@ -27,6 +27,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { SearchComponent } from '@/components/listings/search';
 import { nhost } from '@/lib/nhost';
+import { Badge } from '@/components/ui/badge';
 
 const GET_PROPERTIES = gql`
   query GetProperties {
@@ -165,7 +166,7 @@ const ListingsPageContent = () => {
 
                 return (
                   <Card key={property.id} className="overflow-hidden w- flex flex-col md:flex-row group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
-                    <div className="w-full md:w-2/5 relative h-64 md:h-80">
+                    <div className="w-full md:w-2/5 relative h-64 md:h-auto">
                        <Image 
                         src={imageUrl} 
                         alt={property.title} 
@@ -178,7 +179,10 @@ const ListingsPageContent = () => {
                     <div className="w-full md:w-3/5 p-6 flex flex-col justify-between">
                       <div>
                         <div className='flex justify-between items-start'>
-                           <h3 className="font-bold font-headline text-2xl mb-2 text-foreground">{property.title}</h3>
+                          <div>
+                            <Badge variant="secondary" className="mb-2">{property.category.title}</Badge>
+                            <h3 className="font-bold font-headline text-2xl mb-2 text-foreground">{property.title}</h3>
+                          </div>
                            {isAdminOrManager && (
                               <div className="flex items-center space-x-1">
                                 <Button variant="ghost" size="icon" asChild>
