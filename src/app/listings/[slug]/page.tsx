@@ -70,7 +70,7 @@ const PropertyDetailPageContent = () => {
                             <CarouselContent>
                                 {images.length > 0 ? images.map((img: string, index: number) => (
                                 <CarouselItem key={index}>
-                                    <Image src={img} alt={property.title} width={800} height={500} className="w-full h-[500px] object-cover" data-ai-hint="apartment building interior" />
+                                    <Image src={img} alt={property.title} width={800} height={500} className="w-full h-80 object-cover" data-ai-hint="apartment building interior" />
                                 </CarouselItem>
                                 )) : (
                                 <CarouselItem>
