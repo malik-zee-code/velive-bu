@@ -202,7 +202,6 @@ const formSchema = z.object({
   currency: z.string().optional(),
   tagline: z.string().optional(),
   long_description: z.string().optional(),
-  imageFiles: z.any().optional(),
   location_id: z.string().min(1, "Location is required."),
   category_id: z.string().min(1, "Category is required."),
   is_featured: z.boolean().default(false),
@@ -235,7 +234,7 @@ const PropertyForm = ({
     property?: any;
     locations: any[];
     categories: any[];
-    onFormSubmit: (values: z.infer<typeof formSchema>, propertyId?: string) => Promise<void>;
+    onFormSubmit: (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
     isMutating?: boolean;
@@ -311,7 +310,7 @@ const PropertyForm = ({
     };
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-        await onFormSubmit(values, property?.id);
+        await onFormSubmit(values, imagePreviews, property?.id);
         setImagePreviews([]);
     };
     
@@ -535,7 +534,7 @@ const PropertyForm = ({
 const PropertyEditForm = ({ propertyId, onCancel, onFormSubmit, locations, categories }: {
     propertyId: string;
     onCancel: () => void;
-    onFormSubmit: (values: z.infer<typeof formSchema>, propertyId?: string) => Promise<void>;
+    onFormSubmit: (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => Promise<void>;
     locations: any[];
     categories: any[];
 }) => {
@@ -582,11 +581,10 @@ const PropertiesPage = () => {
     });
 
 
-    const handleFormSubmit = async (values: z.infer<typeof formSchema>, propertyId?: string) => {
-        const { imageFiles, ...propertyDataValues } = values;
+    const handleFormSubmit = async (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => {
         const slug = generateSlug(values.title);
         const submissionData = {
-            ...propertyDataValues,
+            ...values,
             slug,
             location_id: parseInt(values.location_id, 10),
             category_id: values.category_id,
@@ -609,16 +607,16 @@ const PropertiesPage = () => {
             refetchProperties();
 
             if (imageFiles && imageFiles.length > 0 && currentPropertyId) {
-                const newPrimaryImage = (imageFiles as ImagePreview[]).find(p => p.isPrimary);
+                const newPrimaryImage = imageFiles.find(p => p.isPrimary);
                 if (propertyData?.properties_by_pk?.properties_images.length > 0 && newPrimaryImage) {
                     await unsetPrimaryImage({ variables: { property_id: currentPropertyId } });
                 }
                 
-                for (const preview of imageFiles as ImagePreview[]) {
+                for (const preview of imageFiles) {
                     const { id, isError, error } = await upload({ file: preview.file });
                     if (isError) throw error;
                     
-                    const isFirstImageUpload = !propertyData?.properties_by_pk?.properties_images.length && (imageFiles as ImagePreview[]).findIndex(p => p.file === preview.file) === 0;
+                    const isFirstImageUpload = !propertyData?.properties_by_pk?.properties_images.length && imageFiles.findIndex(p => p.file === preview.file) === 0;
 
                     await insertPropertyImage({
                         variables: { 
