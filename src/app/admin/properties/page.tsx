@@ -720,6 +720,7 @@ const PropertiesPage = () => {
                         {isLoading ? <p>Loading...</p> : (
                             editingPropertyId ? (
                                 <PropertyEditForm
+                                    key={editingPropertyId}
                                     propertyId={editingPropertyId}
                                     onCancel={handleAddNewClick}
                                     onFormSubmit={handleFormSubmit}
