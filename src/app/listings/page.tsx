@@ -171,7 +171,7 @@ const ListingsPageContent = () => {
                         alt={property.title} 
                         width={600} 
                         height={400} 
-                        className="w-full h-full object-cover" 
+                        className="w-full object-cover" 
                         data-ai-hint="apartment building" 
                       />
                     </div>
