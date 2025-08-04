@@ -2,54 +2,35 @@
 'use client';
 import React, { Suspense } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { BedDouble, Bath, Ruler, Phone, MessageSquare, Info, MapPin } from 'lucide-react';
 import { SearchComponent } from '@/components/listings/search';
-import { nhost } from '@/lib/nhost';
-import { Badge } from '@/components/ui/badge';
+import { PropertyCard } from '@/components/listings/property-card';
 
 const GET_PROPERTIES = gql`
   query GetProperties {
     properties {
-      area_in_feet
-      bathrooms
-      bedrooms
-      category_id
-      currency
-      created_at
       id
-      is_available
-      is_featured
-      location_id
-      long_description
-      price
-      short_description
-      slug
-      tagline
       title
-      updated_at
-      properties_images(where: {is_primary: {_eq: true}}, limit: 1) {
-        created_at
-        file_id
+      slug
+      price
+      currency
+      bedrooms
+      bathrooms
+      area_in_feet
+      tagline
+      properties_images(order_by: { is_primary: desc, created_at: asc }) {
         id
-        is_primary
+        file_id
       }
       category {
-        title
-        created_at
         id
+        title
       }
       location {
         id
         name
-        created_at
       }
     }
   }
@@ -120,59 +101,9 @@ const ListingsPageContent = () => {
       <div className="container mx-auto max-w-7xl pb-20">
           {filteredProperties && filteredProperties.length > 0 ? (
             <div className="space-y-8">
-              {filteredProperties.map((property: any) => {
-                 const imageUrl = property.properties_images && property.properties_images.length > 0
-                    ? nhost.storage.getPublicUrl({ fileId: property.properties_images[0].file_id })
-                    : 'https://placehold.co/600x400.png';
-
-                return (
-                  <Card key={property.id} className="overflow-hidden w- flex flex-col md:flex-row group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
-                    <div className="w-full md:w-2/5 relative h-64 md:h-[22rem] bg-black">
-                       <Image 
-                        src={imageUrl} 
-                        alt={property.title} 
-                        width={600} 
-                        height={400} 
-                        className="w-full h-full object-cover" 
-                        data-ai-hint="apartment building" 
-                      />
-                    </div>
-                    <div className="w-full md:w-3/5 p-6 flex flex-col justify-between">
-                      <div>
-                        <div className='flex justify-between items-start'>
-                          <div>
-                            <Badge variant="secondary" className="mb-2">{property.category.title}</Badge>
-                            <h3 className="font-bold font-headline text-2xl mb-2 text-foreground">{property.title}</h3>
-                          </div>
-                        </div>
-                        <p className="flex items-center text-muted-foreground mb-4"><MapPin className="w-4 h-4 mr-2" />{property.location?.name}</p>
-                        <p className="text-lg font-semibold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
-                        <p className="text-muted-foreground mb-4 italic">"{property.tagline}"</p>
-                        <Separator className="my-4" />
-                        <div className="flex items-center space-x-6 text-muted-foreground mb-6">
-                            <div className="flex items-center space-x-2">
-                                <BedDouble className="w-5 h-5" />
-                                <span>{property.bedrooms} Beds</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Bath className="w-5 h-5" />
-                                <span>{property.bathrooms} Baths</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Ruler className="w-5 h-5" />
-                                <span>{property.area_in_feet} sqft</span>
-                            </div>
-                        </div>
-                      </div>
-                       <div className="flex items-center space-x-2">
-                          <Button variant="outline"><Phone className="mr-2 h-4 w-4" /> Call</Button>
-                          <Button variant="outline"><MessageSquare className="mr-2 h-4 w-4" /> Whatsapp</Button>
-                          <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}><Link href={`/listings/${property.slug}`}><Info className="mr-2 h-4 w-4" /> More Info</Link></Button>
-                       </div>
-                    </div>
-                  </Card>
-                )
-              })}
+              {filteredProperties.map((property: any) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
             </div>
           ) : (
             <div className="text-center py-16">
