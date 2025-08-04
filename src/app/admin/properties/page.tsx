@@ -156,12 +156,8 @@ const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
   slug: z.string().optional(),
   price: z.preprocess(
-    (a) => {
-        if (typeof a === 'string' && a.trim() === '') return null;
-        const parsed = parseInt(z.string().parse(a), 10);
-        return isNaN(parsed) ? null : parsed;
-    },
-    z.number({ required_error: "Price is required." }).positive({ message: "Price must be a positive number." })
+    (a) => (a === '' ? undefined : a),
+    z.coerce.number({ required_error: "Price is required." }).positive({ message: "Price must be a positive number." })
   ),
   area_in_feet: z.preprocess(
     (a) => (a === '' ? undefined : a),
@@ -424,7 +420,7 @@ const PropertiesForm = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Price</FormLabel>
-                          <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                          <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -480,7 +476,7 @@ const PropertiesForm = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Area (sqft)</FormLabel>
-                          <FormControl><Input type="number" placeholder="e.g., 1200" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                          <FormControl><Input type="number" placeholder="e.g., 1200" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -490,7 +486,7 @@ const PropertiesForm = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Bathrooms</FormLabel>
-                          <FormControl><Input type="number" placeholder="e.g., 2" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                          <FormControl><Input type="number" placeholder="e.g., 2" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -500,7 +496,7 @@ const PropertiesForm = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Bedrooms</FormLabel>
-                          <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} /></FormControl>
+                          <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
