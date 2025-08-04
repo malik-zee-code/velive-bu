@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BedDouble, Bath, RulerSquare, Phone, MessageSquare, ArrowRight, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BedDouble, Bath, Ruler, Phone, MessageSquare, ArrowRight, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { nhost } from '@/lib/nhost';
 import { cn } from '@/lib/utils';
 
@@ -92,7 +92,7 @@ export const PropertyCard = ({ property }: { property: any }) => {
                                 <span>{property.bathrooms} Baths</span>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <RulerSquare className="w-5 h-5 text-primary" />
+                                <Ruler className="w-5 h-5 text-primary" />
                                 <span>{property.area_in_feet} sqft</span>
                             </div>
                         </div>
