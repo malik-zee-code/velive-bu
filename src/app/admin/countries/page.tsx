@@ -43,7 +43,7 @@ const ADD_COUNTRY = gql`
 `;
 
 const UPDATE_COUNTRY = gql`
-  mutation UpdateCountry($id: bigint!, $name: String!) {
+  mutation UpdateCountry($id: uuid!, $name: String!) {
     update_countries_by_pk(pk_columns: {id: $id}, _set: {name: $name}) {
       id
       name
@@ -52,7 +52,7 @@ const UPDATE_COUNTRY = gql`
 `;
 
 const DELETE_COUNTRY = gql`
-  mutation DeleteCountry($id: bigint!) {
+  mutation DeleteCountry($id: uuid!) {
     delete_countries_by_pk(id: $id) {
       id
     }
@@ -116,14 +116,14 @@ const CountriesPage = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (editingCountry) {
-        updateCountry({ variables: { id: parseInt(editingCountry.id, 10), name: values.name } });
+        updateCountry({ variables: { id: editingCountry.id, name: values.name } });
     } else {
         addCountry({ variables: { name: values.name } });
     }
   };
   
   const handleDelete = (id: string) => {
-    deleteCountry({ variables: { id: parseInt(id, 10) } });
+    deleteCountry({ variables: { id } });
   };
 
   const handleEdit = (country: Country) => {
