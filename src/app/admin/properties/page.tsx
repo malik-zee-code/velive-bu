@@ -1,6 +1,6 @@
 // src/app/admin/properties/page.tsx
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from '@/components/ui/skeleton';
 
-
 const GET_PROPERTIES = gql`
   query GetPropertiesAdmin {
     properties(order_by: {created_at: desc}) {
@@ -52,7 +51,6 @@ const GET_PROPERTIES = gql`
     }
   }
 `;
-
 
 const GET_PROPERTY_BY_ID = gql`
   query GetPropertyById($id: uuid!) {
@@ -150,7 +148,6 @@ const DELETE_PROPERTY = gql`
   }
 `;
 
-
 const INSERT_PROPERTY_IMAGE = gql`
   mutation InsertPropertyImage($property_id: uuid!, $file_id: uuid!, $is_primary: Boolean) {
     insert_properties_images_one(object: {property_id: $property_id, file_id: $file_id, is_primary: $is_primary}) {
@@ -186,7 +183,7 @@ const SET_PRIMARY_IMAGE = gql`
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
   slug: z.string().optional(),
-   price: z.preprocess(
+  price: z.preprocess(
     (a) => (a === '' ? undefined : a),
     z.coerce.number({ required_error: "Price is required." }).positive({ message: "Price must be a positive number." })
   ),
@@ -218,11 +215,6 @@ type ImagePreview = {
   isPrimary: boolean;
 };
 
-type Property = z.infer<typeof formSchema> & {
-    id: string;
-    properties_images: {id: string; file_id: string; is_primary: boolean}[];
-};
-
 const generateSlug = (title: string) => {
     return title
         .toLowerCase()
@@ -231,606 +223,654 @@ const generateSlug = (title: string) => {
         .replace(/-+/g, '-');
 }
 
-const defaultFormValues = {
-  title: "",
-  slug: "",
-  currency: "AED",
-  is_featured: false,
-  is_available: true,
-  price: undefined,
-  area_in_feet: undefined,
-  bathrooms: undefined,
-  bedrooms: undefined,
-  tagline: "",
-  long_description: "",
-  location_id: "",
-  category_id: "",
-};
+const PropertyForm = ({
+    property,
+    locations,
+    categories,
+    onFormSubmit,
+    onCancel,
+    isLoading,
+    isMutating
+}: {
+    property?: any;
+    locations: any[];
+    categories: any[];
+    onFormSubmit: (values: z.infer<typeof formSchema>, propertyId?: string) => Promise<void>;
+    onCancel: () => void;
+    isLoading?: boolean;
+    isMutating?: boolean;
+}) => {
+    const { toast } = useToast();
+    const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
 
-const PropertiesPage = () => {
-  const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
-  
-  const { toast } = useToast();
-  const { upload, isUploading, progress } = useFileUpload();
-  
-  const [insertProperty, { loading: insertLoading }] = useMutation(INSERT_PROPERTY);
-  const [updateProperty, { loading: updateLoading }] = useMutation(UPDATE_PROPERTY);
-  const [deleteProperty] = useMutation(DELETE_PROPERTY);
-  const [insertPropertyImage] = useMutation(INSERT_PROPERTY_IMAGE);
-  const [deletePropertyImage] = useMutation(DELETE_PROPERTY_IMAGE);
-  const [unsetPrimaryImage] = useMutation(UNSET_PRIMARY_IMAGE);
-  const [setPrimaryImage] = useMutation(SET_PRIMARY_IMAGE);
-  
-  const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
-
-  const { data: propertiesData, loading: propertiesLoading, error: propertiesError, refetch: refetchProperties } = useQuery(GET_PROPERTIES);
-
-  const { data: propertyData, loading: queryLoading, refetch: refetchProperty } = useQuery(GET_PROPERTY_BY_ID, {
-    variables: { id: editingPropertyId },
-    skip: !editingPropertyId,
-  });
-  const { data: locationsData, loading: locationsLoading } = useQuery(GET_LOCATIONS);
-  const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: defaultFormValues,
-  });
-
-  useEffect(() => {
-    if (editingPropertyId && propertyData?.properties_by_pk) {
-      const p = propertyData.properties_by_pk;
-      form.reset({
-        title: p.title || "",
-        slug: p.slug || "",
-        price: p.price,
-        area_in_feet: p.area_in_feet || undefined,
-        bathrooms: p.bathrooms || undefined,
-        bedrooms: p.bedrooms || undefined,
-        currency: p.currency || "AED",
-        tagline: p.tagline || "",
-        long_description: p.long_description || "",
-        location_id: p.location_id?.toString() || "",
-        category_id: p.category_id?.toString() || "",
-        is_featured: p.is_featured || false,
-        is_available: p.is_available ?? true,
-      });
-    }
-  }, [propertyData, editingPropertyId, form]);
-  
-  useEffect(() => {
-    return () => {
-      imagePreviews.forEach(p => URL.revokeObjectURL(p.previewUrl));
-    };
-  }, [imagePreviews]);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const newPreviews = Array.from(files).map((file, index) => ({
-        file,
-        previewUrl: URL.createObjectURL(file),
-        isPrimary: imagePreviews.length === 0 && index === 0,
-      }));
-      setImagePreviews(previews => [...previews, ...newPreviews]);
-    }
-  };
-
-  const setPreviewAsPrimary = (index: number) => {
-    setImagePreviews(previews => 
-      previews.map((p, i) => ({ ...p, isPrimary: i === index }))
-    );
-  };
-  
-  const removePreview = (index: number) => {
-    setImagePreviews(previews => {
-        const newPreviews = previews.filter((_, i) => i !== index);
-        if (previews[index].isPrimary && newPreviews.length > 0) {
-            newPreviews[0].isPrimary = true;
-        }
-        return newPreviews;
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: property ? {
+            title: property.title || "",
+            slug: property.slug || "",
+            price: property.price,
+            area_in_feet: property.area_in_feet || undefined,
+            bathrooms: property.bathrooms || undefined,
+            bedrooms: property.bedrooms || undefined,
+            currency: property.currency || "AED",
+            tagline: property.tagline || "",
+            long_description: property.long_description || "",
+            location_id: property.location_id?.toString() || "",
+            category_id: property.category_id?.toString() || "",
+            is_featured: property.is_featured || false,
+            is_available: property.is_available ?? true,
+        } : {
+            title: "",
+            slug: "",
+            currency: "AED",
+            is_featured: false,
+            is_available: true,
+            price: undefined,
+            area_in_feet: undefined,
+            bathrooms: undefined,
+            bedrooms: undefined,
+            tagline: "",
+            long_description: "",
+            location_id: "",
+            category_id: "",
+        },
     });
-  };
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { imageFiles, ...propertyDataValues } = values;
-    
-    const slug = generateSlug(values.title);
+    useEffect(() => {
+        return () => {
+            imagePreviews.forEach(p => URL.revokeObjectURL(p.previewUrl));
+        };
+    }, [imagePreviews]);
 
-    const submissionData = {
-        ...propertyDataValues,
-        slug,
-        location_id: parseInt(values.location_id, 10),
-        category_id: values.category_id,
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            const newPreviews = Array.from(files).map((file, index) => ({
+                file,
+                previewUrl: URL.createObjectURL(file),
+                isPrimary: imagePreviews.length === 0 && index === 0,
+            }));
+            setImagePreviews(previews => [...previews, ...newPreviews]);
+        }
     };
 
-    try {
-      let currentPropertyId = editingPropertyId;
+    const setPreviewAsPrimary = (index: number) => {
+        setImagePreviews(previews =>
+            previews.map((p, i) => ({ ...p, isPrimary: i === index }))
+        );
+    };
 
-      if (editingPropertyId) {
-        await updateProperty({
-          variables: { id: editingPropertyId, data: submissionData },
+    const removePreview = (index: number) => {
+        setImagePreviews(previews => {
+            const newPreviews = previews.filter((_, i) => i !== index);
+            if (previews[index].isPrimary && newPreviews.length > 0) {
+                newPreviews[0].isPrimary = true;
+            }
+            return newPreviews;
         });
-        toast({ title: "Success!", description: "Property updated successfully." });
-      } else {
-        const { data } = await insertProperty({ variables: submissionData });
-        currentPropertyId = data.insert_properties_one.id;
-        toast({ title: "Success!", description: "Property has been added successfully." });
-      }
-      
-      refetchProperties();
+    };
 
-      if (imagePreviews.length > 0 && currentPropertyId) {
-        const hasExistingImages = propertyData?.properties_by_pk?.properties_images.length > 0;
-        const newPrimaryImage = imagePreviews.find(p => p.isPrimary);
-
-        if (hasExistingImages && newPrimaryImage) {
-            await unsetPrimaryImage({ variables: { property_id: currentPropertyId } });
-        }
-        
-        for (const preview of imagePreviews) {
-            const { id, isError, error } = await upload({ file: preview.file });
-            if (isError) throw error;
-            
-            const isFirstImageUpload = !hasExistingImages && imagePreviews.length > 0 && imagePreviews.findIndex(p => p.file === preview.file) === 0;
-
-            await insertPropertyImage({
-                variables: { 
-                    property_id: currentPropertyId, 
-                    file_id: id,
-                    is_primary: preview.isPrimary || isFirstImageUpload
-                }
-            });
-        }
+    const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+        await onFormSubmit(values, property?.id);
         setImagePreviews([]);
-      }
-      
-      if(currentPropertyId) {
-        await refetchProperty({id: currentPropertyId});
-      }
-
-      if (!editingPropertyId && currentPropertyId) {
-        setEditingPropertyId(currentPropertyId);
-      } else if (!editingPropertyId) {
-        form.reset(defaultFormValues);
-      }
-
-    } catch (e) {
-      console.error(e);
-      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-      toast({ title: "Error!", description: `Failed to save property. ${errorMessage}`, variant: "destructive" });
+    };
+    
+    if (isLoading) {
+        return <p>Loading property data...</p>;
     }
-  };
 
-  const handleDeleteImage = async (imageId: string) => {
-    try {
-        await deletePropertyImage({ variables: { id: imageId }});
-        toast({ title: "Success!", description: "Image deleted." });
-        refetchProperty();
-    } catch(e) {
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        toast({ title: "Error!", description: `Failed to delete image. ${errorMessage}`, variant: "destructive" });
-    }
-  };
-  
-  const handleDeleteProperty = async (propertyId: string) => {
-    try {
-        await deleteProperty({ variables: { id: propertyId }});
-        toast({ title: "Success!", description: "Property deleted." });
-        refetchProperties();
-        if (editingPropertyId === propertyId) {
-            setEditingPropertyId(null);
-            form.reset(defaultFormValues);
-        }
-    } catch(e) {
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        toast({ title: "Error!", description: `Failed to delete property. ${errorMessage}`, variant: "destructive" });
-    }
-  };
-
-  const handleSetPrimaryImage = async (imageId: string) => {
-    try {
-      await unsetPrimaryImage({ variables: { property_id: editingPropertyId }});
-      await setPrimaryImage({ variables: { id: imageId }});
-      toast({ title: "Success!", description: "Primary image updated." });
-      refetchProperty();
-    } catch(e) {
-      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-      toast({ title: "Error!", description: `Failed to set primary image. ${errorMessage}`, variant: "destructive" });
-    }
-  }
-
-  const handleEditClick = (propertyId: string) => {
-    setEditingPropertyId(propertyId);
-    setImagePreviews([]);
-  };
-
-  const handleAddNewClick = () => {
-    setEditingPropertyId(null);
-    form.reset(defaultFormValues);
-    setImagePreviews([]);
-  };
-
-  const isMutating = insertLoading || updateLoading || isUploading;
-  const isLoading = queryLoading || locationsLoading || categoriesLoading;
-
-  const propertyImages = propertyData?.properties_by_pk?.properties_images || [];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1 space-y-8">
-            <Card>
-                <CardHeader>
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <CardTitle className="font-headline">{editingPropertyId ? 'Edit Property' : 'Add New Property'}</CardTitle>
-                            <CardDescription>{editingPropertyId ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</CardDescription>
-                        </div>
-                        {editingPropertyId && (
-                            <Button variant="outline" size="sm" onClick={handleAddNewClick}>
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                Add New
-                            </Button>
-                        )}
-                    </div>
-                </CardHeader>
-                <CardContent>
-                {isLoading && editingPropertyId ? <p>Loading property data...</p> : (
-                    <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Title</FormLabel>
-                                <FormControl><Input placeholder="Enter property title" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control} name="price"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Price</FormLabel>
-                                <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="location_id"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Location</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {locationsData?.locations.map((loc: any) => (
-                                        <SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="category_id"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Category</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {categoriesData?.categories.map((cat: any) => (
-                                        <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control} name="area_in_feet"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Area (sqft)</FormLabel>
-                                <FormControl><Input type="number" placeholder="e.g., 1200" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control} name="bathrooms"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Bathrooms</FormLabel>
-                                <FormControl><Input type="number" placeholder="e.g., 2" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control} name="bedrooms"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Bedrooms</FormLabel>
-                                <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                        control={form.control} name="tagline"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Tagline</FormLabel>
-                            <FormControl><Input placeholder="Enter a catchy tagline" {...field} value={field.value ?? ''} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-
-                        <FormField
-                        control={form.control} name="long_description"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Long Description</FormLabel>
-                            <FormControl><Textarea rows={5} placeholder="Describe the property in detail" {...field} value={field.value ?? ''} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                        
-                        <FormField
-                            control={form.control} name="currency"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Currency</FormLabel>
-                                <FormControl><Input placeholder="e.g., AED" {...field} value={field.value ?? ''}/></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
+    return (
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Upload Images</FormLabel>
-                            <FormControl><Input type="file" accept="image/*" multiple onChange={handleFileChange} /></FormControl>
-                            <FormMessage />
+                        <FormLabel>Title</FormLabel>
+                        <FormControl><Input placeholder="Enter property title" {...field} /></FormControl>
+                        <FormMessage />
                         </FormItem>
-
-                        {imagePreviews.length > 0 && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {imagePreviews.map((preview, index) => (
-                                    <div key={index} className="relative group">
-                                        <Image
-                                            src={preview.previewUrl}
-                                            alt={`Preview ${index + 1}`}
-                                            width={200}
-                                            height={150}
-                                            className="rounded-md object-cover w-full h-32"
-                                        />
-                                        {preview.isPrimary && (
-                                            <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1 text-xs flex items-center">
-                                                <Star className="w-3 h-3 mr-1" />
-                                                Primary
-                                            </div>
-                                        )}
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                            {!preview.isPrimary && (
-                                                <Button size="sm" type="button" onClick={() => setPreviewAsPrimary(index)}>
-                                                    <Star className="w-4 h-4" />
-                                                </Button>
-                                            )}
-                                            <Button size="sm" type="button" variant="destructive" onClick={() => removePreview(index)}>
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        
-                        <div className="flex items-center space-x-4">
-                            <FormField
-                                control={form.control}
-                                name="is_featured"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                                    <div className="space-y-0.5 mr-4">
-                                        <FormLabel>Featured</FormLabel>
-                                        <FormMessage />
-                                    </div>
-                                    <FormControl>
-                                        <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                        />
-                                    </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="is_available"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                                    <div className="space-y-0.5 mr-4">
-                                        <FormLabel>Available</FormLabel>
-                                        <FormMessage />
-                                    </div>
-                                    <FormControl>
-                                        <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                        />
-                                    </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        
-                        {isUploading && <Progress value={progress} className="w-full" />}
-
-                        <div className="flex justify-end space-x-4">
-                           {editingPropertyId && (
-                            <Button type="button" variant="outline" onClick={handleAddNewClick}>
-                                Cancel
-                            </Button>
-                           )}
-                            <Button type="submit" disabled={isMutating} className="w-48">
-                            {isMutating ? `Saving... ${progress ? `${progress}%` : ''}`.trim() : (editingPropertyId ? "Update Property" : "Add Property")}
-                            </Button>
-                        </div>
-                    </form>
-                    </Form>
+                    )}
+                />
+                <FormField
+                    control={form.control} name="price"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Price</FormLabel>
+                        <FormControl><Input type="number" placeholder="Enter price" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="location_id"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Location</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {locations.map((loc: any) => (
+                                <SelectItem key={loc.id} value={loc.id.toString()}>{loc.name}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="category_id"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {categories.map((cat: any) => (
+                                <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control} name="area_in_feet"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Area (sqft)</FormLabel>
+                        <FormControl><Input type="number" placeholder="e.g., 1200" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control} name="bathrooms"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Bathrooms</FormLabel>
+                        <FormControl><Input type="number" placeholder="e.g., 2" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control} name="bedrooms"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Bedrooms</FormLabel>
+                        <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                control={form.control} name="tagline"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Tagline</FormLabel>
+                    <FormControl><Input placeholder="Enter a catchy tagline" {...field} value={field.value ?? ''} /></FormControl>
+                    <FormMessage />
+                    </FormItem>
                 )}
-                </CardContent>
-            </Card>
-
-            {editingPropertyId && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Property Images</CardTitle>
-                        <CardDescription>Manage the images associated with this property.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {propertyImages.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {propertyImages.map((image: any) => (
-                            <div key={image.id} className="relative group">
+                />
+                <FormField
+                control={form.control} name="long_description"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Long Description</FormLabel>
+                    <FormControl><Textarea rows={5} placeholder="Describe the property in detail" {...field} value={field.value ?? ''} /></FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                    control={form.control} name="currency"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Currency</FormLabel>
+                        <FormControl><Input placeholder="e.g., AED" {...field} value={field.value ?? ''}/></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormItem>
+                    <FormLabel>Upload Images</FormLabel>
+                    <FormControl><Input type="file" accept="image/*" multiple onChange={handleFileChange} /></FormControl>
+                    <FormMessage />
+                </FormItem>
+                {imagePreviews.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {imagePreviews.map((preview, index) => (
+                            <div key={index} className="relative group">
                                 <Image
-                                    src={nhost.storage.getPublicUrl({ fileId: image.file_id })}
-                                    alt="Property Image"
+                                    src={preview.previewUrl}
+                                    alt={`Preview ${index + 1}`}
                                     width={200}
                                     height={150}
                                     className="rounded-md object-cover w-full h-32"
                                 />
-                                {image.is_primary && (
+                                {preview.isPrimary && (
                                     <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1 text-xs flex items-center">
                                         <Star className="w-3 h-3 mr-1" />
                                         Primary
                                     </div>
                                 )}
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                {!image.is_primary && (
-                                        <Button size="sm" onClick={() => handleSetPrimaryImage(image.id)}>
+                                    {!preview.isPrimary && (
+                                        <Button size="sm" type="button" onClick={() => setPreviewAsPrimary(index)}>
                                             <Star className="w-4 h-4" />
                                         </Button>
-                                )}
-                                <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button size="sm" variant="destructive">
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    This action cannot be undone. This will permanently delete the image.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDeleteImage(image.id)}>
-                                                    Delete
-                                                </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
+                                    )}
+                                    <Button size="sm" type="button" variant="destructive" onClick={() => removePreview(index)}>
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
                                 </div>
                             </div>
-                            ))}
+                        ))}
+                    </div>
+                )}
+                <div className="flex items-center space-x-4">
+                    <FormField
+                        control={form.control}
+                        name="is_featured"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5 mr-4">
+                                <FormLabel>Featured</FormLabel>
+                                <FormMessage />
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="is_available"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5 mr-4">
+                                <FormLabel>Available</FormLabel>
+                                <FormMessage />
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                <div className="flex justify-end space-x-4">
+                   {property && (
+                    <Button type="button" variant="outline" onClick={onCancel}>
+                        Cancel
+                    </Button>
+                   )}
+                    <Button type="submit" disabled={isMutating} className="w-48">
+                    {isMutating ? `Saving...` : (property ? "Update Property" : "Add Property")}
+                    </Button>
+                </div>
+            </form>
+        </Form>
+    )
+}
+
+const PropertyEditForm = ({ propertyId, onCancel, onFormSubmit, locations, categories }: {
+    propertyId: string;
+    onCancel: () => void;
+    onFormSubmit: (values: z.infer<typeof formSchema>, propertyId?: string) => Promise<void>;
+    locations: any[];
+    categories: any[];
+}) => {
+    const { data, loading, error } = useQuery(GET_PROPERTY_BY_ID, {
+        variables: { id: propertyId },
+    });
+
+    if (loading) return <p>Loading property data...</p>;
+    if (error) return <p>Error loading property: {error.message}</p>;
+
+    return (
+        <PropertyForm
+            property={data.properties_by_pk}
+            locations={locations}
+            categories={categories}
+            onFormSubmit={onFormSubmit}
+            onCancel={onCancel}
+            isLoading={loading}
+        />
+    );
+};
+
+
+const PropertiesPage = () => {
+    const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
+    const { toast } = useToast();
+    const { upload, isUploading, progress } = useFileUpload();
+
+    const [insertProperty, { loading: insertLoading }] = useMutation(INSERT_PROPERTY);
+    const [updateProperty, { loading: updateLoading }] = useMutation(UPDATE_PROPERTY);
+    const [deleteProperty] = useMutation(DELETE_PROPERTY);
+    const [insertPropertyImage] = useMutation(INSERT_PROPERTY_IMAGE);
+    const [deletePropertyImage] = useMutation(DELETE_PROPERTY_IMAGE);
+    const [unsetPrimaryImage] = useMutation(UNSET_PRIMARY_IMAGE);
+    const [setPrimaryImage] = useMutation(SET_PRIMARY_IMAGE);
+
+    const { data: propertiesData, loading: propertiesLoading, error: propertiesError, refetch: refetchProperties } = useQuery(GET_PROPERTIES);
+    const { data: locationsData, loading: locationsLoading } = useQuery(GET_LOCATIONS);
+    const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
+    
+    const { data: propertyData, refetch: refetchProperty } = useQuery(GET_PROPERTY_BY_ID, {
+      variables: { id: editingPropertyId },
+      skip: !editingPropertyId,
+    });
+
+
+    const handleFormSubmit = async (values: z.infer<typeof formSchema>, propertyId?: string) => {
+        const { imageFiles, ...propertyDataValues } = values;
+        const slug = generateSlug(values.title);
+        const submissionData = {
+            ...propertyDataValues,
+            slug,
+            location_id: parseInt(values.location_id, 10),
+            category_id: values.category_id,
+        };
+
+        try {
+            let currentPropertyId = propertyId;
+
+            if (currentPropertyId) {
+                await updateProperty({
+                    variables: { id: currentPropertyId, data: submissionData },
+                });
+                toast({ title: "Success!", description: "Property updated successfully." });
+            } else {
+                const { data } = await insertProperty({ variables: submissionData });
+                currentPropertyId = data.insert_properties_one.id;
+                toast({ title: "Success!", description: "Property has been added successfully." });
+            }
+            
+            refetchProperties();
+
+            if (imageFiles && imageFiles.length > 0 && currentPropertyId) {
+                const newPrimaryImage = (imageFiles as ImagePreview[]).find(p => p.isPrimary);
+                if (propertyData?.properties_by_pk?.properties_images.length > 0 && newPrimaryImage) {
+                    await unsetPrimaryImage({ variables: { property_id: currentPropertyId } });
+                }
+                
+                for (const preview of imageFiles as ImagePreview[]) {
+                    const { id, isError, error } = await upload({ file: preview.file });
+                    if (isError) throw error;
+                    
+                    const isFirstImageUpload = !propertyData?.properties_by_pk?.properties_images.length && (imageFiles as ImagePreview[]).findIndex(p => p.file === preview.file) === 0;
+
+                    await insertPropertyImage({
+                        variables: { 
+                            property_id: currentPropertyId, 
+                            file_id: id,
+                            is_primary: preview.isPrimary || isFirstImageUpload
+                        }
+                    });
+                }
+            }
+            
+            if(currentPropertyId) {
+                await refetchProperty({id: currentPropertyId});
+            }
+
+            if (!propertyId && currentPropertyId) {
+                setEditingPropertyId(currentPropertyId);
+            } else if (!propertyId) {
+                handleAddNewClick();
+            }
+
+        } catch (e) {
+            console.error(e);
+            const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+            toast({ title: "Error!", description: `Failed to save property. ${errorMessage}`, variant: "destructive" });
+        }
+    };
+
+    const handleDeleteImage = async (imageId: string) => {
+        try {
+            await deletePropertyImage({ variables: { id: imageId } });
+            toast({ title: "Success!", description: "Image deleted." });
+            refetchProperty();
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+            toast({ title: "Error!", description: `Failed to delete image. ${errorMessage}`, variant: "destructive" });
+        }
+    };
+
+    const handleDeleteProperty = async (propertyId: string) => {
+        try {
+            await deleteProperty({ variables: { id: propertyId } });
+            toast({ title: "Success!", description: "Property deleted." });
+            refetchProperties();
+            if (editingPropertyId === propertyId) {
+                setEditingPropertyId(null);
+            }
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+            toast({ title: "Error!", description: `Failed to delete property. ${errorMessage}`, variant: "destructive" });
+        }
+    };
+
+    const handleSetPrimaryImage = async (imageId: string) => {
+        if (!editingPropertyId) return;
+        try {
+            await unsetPrimaryImage({ variables: { property_id: editingPropertyId } });
+            await setPrimaryImage({ variables: { id: imageId } });
+            toast({ title: "Success!", description: "Primary image updated." });
+            refetchProperty();
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+            toast({ title: "Error!", description: `Failed to set primary image. ${errorMessage}`, variant: "destructive" });
+        }
+    }
+
+    const handleEditClick = (propertyId: string) => {
+        setEditingPropertyId(propertyId);
+    };
+
+    const handleAddNewClick = () => {
+        setEditingPropertyId(null);
+    };
+
+    const isMutating = insertLoading || updateLoading || isUploading;
+    const isLoading = locationsLoading || categoriesLoading;
+
+    const propertyImages = propertyData?.properties_by_pk?.properties_images || [];
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-1 space-y-8">
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <CardTitle className="font-headline">{editingPropertyId ? 'Edit Property' : 'Add New Property'}</CardTitle>
+                                <CardDescription>{editingPropertyId ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</CardDescription>
+                            </div>
+                            {editingPropertyId && (
+                                <Button variant="outline" size="sm" onClick={handleAddNewClick}>
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Add New
+                                </Button>
+                            )}
                         </div>
+                    </CardHeader>
+                    <CardContent>
+                        {isLoading ? <p>Loading...</p> : (
+                            editingPropertyId ? (
+                                <PropertyEditForm
+                                    propertyId={editingPropertyId}
+                                    onCancel={handleAddNewClick}
+                                    onFormSubmit={handleFormSubmit}
+                                    locations={locationsData?.locations || []}
+                                    categories={categoriesData?.categories || []}
+                                />
+                            ) : (
+                                <PropertyForm
+                                    locations={locationsData?.locations || []}
+                                    categories={categoriesData?.categories || []}
+                                    onFormSubmit={handleFormSubmit}
+                                    onCancel={handleAddNewClick}
+                                    isMutating={isMutating}
+                                />
+                            )
+                        )}
+                         {isUploading && <Progress value={progress} className="w-full mt-4" />}
+                    </CardContent>
+                </Card>
+
+                {editingPropertyId && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Property Images</CardTitle>
+                            <CardDescription>Manage the images associated with this property.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {propertyImages.length > 0 ? (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {propertyImages.map((image: any) => (
+                                        <div key={image.id} className="relative group">
+                                            <Image
+                                                src={nhost.storage.getPublicUrl({ fileId: image.file_id })}
+                                                alt="Property Image"
+                                                width={200}
+                                                height={150}
+                                                className="rounded-md object-cover w-full h-32"
+                                            />
+                                            {image.is_primary && (
+                                                <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1 text-xs flex items-center">
+                                                    <Star className="w-3 h-3 mr-1" />
+                                                    Primary
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                {!image.is_primary && (
+                                                    <Button size="sm" onClick={() => handleSetPrimaryImage(image.id)}>
+                                                        <Star className="w-4 h-4" />
+                                                    </Button>
+                                                )}
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button size="sm" variant="destructive">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                This action cannot be undone. This will permanently delete the image.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDeleteImage(image.id)}>
+                                                                Delete
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-muted-foreground">No images uploaded for this property yet.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
+            <div className="md:col-span-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Properties</CardTitle>
+                        <CardDescription>A list of all your properties.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {propertiesLoading ? (
+                            <div className="space-y-2">
+                                <Skeleton className="h-12 w-full" />
+                                <Skeleton className="h-12 w-full" />
+                                <Skeleton className="h-12 w-full" />
+                            </div>
+                        ) : propertiesError ? (
+                            <p className="text-destructive">Error: {propertiesError.message}</p>
                         ) : (
-                        <p className="text-muted-foreground">No images uploaded for this property yet.</p>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Title</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Location</TableHead>
+                                        <TableHead>Price</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {propertiesData?.properties.map((property: any) => (
+                                        <TableRow key={property.id}>
+                                            <TableCell className="font-medium">{property.title}</TableCell>
+                                            <TableCell>{property.category?.title}</TableCell>
+                                            <TableCell>{property.location?.name}</TableCell>
+                                            <TableCell>{property.currency} {new Intl.NumberFormat().format(property.price)}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="ghost" size="icon" onClick={() => handleEditClick(property.id)}>
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="ghost" size="icon">
+                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                This action cannot be undone. This will permanently delete the property and all associated images.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
+                                                                Delete
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         )}
                     </CardContent>
                 </Card>
-            )}
+            </div>
         </div>
-        <div className="md:col-span-2">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Properties</CardTitle>
-                    <CardDescription>A list of all your properties.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {propertiesLoading ? (
-                        <div className="space-y-2">
-                            <Skeleton className="h-12 w-full" />
-                            <Skeleton className="h-12 w-full" />
-                            <Skeleton className="h-12 w-full" />
-                        </div>
-                    ) : propertiesError ? (
-                        <p className="text-destructive">Error: {propertiesError.message}</p>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Location</TableHead>
-                                    <TableHead>Price</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {propertiesData?.properties.map((property: any) => (
-                                <TableRow key={property.id}>
-                                    <TableCell className="font-medium">{property.title}</TableCell>
-                                    <TableCell>{property.category?.title}</TableCell>
-                                    <TableCell>{property.location?.name}</TableCell>
-                                    <TableCell>{property.currency} {new Intl.NumberFormat().format(property.price)}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => handleEditClick(property.id)}>
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon">
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This action cannot be undone. This will permanently delete the property and all associated images.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
-                                                        Delete
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
-    </div>
-  );
+    );
 };
 
 export default PropertiesPage;
