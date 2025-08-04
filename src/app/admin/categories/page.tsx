@@ -43,7 +43,7 @@ const ADD_CATEGORY = gql`
 `;
 
 const UPDATE_CATEGORY = gql`
-  mutation UpdateCategory($id: bigint!, $title: String!) {
+  mutation UpdateCategory($id: uuid!, $title: String!) {
     update_categories_by_pk(pk_columns: {id: $id}, _set: {title: $title}) {
       id
       title
@@ -52,7 +52,7 @@ const UPDATE_CATEGORY = gql`
 `;
 
 const DELETE_CATEGORY = gql`
-  mutation DeleteCategory($id: bigint!) {
+  mutation DeleteCategory($id: uuid!) {
     delete_categories_by_pk(id: $id) {
       id
     }
@@ -117,14 +117,14 @@ const CategoriesPage = () => {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (editingCategory) {
-        updateCategory({ variables: { id: parseInt(editingCategory.id, 10), title: values.title } });
+        updateCategory({ variables: { id: editingCategory.id, title: values.title } });
     } else {
         addCategory({ variables: { title: values.title } });
     }
   };
   
   const handleDelete = (id: string) => {
-    deleteCategory({ variables: { id: parseInt(id, 10) } });
+    deleteCategory({ variables: { id } });
   };
 
   const handleEdit = (category: Category) => {
