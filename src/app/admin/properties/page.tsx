@@ -505,7 +505,7 @@ const PropertiesPage = () => {
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Location</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value || ""}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                     <SelectTrigger><SelectValue placeholder="Select a location" /></SelectTrigger>
                                     </FormControl>
@@ -525,7 +525,7 @@ const PropertiesPage = () => {
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Category</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value || ""}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                     <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
                                     </FormControl>
