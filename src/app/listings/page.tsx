@@ -127,13 +127,13 @@ const ListingsPageContent = () => {
 
                 return (
                   <Card key={property.id} className="overflow-hidden w- flex flex-col md:flex-row group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
-                    <div className="w-full md:w-2/5 relative h-64 md:h-88 bg-black">
+                    <div className="w-full md:w-2/5 relative h-64 md:h-[22rem] bg-black">
                        <Image 
                         src={imageUrl} 
                         alt={property.title} 
                         width={600} 
                         height={400} 
-                        className="w-full h-full object-contain" 
+                        className="w-full h-full object-cover" 
                         data-ai-hint="apartment building" 
                       />
                     </div>
