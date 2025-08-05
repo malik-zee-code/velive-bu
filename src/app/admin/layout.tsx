@@ -54,7 +54,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                 <Header />
                 <div className="flex flex-1">
                     <Sidebar className='mt-20'>
-                        <SidebarMenu className='pt-4 flex flex-col justify-between h-full'>
+                        <SidebarMenu className='pt-4 flex flex-col justify-between'>
                             <div>
                                 {navItems.map((item) => (
                                     <SidebarMenuItem key={item.href} className="px-2 py-1">
