@@ -23,7 +23,7 @@ const formSchema = z.object({
 const SignInPage = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const { signInEmailPassword, isLoading, isError, error } = useSignInEmailPassword();
+  const { signInEmailPassword, isLoading } = useSignInEmailPassword();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,22 +35,28 @@ const SignInPage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { isSuccess } = await signInEmailPassword(values.email, values.password);
+      const { isSuccess, error } = await signInEmailPassword(values.email, values.password);
+      
       if (isSuccess) {
         toast({
           title: "Success!",
           description: "You have been signed in successfully.",
         });
         router.push('/admin/dashboard');
-      } else if (isError) {
-         throw error || new Error('Sign in failed');
+      } else {
+         const errorMessage = error?.message || "Incorrect email or password. Please try again.";
+         toast({
+            title: "Sign In Failed",
+            description: errorMessage,
+            variant: "destructive",
+         });
       }
     } catch (e) {
       console.error(e);
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
       toast({
         title: "Error!",
-        description: `Failed to sign in. ${errorMessage}`,
+        description: `An unexpected error occurred. ${errorMessage}`,
         variant: "destructive",
       });
     }
