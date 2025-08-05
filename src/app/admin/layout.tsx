@@ -4,8 +4,8 @@ import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButt
 import { Header } from '@/components/landing/header';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { MapPin, Tag, Building2, PanelLeft, Globe, LayoutDashboard } from 'lucide-react';
-import { useAuthenticationStatus } from '@nhost/react';
+import { MapPin, Tag, Building2, PanelLeft, Globe, LayoutDashboard, LogOut } from 'lucide-react';
+import { useAuthenticationStatus, useSignOut } from '@nhost/react';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
@@ -14,6 +14,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     const pathname = usePathname();
     const router = useRouter();
     const { isAuthenticated, isLoading } = useAuthenticationStatus();
+    const { signOut } = useSignOut();
 
     const navItems = [
         { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -22,6 +23,11 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         { href: '/admin/locations', label: 'Locations', icon: MapPin },
         { href: '/admin/countries', label: 'Countries', icon: Globe },
     ];
+
+    const handleSignOut = async () => {
+        await signOut();
+        router.push('/');
+    };
     
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -48,21 +54,35 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                 <Header />
                 <div className="flex flex-1">
                     <Sidebar className='mt-20'>
-                        <SidebarMenu className='pt-4'>
-                            {navItems.map((item) => (
-                                <SidebarMenuItem key={item.href} className="px-2 py-1">
-                                    <Link href={item.href} passHref>
-                                        <SidebarMenuButton
-                                            isActive={pathname.startsWith(item.href)}
-                                            className="w-full justify-start"
-                                            tooltip={item.label}
-                                        >
-                                            <item.icon className="h-5 w-5 mr-3" />
-                                            <span>{item.label}</span>
-                                        </SidebarMenuButton>
-                                    </Link>
+                        <SidebarMenu className='pt-4 flex flex-col justify-between h-full'>
+                            <div>
+                                {navItems.map((item) => (
+                                    <SidebarMenuItem key={item.href} className="px-2 py-1">
+                                        <Link href={item.href} passHref>
+                                            <SidebarMenuButton
+                                                isActive={pathname.startsWith(item.href)}
+                                                className="w-full justify-start"
+                                                tooltip={item.label}
+                                            >
+                                                <item.icon className="h-5 w-5 mr-3" />
+                                                <span>{item.label}</span>
+                                            </SidebarMenuButton>
+                                        </Link>
+                                    </SidebarMenuItem>
+                                ))}
+                            </div>
+                             <div>
+                                <SidebarMenuItem className="px-2 py-1 mt-auto">
+                                    <SidebarMenuButton
+                                        onClick={handleSignOut}
+                                        className="w-full justify-start"
+                                        tooltip="Sign Out"
+                                    >
+                                        <LogOut className="h-5 w-5 mr-3" />
+                                        <span>Sign Out</span>
+                                    </SidebarMenuButton>
                                 </SidebarMenuItem>
-                            ))}
+                            </div>
                         </SidebarMenu>
                     </Sidebar>
                     <main className="flex-1 p-4 md:p-8 overflow-auto">

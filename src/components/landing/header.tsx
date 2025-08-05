@@ -91,30 +91,13 @@ export const Header = () => {
         <div className="hidden md:flex items-center justify-end space-x-2 ml-auto">
           {isLoading ? (
             <div className="h-9 w-24 rounded-md animate-pulse bg-gray-700" />
-          ) : isAuthenticated ? (
-             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center text-white/80 hover:text-white">
-                    <UserCircle className="h-5 w-5 mr-2" />
-                    Account
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {isAdmin && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin">
-                      <Shield className="h-4 w-4 mr-2" />
-                      Admin
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-                {isAdmin && <DropdownMenuSeparator />}
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          ) : isAuthenticated && isAdmin ? (
+             <Button asChild variant="ghost" className="text-white/80 hover:text-white">
+                <Link href="/admin">
+                  <Shield className="h-5 w-5 mr-2" />
+                  Admin
+                </Link>
+              </Button>
           ) : null}
 
           <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
