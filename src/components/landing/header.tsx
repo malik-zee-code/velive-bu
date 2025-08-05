@@ -85,11 +85,11 @@ export const Header = () => {
           </Link>
         </div>
         
-        <div className="hidden md:flex flex-grow items-center justify-end">
+        <div className="hidden md:flex flex-grow items-center justify-center">
           {renderNavLinks(false)}
         </div>
         
-        <div className="hidden md:flex items-center justify-end space-x-2 ml-4">
+        <div className="hidden md:flex items-center justify-end space-x-2 ml-auto">
           {isLoading ? (
             <div className="h-9 w-24 rounded-md animate-pulse bg-gray-700" />
           ) : isAuthenticated ? (
