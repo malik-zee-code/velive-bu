@@ -118,8 +118,8 @@ export const Header = () => {
             </DropdownMenu>
           ) : null}
 
-          <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
-            Get Quotation
+          <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
+            <Link href="/contact">Contact us</Link>
           </Button>
         </div>
 
@@ -155,8 +155,8 @@ export const Header = () => {
                            </Button>
                           </>
                         ) : null}
-                        <Button style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold w-full mt-4">
-                          Get Quotation
+                        <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold w-full mt-4" onClick={handleLinkClick}>
+                          <Link href="/contact">Contact us</Link>
                         </Button>
                       </div>
                   </div>
