@@ -1,17 +1,18 @@
 // src/app/listings/[slug]/page.tsx
 'use client';
-import React, { Suspense } from 'react';
+import React, { Suspense, useMemo, useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { nhost } from '@/lib/nhost';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const GET_PROPERTY_BY_SLUG = gql`
   query GetPropertyBySlug($slug: String!) {
@@ -25,7 +26,7 @@ const GET_PROPERTY_BY_SLUG = gql`
       bathrooms
       area_in_feet
       long_description
-      properties_images(order_by: {is_primary: desc}) {
+      properties_images(order_by: {is_primary: desc, created_at: asc}) {
         id
         file_id
         is_primary
@@ -47,46 +48,88 @@ const mockAmenities = [
 const PropertyDetailPageContent = () => {
   const params = useParams();
   const slug = params.slug as string;
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const { data, loading, error } = useQuery(GET_PROPERTY_BY_SLUG, {
     variables: { slug },
     skip: !slug,
   });
+  
+  const property = data?.properties[0];
+  const images = useMemo(() =>
+    (property?.properties_images && property.properties_images.length > 0)
+        ? property.properties_images.map((img: any) => nhost.storage.getPublicUrl({ fileId: img.file_id }))
+        : ['https://placehold.co/800x600.png']
+    , [property?.properties_images]);
+
 
   if (loading) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading property details...</p></div>;
   if (error) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Error: {error.message}</p></div>;
-  if (!data || data.properties.length === 0) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Property not found.</p></div>;
+  if (!property) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Property not found.</p></div>;
 
-  const property = data.properties[0];
-  const images = (property.properties_images || []).map((img: { file_id: string }) => nhost.storage.getPublicUrl({ fileId: img.file_id }));
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleThumbnailClick = (e: React.MouseEvent, index: number) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setActiveIndex(index);
+  }
 
   return (
     <div className="container mx-auto max-w-7xl py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">
-                 <Card className="overflow-hidden">
-                    <CardContent className="p-0">
-                        <Carousel className="w-full group">
-                            <CarouselContent>
-                                {images.length > 0 ? images.map((img: string, index: number) => (
-                                <CarouselItem key={index}>
-                                    <Image src={img} alt={property.title} width={800} height={500} className="w-full h-80 object-cover" data-ai-hint="apartment building interior" />
-                                </CarouselItem>
-                                )) : (
-                                <CarouselItem>
-                                    <Image src='https://placehold.co/800x500.png' alt='Placeholder' width={800} height={500} className="w-full h-auto object-cover" data-ai-hint="placeholder image" />
-                                </CarouselItem>
-                                )}
-                            </CarouselContent>
-                             {images.length > 1 && (
-                                <>
-                                <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/70 hover:bg-white text-foreground h-10 w-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/70 hover:bg-white text-foreground h-10 w-10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </>
-                            )}
-                        </Carousel>
-                    </CardContent>
-                </Card>
+                 <div className="space-y-2">
+                    <div className="relative group">
+                        <Image
+                            src={images[activeIndex]}
+                            alt={property.title}
+                            width={800}
+                            height={600}
+                            className="w-full h-96 object-cover rounded-md"
+                            data-ai-hint="apartment building"
+                        />
+                        {images.length > 1 && (
+                            <>
+                                <Button onClick={handlePrev} size="icon" variant="ghost" className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <ChevronLeft className="h-6 w-6" />
+                                </Button>
+                                <Button onClick={handleNext} size="icon" variant="ghost" className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <ChevronRight className="h-6 w-6" />
+                                </Button>
+                            </>
+                        )}
+                    </div>
+                     {images.length > 1 && (
+                        <div className="grid grid-cols-5 gap-2">
+                           {images.slice(0, 5).map((url: string, index: number) => (
+                                <button key={index} onClick={(e) => handleThumbnailClick(e, index)}>
+                                    <Image
+                                        src={url}
+                                        alt={`Thumbnail ${index + 1}`}
+                                        width={200}
+                                        height={150}
+                                        className={cn(
+                                            "w-full h-24 object-cover rounded-md cursor-pointer transition-all border-2",
+                                            activeIndex === index ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
+                                        )}
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 <Card className="mt-8">
                     <CardHeader>
