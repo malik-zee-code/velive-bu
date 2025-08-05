@@ -53,7 +53,7 @@ export const Hero = ({
   const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.title;
 
   return (
-    <section className="relative h-[80vh] flex items-center justify-center text-card-foreground overflow-hidden">
+    <section className="relative flex items-center justify-center text-card-foreground overflow-hidden py-20 md:py-40">
         <video 
             autoPlay 
             loop 
