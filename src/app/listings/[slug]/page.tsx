@@ -97,7 +97,7 @@ const PropertyDetailPageContent = () => {
                             alt={property.title}
                             width={800}
                             height={600}
-                            className="w-full h-96 object-cover rounded-md"
+                            className="w-full h-80 object-cover rounded-md"
                             data-ai-hint="apartment building"
                         />
                         {images.length > 1 && (
