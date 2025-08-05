@@ -5,14 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { UserCircle, Shield, LogOut, Menu, X } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu"
+import { Shield, LogOut, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useAuthenticationStatus, useSignOut, useUserData } from '@nhost/react';
@@ -132,9 +125,6 @@ export const Header = () => {
                                </Link>
                               </Button>
                            )}
-                           <Button variant="ghost" onClick={() => { handleSignOut(); handleLinkClick(); }} className="w-full justify-start">
-                             <LogOut className="h-4 w-4 mr-2" /> Sign Out
-                           </Button>
                           </>
                         ) : null}
                         <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold w-full mt-4" onClick={handleLinkClick}>
