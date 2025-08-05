@@ -97,7 +97,7 @@ const PropertyDetailPageContent = () => {
                             alt={property.title}
                             width={800}
                             height={600}
-                            className="w-full h-[22rem] object-cover rounded-md"
+                            className="w-full h-96 object-cover rounded-md"
                             data-ai-hint="apartment building"
                         />
                         {images.length > 1 && (
@@ -119,7 +119,7 @@ const PropertyDetailPageContent = () => {
                                         src={url}
                                         alt={`Thumbnail ${index + 1}`}
                                         width={200}
-                                        height={150}
+                                        height={200}
                                         className={cn(
                                             "w-full h-20 object-cover rounded-md cursor-pointer transition-all border-2",
                                             activeIndex === index ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
