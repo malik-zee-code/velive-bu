@@ -26,7 +26,7 @@ const GET_PROPERTY_BY_SLUG = gql`
       bathrooms
       area_in_feet
       long_description
-      properties_images(order_by: {created_at: asc}) {
+      properties_images(order_by: {is_primary: desc}) {
         id
         file_id
         is_primary
@@ -58,11 +58,9 @@ const PropertyDetailPageContent = () => {
   const property = data?.properties[0];
   const images = useMemo(() =>
     (property?.properties_images && property.properties_images.length > 0)
-        ? property.properties_images.map((img: any) => ({
-            url: nhost.storage.getPublicUrl({ fileId: img.file_id }),
-            is_primary: img.is_primary,
-          }))
-        : [{ url: 'https://placehold.co/800x600.png', is_primary: true }]
+        ? property.properties_images.map((img: any) => nhost.storage.getPublicUrl({ fileId: img.file_id })
+        )
+        : [ 'https://placehold.co/800x600.png' ]
     , [property?.properties_images]);
 
   useEffect(() => {
@@ -104,7 +102,7 @@ const PropertyDetailPageContent = () => {
                  <div className="space-y-2">
                     <div className="relative group">
                         <Image
-                            src={images[activeIndex].url}
+                            src={images[activeIndex]}
                             alt={property.title}
                             width={800}
                             height={600}
@@ -127,7 +125,7 @@ const PropertyDetailPageContent = () => {
                            {images.slice(0, 5).map((image: any, index: number) => (
                                 <button key={index} onClick={(e) => handleThumbnailClick(e, index)}>
                                     <Image
-                                        src={image.url}
+                                        src={image}
                                         alt={`Thumbnail ${index + 1}`}
                                         width={200}
                                         height={200}
