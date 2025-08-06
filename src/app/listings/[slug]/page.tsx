@@ -26,7 +26,7 @@ const GET_PROPERTY_BY_SLUG = gql`
       bathrooms
       area_in_feet
       long_description
-      properties_images(order_by: {is_primary: desc}) {
+      properties_images(order_by: {is_primary: desc, created_at: asc}) {
         id
         file_id
         is_primary
@@ -60,9 +60,8 @@ const PropertyDetailPageContent = () => {
     (property?.properties_images && property.properties_images.length > 0)
         ? property.properties_images.map((img: any) => ({
             url: nhost.storage.getPublicUrl({ fileId: img.file_id }),
-            is_primary: img.is_primary,
           }))
-        : [{ url: 'https://placehold.co/800x600.png', is_primary: true }]
+        : [{ url: 'https://placehold.co/800x600.png' }]
     , [property?.properties_images]);
 
   if (loading) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading property details...</p></div>;
