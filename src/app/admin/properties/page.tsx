@@ -157,7 +157,7 @@ const INSERT_PROPERTY_IMAGE = gql`
 `;
 
 const DELETE_PROPERTY_IMAGE = gql`
-  mutation DeletePropertyImage($id: uuid!) {
+  mutation DeletePropertyImage($id: bigint!) {
     delete_properties_images_by_pk(id: $id) {
       id
     }
@@ -173,7 +173,7 @@ const UNSET_PRIMARY_IMAGE = gql`
 `;
 
 const SET_PRIMARY_IMAGE = gql`
-  mutation SetPrimaryImage($id: uuid!) {
+  mutation SetPrimaryImage($id: bigint!) {
     update_properties_images_by_pk(pk_columns: {id: $id}, _set: {is_primary: true}) {
       id
     }
@@ -647,7 +647,7 @@ const PropertiesPage = () => {
 
     const handleDeleteImage = async (imageId: string) => {
         try {
-            await deletePropertyImage({ variables: { id: imageId } });
+            await deletePropertyImage({ variables: { id: parseInt(imageId, 10) } });
             toast({ title: "Success!", description: "Image deleted." });
             refetchProperty();
         } catch (e) {
@@ -674,7 +674,7 @@ const PropertiesPage = () => {
         if (!editingPropertyId) return;
         try {
             await unsetPrimaryImage({ variables: { property_id: editingPropertyId } });
-            await setPrimaryImage({ variables: { id: imageId } });
+            await setPrimaryImage({ variables: { id: parseInt(imageId, 10) } });
             toast({ title: "Success!", description: "Primary image updated." });
             refetchProperty();
         } catch (e) {
