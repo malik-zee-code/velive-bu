@@ -63,15 +63,6 @@ const PropertyDetailPageContent = () => {
         : [ 'https://placehold.co/800x600.png' ]
     , [property?.properties_images]);
 
-  useEffect(() => {
-    if (images && images.length > 0) {
-      const primaryImageIndex = images.findIndex(img => img.is_primary);
-      if (primaryImageIndex !== -1) {
-        setActiveIndex(primaryImageIndex);
-      }
-    }
-  }, [images]);
-
   if (loading) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading property details...</p></div>;
   if (error) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Error: {error.message}</p></div>;
   if (!property) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Property not found.</p></div>;
