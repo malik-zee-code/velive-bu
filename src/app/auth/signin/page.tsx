@@ -4,7 +4,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useSignInEmailPassword } from '@nhost/react';
+import { useSignInEmailPassword } from '@nhost/nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/landing/header';

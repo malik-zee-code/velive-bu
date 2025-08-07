@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Shield, LogOut, Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { useAuthenticationStatus, useSignOut, useUserData } from '@nhost/react';
+import { useAuthenticationStatus, useSignOut, useUserData } from '@nhost/nextjs';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
