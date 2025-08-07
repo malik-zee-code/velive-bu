@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { nhost } from '@/lib/nhost';
@@ -41,6 +41,15 @@ const GET_PROPERTY_BY_SLUG = gql`
   }
 `;
 
+const GET_SETTINGS = gql`
+  query GetSettings {
+    settings(where: {title: {_eq: "contact_phone"}}) {
+      id
+      value
+    }
+  }
+`;
+
 const mockAmenities = [
     "Swimming Pool", "Gymnasium", "Security", "Parking", "Elevator", "Air Conditioning"
 ];
@@ -54,6 +63,8 @@ const PropertyDetailPageContent = () => {
     variables: { slug },
     skip: !slug,
   });
+
+  const { data: settingsData, loading: settingsLoading } = useQuery(GET_SETTINGS);
   
   const property = data?.properties[0];
   const images = useMemo(() =>
@@ -63,10 +74,11 @@ const PropertyDetailPageContent = () => {
         : [ 'https://placehold.co/800x600.png' ]
     , [property?.properties_images]);
 
-  if (loading) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading property details...</p></div>;
+  if (loading || settingsLoading) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading property details...</p></div>;
   if (error) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Error: {error.message}</p></div>;
   if (!property) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Property not found.</p></div>;
 
+  const contactPhone = settingsData?.settings[0]?.value;
 
   const handleNext = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -192,21 +204,17 @@ const PropertyDetailPageContent = () => {
 
                  <Card className="mt-8">
                     <CardHeader>
-                        <CardTitle>Contact Agent</CardTitle>
+                        <CardTitle>Contact Us</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex items-center gap-4">
-                           <Image src="https://placehold.co/100x100.png" alt="Agent" width={80} height={80} className="rounded-full" data-ai-hint="person portrait" />
-                           <div>
-                                <h4 className="font-semibold text-foreground">Johnathan Doe</h4>
-                                <p className="text-sm text-muted-foreground">Listing Agent</p>
-                                <div className="flex items-center gap-0.5 mt-1">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                                    ))}
-                                </div>
-                           </div>
-                        </div>
+                       {contactPhone ? (
+                           <a href={`tel:${contactPhone}`} className="flex items-center gap-4 text-primary hover:underline">
+                               <Phone className="w-6 h-6" />
+                               <span className="font-semibold text-lg">{contactPhone}</span>
+                           </a>
+                       ) : (
+                           <p className="text-muted-foreground">Contact information not available.</p>
+                       )}
                     </CardContent>
                 </Card>
             </div>
@@ -216,15 +224,9 @@ const PropertyDetailPageContent = () => {
 };
 
 const PropertyDetailPage = () => (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header />
-      <main className="flex-grow">
-        <Suspense fallback={<div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading...</p></div>}>
-          <PropertyDetailPageContent />
-        </Suspense>
-      </main>
-      <Footer />
-    </div>
-  );
+  <Suspense fallback={<div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading...</p></div>}>
+    <PropertyDetailPageContent />
+  </Suspense>
+);
   
 export default PropertyDetailPage;
