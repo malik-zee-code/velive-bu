@@ -5,7 +5,7 @@ import { Header } from '@/components/landing/header';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { MapPin, Tag, Building2, PanelLeft, Globe, LayoutDashboard, LogOut } from 'lucide-react';
-import { useAuthenticationStatus, useSignOut } from '@nhost/react';
+import { useAuthenticationStatus, useSignOut } from '@nhost/nextjs';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
