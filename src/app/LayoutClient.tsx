@@ -1,8 +1,7 @@
 "use client";
-// main.tsx or App.tsx
-import React from 'react';
 
-import {  NhostProvider,  } from '@nhost/react';
+import React from 'react';
+import { NhostProvider } from '@nhost/nextjs';
 import { nhost } from '@/lib/nhost';
 import client from '@/lib/apolloClient';
 import { ApolloProvider,  } from '@apollo/client/react/context';

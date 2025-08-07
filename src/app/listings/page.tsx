@@ -1,4 +1,3 @@
-// src/app/listings/page.tsx
 'use client';
 import React, { Suspense } from 'react';
 import { useQuery, gql } from '@apollo/client';
