@@ -15,7 +15,7 @@ interface ListingsProps {
 export const Listings = ({ listings, loading }: ListingsProps) => {
 
   return (
-    <section className="py-20 bg-secondary">
+    <section className="py-20 bg-background">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Featured Properties</h2>

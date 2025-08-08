@@ -27,7 +27,7 @@ const services = [
 
 export const OurServices = () => {
     return (
-        <section className="py-20 bg-background text-card-foreground">
+        <section className="py-20 bg-secondary text-card-foreground">
             <div className="container mx-auto text-center max-w-7xl">
                 <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2">Our Services</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mt-12">
