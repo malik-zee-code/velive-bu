@@ -134,7 +134,7 @@ export function LandingPage() {
           />
         </div>
         <GrowBusiness />
-        <PopularCities />
+        {/* <PopularCities /> */}
         <Testimonials />
         <HowItWorks />
       </main>
