@@ -5,7 +5,7 @@ import LayoutClient from './LayoutClient';
 
 export const metadata: Metadata = {
   title: 'VE LIVE',
-  description: 'Discover Your Amazing City',
+  description: 'Developer-Led Property Management, Built for Trust',
 };
 
 export default function RootLayout({

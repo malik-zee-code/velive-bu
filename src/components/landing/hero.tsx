@@ -68,7 +68,7 @@ export const Hero = ({
         <div className="container relative z-20 mx-auto text-center">
             <div className="max-w-7xl mx-auto">
             <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-4">
-                Discover Your <span className="text-primary">Amazing</span> City
+                Developer-Led Property Management, <span className="text-primary">Built for Trust</span>
             </h1>
             <p className="text-lg md:text-xl text-white/80 mb-8">
                 Find Great Places To Stay, Eat, Shop, Or Visit From Local Experts.
