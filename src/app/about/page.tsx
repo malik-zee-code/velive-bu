@@ -8,10 +8,10 @@ import Image from 'next/image';
 import { Building, Globe, Target, ShieldCheck, Users, Handshake, CheckCircle } from 'lucide-react';
 
 const teamMembers = [
-    { name: 'John Doe', title: 'CEO & Founder', avatar: 'https://placehold.co/128x128.png' },
-    { name: 'Jane Smith', title: 'Chief Operating Officer', avatar: 'https://placehold.co/128x128.png' },
-    { name: 'Sam Wilson', title: 'Lead Developer', avatar: 'https://placehold.co/128x128.png' },
-    { name: 'Emily White', title: 'Marketing Director', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'John Doe', title: 'CEO & Founder', avatar: '/assets/images/testimonial/01.jpg' },
+  { name: 'Jane Smith', title: 'Chief Operating Officer', avatar: '/assets/images/testimonial/02.jpg' },
+  { name: 'Sam Wilson', title: 'Lead Developer', avatar: '/assets/images/testimonial/03.jpg' },
+  { name: 'Emily White', title: 'Marketing Director', avatar: '/assets/images/category/01.jpg' },
 ];
 
 const differentiators = [
@@ -47,7 +47,7 @@ const AboutPage = () => {
             <div className="container mx-auto max-w-7xl">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <Image src="https://placehold.co/600x400.png" alt="VE Live Team" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="office team collaboration" />
+                        <Image src="/assets/images/blog/01.jpg" alt="VE Live Team" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="office team collaboration" />
                     </div>
                     <div>
                         <span className="text-primary font-semibold">WHO WE ARE</span>
