@@ -9,11 +9,10 @@ import { Header } from '@/components/landing/header';
 import { Hero } from '@/components/landing/hero';
 import { Listings } from '@/components/landing/listings';
 import { Footer } from '@/components/landing/footer';
-import { GrowBusiness } from './grow-business';
-import { PopularCities } from './popular-cities';
 import { Testimonials } from './testimonials';
-import { HowItWorks } from './how-it-works';
 import { nhost } from '@/lib/nhost';
+import { WhyVeLive } from './why-ve-live';
+import { OurServices } from './our-services';
 
 const GET_CATEGORIES = gql`
   query GetCategories {
@@ -127,16 +126,16 @@ export function LandingPage() {
           onClearClick={handleClearClick}
           onCategorySelect={handleCategorySelect}
         />
+        <WhyVeLive />
+        <OurServices />
         <div id="listings">
           <Listings
             listings={listings}
             loading={featuredLoading}
           />
         </div>
-        <GrowBusiness />
         {/* <PopularCities /> */}
         <Testimonials />
-        <HowItWorks />
       </main>
       <Footer />
     </>

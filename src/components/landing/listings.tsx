@@ -4,6 +4,8 @@
 import type { Listing } from '@/types/listing';
 import { ListingCard } from '@/components/landing/listing-card';
 import { Skeleton } from '../ui/skeleton';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 interface ListingsProps {
   listings: Listing[];
@@ -13,11 +15,10 @@ interface ListingsProps {
 export const Listings = ({ listings, loading }: ListingsProps) => {
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-secondary">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-12">
-          <span className="text-primary font-semibold">Directory</span>
-          <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Our Featured Directory</h2>
+          <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Featured Properties</h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
             Explore our curated list of top-rated places and services in the city, reviewed by our community.
           </p>
@@ -46,6 +47,11 @@ export const Listings = ({ listings, loading }: ListingsProps) => {
             <p className="text-muted-foreground mt-2">Check back later for our featured properties.</p>
           </div>
         )}
+        <div className="text-center mt-12">
+            <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
+                <Link href="/contact">List Your Unit With Us</Link>
+            </Button>
+        </div>
       </div>
     </section>
   );
