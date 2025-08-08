@@ -71,7 +71,7 @@ export const Hero = ({
                 Developer-Led Property Management, <span className="text-primary">Built for Trust</span>
             </h1>
             <p className="text-lg md:text-xl text-white/80 mb-8">
-                Find Great Places To Stay, Eat, Shop, Or Visit From Local Experts.
+                Exclusively managing LEOS developments with full-service leasing, maintenance, legal support & more — all under one roof.
             </p>
             </div>
             <div className="max-w-7xl mx-auto mt-8">
