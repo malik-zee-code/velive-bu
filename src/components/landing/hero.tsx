@@ -5,9 +5,10 @@ import type { Dispatch, SetStateAction, ElementType } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Calendar, Dumbbell, X } from 'lucide-react';
+import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Calendar, Dumbbell, X, Download, MessageCircle, Wrench } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface HeroProps {
   searchQuery: string;
@@ -67,12 +68,32 @@ export const Hero = ({
         <div className="absolute inset-0 bg-black/70 z-10" />
         <div className="container relative z-20 mx-auto text-center">
             <div className="max-w-7xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-4">
-                Developer-Led Property Management, <span className="text-primary">Built for Trust</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/80 mb-8">
-                Exclusively managing LEOS developments with full-service leasing, maintenance, legal support & more — all under one roof.
-            </p>
+                <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-4">
+                    Developer-Led Property Management, <span className="text-primary">Built for Trust</span>
+                </h1>
+                <p className="text-lg md:text-xl text-white/80 mb-8">
+                    Exclusively managing LEOS developments with full-service leasing, maintenance, legal support & more — all under one roof.
+                </p>
+                <div className="flex justify-center gap-4 mb-8">
+                    <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
+                        <Link href="/contact">
+                            <MessageCircle className="mr-2 h-5 w-5" />
+                            Get a Free Consultation
+                        </Link>
+                    </Button>
+                    <Button asChild size="lg" variant="outline" className="text-white hover:bg-white/10 hover:text-white">
+                        <a href="/assets/brochure.pdf" download>
+                             <Download className="mr-2 h-5 w-5" />
+                            Download Brochure
+                        </a>
+                    </Button>
+                    <Button asChild size="lg" variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                        <Link href="/#services">
+                            <Wrench className="mr-2 h-5 w-5" />
+                           View Our Services
+                        </Link>
+                    </Button>
+                </div>
             </div>
             <div className="max-w-7xl mx-auto mt-8">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg">
