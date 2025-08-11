@@ -1,6 +1,6 @@
 // src/app/listings/[slug]/page.tsx
 'use client';
-import React, 'useMemo, useState, Suspense'
+import React, { useMemo, useState, Suspense } from 'react'
 import { useQuery, gql } from '@apollo/client';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
