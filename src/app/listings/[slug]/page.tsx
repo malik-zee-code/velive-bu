@@ -1,6 +1,6 @@
 // src/app/listings/[slug]/page.tsx
 'use client';
-import React, { Suspense, useMemo, useState, useEffect } from 'react';
+import React, 'useMemo, useState, Suspense'
 import { useQuery, gql } from '@apollo/client';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
@@ -224,9 +224,15 @@ const PropertyDetailPageContent = () => {
 };
 
 const PropertyDetailPage = () => (
-  <Suspense fallback={<div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading...</p></div>}>
-    <PropertyDetailPageContent />
-  </Suspense>
+  <div className="flex flex-col min-h-screen">
+    <Header />
+    <main className="flex-grow">
+      <Suspense fallback={<div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading...</p></div>}>
+        <PropertyDetailPageContent />
+      </Suspense>
+    </main>
+    <Footer />
+  </div>
 );
   
 export default PropertyDetailPage;
