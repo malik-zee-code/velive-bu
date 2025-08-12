@@ -119,11 +119,11 @@ export const ContactDetails = () => {
                     )}
                     {error && <p className="text-destructive">Failed to load contact information.</p>}
                     {!loading && !error && contactInfo.map((info) => (
-                        <div key={info.title} className="flex items-center gap-4">
+                        <div key={info.title} className="flex items-start gap-4">
                             <div className="bg-primary/10 p-3 rounded-lg">
                                 {info.icon}
                             </div>
-                            <div>
+                            <div className='-mt-1'>
                                 <h3 className="font-semibold text-lg text-foreground">{info.title}</h3>
                                 <p className="text-muted-foreground">{info.value}</p>
                             </div>
