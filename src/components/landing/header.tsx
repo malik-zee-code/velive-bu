@@ -37,7 +37,6 @@ export const Header = () => {
     { href: '/services', text: 'Services' },
     { href: '/listings', text: 'Listing' },
     { href: '/blog', text: 'Blog' },
-    { href: '/contact', text: 'Contact' },
   ];
   
   const isAdmin = userData?.roles.includes('admin') || userData?.roles.includes('manager');
