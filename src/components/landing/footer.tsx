@@ -1,19 +1,23 @@
 
+'use client';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Twitter, Facebook, Linkedin, Youtube, Phone, MapPin, Mail, Send, ChevronRight, ChevronUp } from 'lucide-react';
+import { gql, useQuery } from '@apollo/client';
+import { Skeleton } from '../ui/skeleton';
 
-const companyLinks = [
-    { href: "/about", text: "About Us" },
-    { href: "#", text: "Our Team" },
-    { href: "/contact", text: "Contact Us" },
-    { href: "#", text: "Terms Of Service" },
-    { href: "/privacy-policy", text: "Privacy policy" },
-    { href: "#", text: "Careers" },
-];
+const GET_FEATURED_PROPERTIES = gql`
+  query GetFeaturedPropertiesFooter {
+    properties(where: {is_featured: {_eq: true}}, limit: 6) {
+      id
+      title
+      slug
+    }
+  }
+`;
 
 const quickLinks = [
     { href: "/about", text: "About Us" },
@@ -23,6 +27,8 @@ const quickLinks = [
 ];
 
 export const Footer = () => {
+    const { data, loading, error } = useQuery(GET_FEATURED_PROPERTIES);
+
     return (
         <footer className="bg-black text-white/80 relative">
             <div className="absolute inset-0 bg-no-repeat bg-right"></div>
@@ -56,19 +62,27 @@ export const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Column 2: Company Links */}
+                    {/* Column 2: Featured Properties */}
                     <div>
                         <h4 className="font-bold text-xl mb-6 text-white relative pb-2">
-                            Company
+                            Featured
                             <span className="absolute bottom-0 left-0 w-8 h-0.5 bg-primary"></span>
                             <span className="absolute bottom-0 left-10 w-4 h-0.5 bg-primary"></span>
                         </h4>
                         <ul className="space-y-3">
-                            {companyLinks.map(link => (
-                                <li key={link.text}>
-                                    <Link href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+                            {loading && (
+                                <>
+                                {[...Array(5)].map((_, i) => (
+                                    <li key={i}><Skeleton className="h-4 w-3/4" /></li>
+                                ))}
+                                </>
+                            )}
+                            {error && <li><p className="text-destructive">Could not load properties.</p></li>}
+                            {data?.properties.map((prop: { id: string, slug: string, title: string }) => (
+                                <li key={prop.id}>
+                                    <Link href={`/listings/${prop.slug}`} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
                                         <ChevronRight className="w-4 h-4 text-primary" />
-                                        <span>{link.text}</span>
+                                        <span>{prop.title}</span>
                                     </Link>
                                 </li>
                             ))}
