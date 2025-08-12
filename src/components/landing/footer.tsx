@@ -27,7 +27,7 @@ export const Footer = () => {
         <footer className="bg-black text-white/80 relative">
             <div className="absolute inset-0 bg-no-repeat bg-right"></div>
             <div className="container relative py-20 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {/* Column 1: Logo and Contact */}
                     <div className="space-y-6">
                         <Image src="/assets/images/logo/white-logo.svg" alt="VE Live Logo" width={200} height={50} data-ai-hint="logo" />
@@ -92,40 +92,6 @@ export const Footer = () => {
                                 </li>
                             ))}
                         </ul>
-                    </div>
-
-                    {/* Column 4: Newsletter */}
-                    <div>
-                        <h4 className="font-bold text-xl mb-6 text-white relative pb-2">
-                            Newsletter
-                            <span className="absolute bottom-0 left-0 w-8 h-0.5 bg-primary"></span>
-                            <span className="absolute bottom-0 left-10 w-4 h-0.5 bg-primary"></span>
-                        </h4>
-                        <p className="text-sm mb-4">
-                            Subscribe to our newsletter and we will inform you about newset directory and promotions.
-                        </p>
-                        <div className="relative w-full max-w-sm">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <Input
-                                type="email"
-                                placeholder="Your Email"
-                                className="w-full h-14 pl-12 pr-16 rounded-lg bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-                            />
-                            <Button type="submit" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-md" style={{ backgroundColor: 'hsl(var(--primary))' }}>
-                                <Send className="w-5 h-5 text-black" />
-                            </Button>
-                        </div>
-                        <h4 className="font-bold text-lg mt-8 mb-4 text-white">Language</h4>
-                        <Select>
-                            <SelectTrigger className="w-[180px] bg-white/10 border-white/20 text-white rounded-lg">
-                                <SelectValue placeholder="English" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-[#2a2a2a] text-white border-gray-600">
-                                <SelectItem value="en">English</SelectItem>
-                                <SelectItem value="es">Español</SelectItem>
-                                <SelectItem value="fr">Français</SelectItem>
-                            </SelectContent>
-                        </Select>
                     </div>
                 </div>
             </div>
