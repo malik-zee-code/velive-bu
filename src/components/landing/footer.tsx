@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '../ui/button';
@@ -6,21 +7,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Twitter, Facebook, Linkedin, Youtube, Phone, MapPin, Mail, Send, ChevronRight, ChevronUp } from 'lucide-react';
 
 const companyLinks = [
-    { href: "#", text: "About Us" },
+    { href: "/about", text: "About Us" },
     { href: "#", text: "Our Team" },
-    { href: "#", text: "Contact Us" },
+    { href: "/contact", text: "Contact Us" },
     { href: "#", text: "Terms Of Service" },
-    { href: "#", text: "Privacy policy" },
+    { href: "/privacy-policy", text: "Privacy policy" },
     { href: "#", text: "Careers" },
 ];
 
 const quickLinks = [
-    { href: "#", text: "FAQ's" },
-    { href: "#", text: "Top Places" },
-    { href: "#", text: "Support" },
-    { href: "#", text: "Community" },
-    { href: "#", text: "Sitemap" },
-    { href: "#", text: "Latest Blog" },
+    { href: "/about", text: "About Us" },
+    { href: "/services", text: "Services" },
+    { href: "/contact", text: "Contact" },
+    { href: "/privacy-policy", text: "Privacy Policy" },
 ];
 
 export const Footer = () => {
