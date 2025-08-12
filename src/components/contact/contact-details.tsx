@@ -1,19 +1,15 @@
 
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
 import { Phone, Mail, MapPin, Send, Briefcase } from 'lucide-react';
 import Image from 'next/image';
 import { gql, useQuery } from '@apollo/client';
 import { Skeleton } from '../ui/skeleton';
+import { Label } from '../ui/label';
 
 const GET_SETTINGS = gql`
   query GetSettings {
@@ -25,30 +21,10 @@ const GET_SETTINGS = gql`
   }
 `;
 
-const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(1, 'Phone number is required'),
-  unitType: z.string().min(1, 'Unit type is required'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
-});
-
 const getSetting = (settings: any[], title: string) => settings.find(s => s.title === title)?.value || null;
 
 export const ContactDetails = () => {
-  const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { name: '', email: '', phone: '', unitType: '', message: '' },
-  });
-
   const { data, loading, error } = useQuery(GET_SETTINGS);
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    toast({ title: 'Message Sent!', description: "We'll get back to you soon." });
-    form.reset();
-  };
 
   const settings = data?.settings || [];
   const address1 = getSetting(settings, 'address_1');
@@ -77,31 +53,38 @@ export const ContactDetails = () => {
                         <CardDescription>Fill out the form below and we will get back to you as soon as possible.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <FormField control={form.control} name="name" render={({ field }) => (
-                                    <FormItem><FormLabel>Your Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                 <div className="grid sm:grid-cols-2 gap-6">
-                                    <FormField control={form.control} name="email" render={({ field }) => (
-                                        <FormItem><FormLabel>Your Email</FormLabel><FormControl><Input placeholder="john@example.com" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )}/>
-                                    <FormField control={form.control} name="phone" render={({ field }) => (
-                                        <FormItem><FormLabel>Phone</FormLabel><FormControl><Input placeholder="+1 234 567 890" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )}/>
+                        <form
+                            action="https://formspree.io/f/mjkolrkw"
+                            method="POST"
+                            className="space-y-6"
+                        >
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Your Name</Label>
+                                <Input id="name" name="name" placeholder="John Doe" required />
+                            </div>
+                            <div className="grid sm:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="email">Your Email</Label>
+                                    <Input id="email" type="email" name="email" placeholder="john@example.com" required />
                                 </div>
-                                <FormField control={form.control} name="unitType" render={({ field }) => (
-                                    <FormItem><FormLabel>Unit Type</FormLabel><FormControl><Input placeholder="e.g., 2 Bedroom Apartment" {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="message" render={({ field }) => (
-                                    <FormItem><FormLabel>Message</FormLabel><FormControl><Textarea placeholder="Type your message here..." rows={5} {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <Button type="submit" size="lg" className="w-full" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
-                                    <Send className="mr-2 h-5 w-5"/>
-                                    Submit
-                                </Button>
-                            </form>
-                        </Form>
+                                <div className="space-y-2">
+                                    <Label htmlFor="phone">Phone</Label>
+                                    <Input id="phone" type="tel" name="phone" placeholder="+1 234 567 890" required />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="unitType">Unit Type</Label>
+                                <Input id="unitType" name="unitType" placeholder="e.g., 2 Bedroom Apartment" required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="message">Message</Label>
+                                <Textarea id="message" name="message" placeholder="Type your message here..." rows={5} required />
+                            </div>
+                            <Button type="submit" size="lg" className="w-full" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
+                                <Send className="mr-2 h-5 w-5"/>
+                                Submit
+                            </Button>
+                        </form>
                     </CardContent>
                 </Card>
                 <div className="mt-8 text-center">
