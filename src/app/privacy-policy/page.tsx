@@ -26,16 +26,16 @@ const PrivacyPolicyPage = () => {
             <h2 className="text-2xl font-bold mt-8">3. Use of Your Information</h2>
             <p>
               We may use the information we collect from you to:
-              <ul>
-                <li>- Provide, operate, and maintain our website</li>
-                <li>- Improve, personalize, and expand our website</li>
-                <li>- Understand and analyze how you use our website</li>
-                <li>- Develop new products, services, features, and functionality</li>
-                <li>- Communicate with you, either directly or through one of our partners</li>
-                <li>- Send you emails</li>
-                <li>- Find and prevent fraud</li>
-              </ul>
             </p>
+            <ul>
+              <li>Provide, operate, and maintain our website</li>
+              <li>Improve, personalize, and expand our website</li>
+              <li>Understand and analyze how you use our website</li>
+              <li>Develop new products, services, features, and functionality</li>
+              <li>Communicate with you, either directly or through one of our partners</li>
+              <li>Send you emails</li>
+              <li>Find and prevent fraud</li>
+            </ul>
 
             <h2 className="text-2xl font-bold mt-8">4. Security of Your Information</h2>
             <p>
