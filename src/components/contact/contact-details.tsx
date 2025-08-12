@@ -12,6 +12,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { Phone, Mail, MapPin, Send } from 'lucide-react';
 import Image from 'next/image';
+import { gql, useQuery } from '@apollo/client';
+import { Skeleton } from '../ui/skeleton';
+
+const GET_SETTINGS = gql`
+  query GetSettings {
+    settings {
+      id
+      title
+      value
+    }
+  }
+`;
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -20,11 +32,7 @@ const formSchema = z.object({
   message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 
-const contactInfo = [
-    { icon: <MapPin className="w-6 h-6 text-primary" />, title: "Our Location", value: "25/B Milford Road, Dubai, UAE" },
-    { icon: <Mail className="w-6 h-6 text-primary" />, title: "Email Address", value: "info@example.com" },
-    { icon: <Phone className="w-6 h-6 text-primary" />, title: "Phone Number", value: "+971 123 654 7898" },
-];
+const getSetting = (settings: any[], title: string) => settings.find(s => s.title === title)?.value || null;
 
 export const ContactDetails = () => {
   const { toast } = useToast();
@@ -33,11 +41,28 @@ export const ContactDetails = () => {
     defaultValues: { name: '', email: '', subject: '', message: '' },
   });
 
+  const { data, loading, error } = useQuery(GET_SETTINGS);
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log(values);
     toast({ title: 'Message Sent!', description: "We'll get back to you soon." });
     form.reset();
   };
+
+  const settings = data?.settings || [];
+  const address1 = getSetting(settings, 'address_1');
+  const address2 = getSetting(settings, 'address_2');
+  const email = getSetting(settings, 'email');
+  const phone1 = getSetting(settings, 'phone_1');
+  const phone2 = getSetting(settings, 'phone_2');
+  
+  const contactInfo = [
+    ...(address1 ? [{ icon: <MapPin className="w-6 h-6 text-primary" />, title: "Bay Square", value: address1 }] : []),
+    ...(address2 ? [{ icon: <MapPin className="w-6 h-6 text-primary" />, title: "Hadley Heights (Coming Soon)", value: address2 }] : []),
+    ...(email ? [{ icon: <Mail className="w-6 h-6 text-primary" />, title: "Email Address", value: email }] : []),
+    ...(phone1 ? [{ icon: <Phone className="w-6 h-6 text-primary" />, title: "Phone Number 1", value: phone1 }] : []),
+    ...(phone2 ? [{ icon: <Phone className="w-6 h-6 text-primary" />, title: "Phone Number 2", value: phone2 }] : []),
+  ];
 
   return (
     <section className="py-20">
@@ -81,7 +106,21 @@ export const ContactDetails = () => {
                     <p className="mt-2 text-muted-foreground">Find us at the following address and contact details.</p>
                 </div>
                 <div className="space-y-6">
-                    {contactInfo.map((info) => (
+                    {loading && (
+                      <div className="space-y-6">
+                        {[...Array(3)].map((_, i) => (
+                           <div key={i} className="flex items-start gap-4">
+                              <Skeleton className="w-16 h-16 rounded-lg" />
+                              <div className="space-y-2">
+                                <Skeleton className="h-5 w-48" />
+                                <Skeleton className="h-4 w-64" />
+                              </div>
+                           </div>
+                        ))}
+                      </div>
+                    )}
+                    {error && <p className="text-destructive">Failed to load contact information.</p>}
+                    {!loading && !error && contactInfo.map((info) => (
                         <div key={info.title} className="flex items-start gap-4">
                             <div className="bg-primary/10 p-4 rounded-lg">
                                 {info.icon}
@@ -94,7 +133,7 @@ export const ContactDetails = () => {
                     ))}
                 </div>
                  <div className="mt-8">
-                    <Image src="/assets/images/city/01.jpg" alt="Map" width={600} height={400} className="rounded-lg shadow-lg w-full" data-ai-hint="map location" />
+                    <Image src="https://placehold.co/600x400.png" alt="Map" width={600} height={400} className="rounded-lg shadow-lg w-full" data-ai-hint="map location" />
                 </div>
             </div>
         </div>
