@@ -54,7 +54,7 @@ export const Hero = ({
   const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.title;
 
   return (
-    <section className="relative flex items-center justify-center text-card-foreground overflow-hidden py-20 md:py-40">
+    <section className="relative flex items-center justify-center text-card-foreground overflow-hidden py-20 md:py-28">
         <video 
             autoPlay 
             loop 
@@ -74,7 +74,7 @@ export const Hero = ({
                 <p className="text-lg md:text-xl text-white/80 mb-8">
                     Exclusively managing LEOS developments with full-service leasing, maintenance, legal support & more — all under one roof.
                 </p>
-                <div className="flex justify-center gap-4 mb-8">
+                <div className="flex justify-center gap-4 my-20">
                     <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
                         <Link href="/contact">
                             <MessageCircle className="mr-2 h-5 w-5" />
