@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, Mail, MapPin, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, Briefcase } from 'lucide-react';
 import Image from 'next/image';
 import { gql, useQuery } from '@apollo/client';
 import { Skeleton } from '../ui/skeleton';
@@ -28,7 +28,8 @@ const GET_SETTINGS = gql`
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
-  subject: z.string().min(1, 'Subject is required'),
+  phone: z.string().min(1, 'Phone number is required'),
+  unitType: z.string().min(1, 'Unit type is required'),
   message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 
@@ -38,7 +39,7 @@ export const ContactDetails = () => {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', email: '', subject: '', message: '' },
+    defaultValues: { name: '', email: '', phone: '', unitType: '', message: '' },
   });
 
   const { data, loading, error } = useQuery(GET_SETTINGS);
@@ -51,16 +52,19 @@ export const ContactDetails = () => {
 
   const settings = data?.settings || [];
   const address1 = getSetting(settings, 'address_1');
+  const address2 = getSetting(settings, 'address_2');
   const email = getSetting(settings, 'email');
   const phone1 = getSetting(settings, 'phone_1');
   const phone2 = getSetting(settings, 'phone_2');
   
   const contactInfo = [
     ...(address1 ? [{ icon: <MapPin className="w-5 h-5 text-primary" />, title: "Bay Square", value: address1 }] : []),
+    ...(address2 ? [{ icon: <MapPin className="w-5 h-5 text-primary" />, title: "Hadley Heights", value: address2 }] : []),
     ...(email ? [{ icon: <Mail className="w-5 h-5 text-primary" />, title: "Email Address", value: email }] : []),
     ...(phone1 ? [{ icon: <Phone className="w-5 h-5 text-primary" />, title: "Phone Number 1", value: phone1 }] : []),
     ...(phone2 ? [{ icon: <Phone className="w-5 h-5 text-primary" />, title: "Phone Number 2", value: phone2 }] : []),
   ];
+
 
   return (
     <section className="py-20">
@@ -74,40 +78,49 @@ export const ContactDetails = () => {
                     </CardHeader>
                     <CardContent>
                         <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            <div className="grid sm:grid-cols-2 gap-6">
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                 <FormField control={form.control} name="name" render={({ field }) => (
                                     <FormItem><FormLabel>Your Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                                <FormField control={form.control} name="email" render={({ field }) => (
-                                    <FormItem><FormLabel>Your Email</FormLabel><FormControl><Input placeholder="john@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                                 <div className="grid sm:grid-cols-2 gap-6">
+                                    <FormField control={form.control} name="email" render={({ field }) => (
+                                        <FormItem><FormLabel>Your Email</FormLabel><FormControl><Input placeholder="john@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="phone" render={({ field }) => (
+                                        <FormItem><FormLabel>Phone</FormLabel><FormControl><Input placeholder="+1 234 567 890" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                </div>
+                                <FormField control={form.control} name="unitType" render={({ field }) => (
+                                    <FormItem><FormLabel>Unit Type</FormLabel><FormControl><Input placeholder="e.g., 2 Bedroom Apartment" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                            </div>
-                            <FormField control={form.control} name="subject" render={({ field }) => (
-                                <FormItem><FormLabel>Subject</FormLabel><FormControl><Input placeholder="Subject of your message" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="message" render={({ field }) => (
-                                <FormItem><FormLabel>Message</FormLabel><FormControl><Textarea placeholder="Type your message here..." rows={5} {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <Button type="submit" size="lg" className="w-full" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
-                                <Send className="mr-2 h-5 w-5"/>
-                                Send Message
-                            </Button>
-                        </form>
+                                <FormField control={form.control} name="message" render={({ field }) => (
+                                    <FormItem><FormLabel>Message</FormLabel><FormControl><Textarea placeholder="Type your message here..." rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <Button type="submit" size="lg" className="w-full" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
+                                    <Send className="mr-2 h-5 w-5"/>
+                                    Submit
+                                </Button>
+                            </form>
                         </Form>
                     </CardContent>
                 </Card>
+                <div className="mt-8 text-center">
+                    <Button size="lg" variant="outline" className="w-full md:w-auto">
+                        <Briefcase className="mr-2 h-5 w-5" />
+                        Book Free Consultation
+                    </Button>
+                </div>
             </div>
             <div className="space-y-8">
                 <div>
                     <h2 className="text-3xl font-bold font-headline text-foreground">Contact Information</h2>
                     <p className="mt-2 text-muted-foreground">Find us at the following address and contact details.</p>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {loading && (
                       <div className="space-y-6">
                         {[...Array(3)].map((_, i) => (
-                           <div key={i} className="flex items-center gap-4">
+                           <div key={i} className="flex items-start gap-4">
                               <Skeleton className="w-12 h-12 rounded-lg" />
                               <div className="space-y-2">
                                 <Skeleton className="h-5 w-48" />
