@@ -51,17 +51,15 @@ export const ContactDetails = () => {
 
   const settings = data?.settings || [];
   const address1 = getSetting(settings, 'address_1');
-  const address2 = getSetting(settings, 'address_2');
   const email = getSetting(settings, 'email');
   const phone1 = getSetting(settings, 'phone_1');
   const phone2 = getSetting(settings, 'phone_2');
   
   const contactInfo = [
-    ...(address1 ? [{ icon: <MapPin className="w-6 h-6 text-primary" />, title: "Bay Square", value: address1 }] : []),
-    ...(address2 ? [{ icon: <MapPin className="w-6 h-6 text-primary" />, title: "Hadley Heights (Coming Soon)", value: address2 }] : []),
-    ...(email ? [{ icon: <Mail className="w-6 h-6 text-primary" />, title: "Email Address", value: email }] : []),
-    ...(phone1 ? [{ icon: <Phone className="w-6 h-6 text-primary" />, title: "Phone Number 1", value: phone1 }] : []),
-    ...(phone2 ? [{ icon: <Phone className="w-6 h-6 text-primary" />, title: "Phone Number 2", value: phone2 }] : []),
+    ...(address1 ? [{ icon: <MapPin className="w-5 h-5 text-primary" />, title: "Bay Square", value: address1 }] : []),
+    ...(email ? [{ icon: <Mail className="w-5 h-5 text-primary" />, title: "Email Address", value: email }] : []),
+    ...(phone1 ? [{ icon: <Phone className="w-5 h-5 text-primary" />, title: "Phone Number 1", value: phone1 }] : []),
+    ...(phone2 ? [{ icon: <Phone className="w-5 h-5 text-primary" />, title: "Phone Number 2", value: phone2 }] : []),
   ];
 
   return (
@@ -109,8 +107,8 @@ export const ContactDetails = () => {
                     {loading && (
                       <div className="space-y-6">
                         {[...Array(3)].map((_, i) => (
-                           <div key={i} className="flex items-start gap-4">
-                              <Skeleton className="w-16 h-16 rounded-lg" />
+                           <div key={i} className="flex items-center gap-4">
+                              <Skeleton className="w-12 h-12 rounded-lg" />
                               <div className="space-y-2">
                                 <Skeleton className="h-5 w-48" />
                                 <Skeleton className="h-4 w-64" />
@@ -121,8 +119,8 @@ export const ContactDetails = () => {
                     )}
                     {error && <p className="text-destructive">Failed to load contact information.</p>}
                     {!loading && !error && contactInfo.map((info) => (
-                        <div key={info.title} className="flex items-start gap-4">
-                            <div className="bg-primary/10 p-4 rounded-lg">
+                        <div key={info.title} className="flex items-center gap-4">
+                            <div className="bg-primary/10 p-3 rounded-lg">
                                 {info.icon}
                             </div>
                             <div>
