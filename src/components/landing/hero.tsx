@@ -62,7 +62,7 @@ export const Hero = ({
             playsInline
             className="absolute z-0 w-auto min-w-full min-h-full max-w-none"
         >
-            <source src="/assets/images/hero/hero-1.mp4" type="video/mp4" />
+            <source src="/assets/images/hero/hadley-heights1.mp4" type="video/mp4" />
             Your browser does not support the video tag.
         </video>
         <div className="absolute inset-0 bg-black/70 z-10" />
