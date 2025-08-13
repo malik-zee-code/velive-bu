@@ -9,12 +9,16 @@ import { Twitter, Facebook, Linkedin, Youtube, Phone, MapPin, Mail, Send, Chevro
 import { gql, useQuery } from '@apollo/client';
 import { Skeleton } from '../ui/skeleton';
 
-const GET_FEATURED_PROPERTIES = gql`
-  query GetFeaturedPropertiesFooter {
+const GET_FOOTER_DATA = gql`
+  query GetFooterData {
     properties(where: {is_featured: {_eq: true}}, limit: 6) {
       id
       title
       slug
+    }
+    settings(where: {title: {_in: ["address_1", "email", "phone_1"]}}) {
+      title
+      value
     }
   }
 `;
@@ -27,7 +31,13 @@ const quickLinks = [
 ];
 
 export const Footer = () => {
-    const { data, loading, error } = useQuery(GET_FEATURED_PROPERTIES);
+    const { data, loading, error } = useQuery(GET_FOOTER_DATA);
+
+    const getSetting = (title: string) => data?.settings.find((s: any) => s.title === title)?.value;
+
+    const phone = getSetting('phone_1');
+    const address = getSetting('address_1');
+    const email = getSetting('email');
 
     return (
         <footer className="bg-black text-white/80 relative">
@@ -40,25 +50,41 @@ export const Footer = () => {
                         <p className="text-sm">
                             We are many variations of passages available but the majority have suffered alteration in some form by injected humour words believable.
                         </p>
-                        <ul className="space-y-4 text-sm">
-                            <li className="flex items-center gap-3">
-                                <div className="bg-primary/20 text-primary p-2 rounded-md">
-                                    <Phone className="w-5 h-5" />
-                                </div>
-                                <span>+971 123 654 7898</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <div className="bg-primary/20 text-primary p-2 rounded-md">
-                                    <MapPin className="w-5 h-5" />
-                                </div>
-                                <span>25/B Milford Road, Dubai, UAE</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <div className="bg-primary/20 text-primary p-2 rounded-md">
-                                    <Mail className="w-5 h-5" />
-                                </div>
-                                <span>info@example.com</span>
-                            </li>
+                         <ul className="space-y-4 text-sm">
+                            {loading ? (
+                                <>
+                                    <li className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-40" /></li>
+                                    <li className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-48" /></li>
+                                    <li className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-32" /></li>
+                                </>
+                            ) : (
+                                <>
+                                    {phone && (
+                                        <li className="flex items-center gap-3">
+                                            <div className="bg-primary/20 text-primary p-2 rounded-md">
+                                                <Phone className="w-5 h-5" />
+                                            </div>
+                                            <span>{phone}</span>
+                                        </li>
+                                    )}
+                                    {address && (
+                                        <li className="flex items-center gap-3">
+                                            <div className="bg-primary/20 text-primary p-2 rounded-md">
+                                                <MapPin className="w-5 h-5" />
+                                            </div>
+                                            <span>{address}</span>
+                                        </li>
+                                    )}
+                                    {email && (
+                                         <li className="flex items-center gap-3">
+                                            <div className="bg-primary/20 text-primary p-2 rounded-md">
+                                                <Mail className="w-5 h-5" />
+                                            </div>
+                                            <span>{email}</span>
+                                        </li>
+                                    )}
+                                </>
+                            )}
                         </ul>
                     </div>
 
