@@ -40,6 +40,7 @@ const differentiators = [
 const AboutPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
+      <Header />
       <main>
         <AboutHero />
 
@@ -105,6 +106,7 @@ const AboutPage = () => {
         </section>
 
       </main>
+      <Footer />
     </div>
   );
 };
