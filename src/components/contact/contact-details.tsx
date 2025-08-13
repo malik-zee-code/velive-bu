@@ -9,6 +9,7 @@ import { Skeleton } from '../ui/skeleton';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
+import { getSetting } from '@/lib/settings';
 
 const GET_SETTINGS = gql`
   query GetSettings {
@@ -19,14 +20,6 @@ const GET_SETTINGS = gql`
     }
   }
 `;
-
-const getSetting = (settings: any[], title: string) => {
-    const setting = settings.find(s => s.title === title);
-    if (setting?.title === 'address_2' && setting?.value.includes('(Coming Soon)')) {
-        return null;
-    }
-    return setting?.value || null;
-};
 
 export const ContactDetails = () => {
   const { data, loading, error } = useQuery(GET_SETTINGS);
