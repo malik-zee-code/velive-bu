@@ -118,7 +118,7 @@ export const ContactDetails = () => {
                     )}
                     {error && <p className="text-destructive">Failed to load contact information.</p>}
                     {!loading && !error && contactInfo.map((info) => (
-                        <div key={info.title} className="flex items-center gap-4">
+                        <div key={info.title} className="flex items-start gap-4">
                             <div className="bg-primary/10 p-2 rounded-lg">
                                 {info.icon}
                             </div>
