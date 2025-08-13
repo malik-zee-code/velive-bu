@@ -24,8 +24,11 @@ const GET_FOOTER_DATA = gql`
 `;
 
 const quickLinks = [
+    { href: "/", text: "Home" },
     { href: "/about", text: "About Us" },
     { href: "/services", text: "Services" },
+    { href: "/listings", text: "Listing" },
+    { href: "/blog", text: "Blog" },
     { href: "/contact", text: "Contact" },
     { href: "/privacy-policy", text: "Privacy Policy" },
 ];
