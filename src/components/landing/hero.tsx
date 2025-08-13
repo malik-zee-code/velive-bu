@@ -88,7 +88,7 @@ export const Hero = ({
                         </a>
                     </Button>
                     <Button asChild size="lg" variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
-                        <Link href="/#services">
+                        <Link href="/services">
                             <Wrench className="mr-2 h-5 w-5" />
                            View Our Services
                         </Link>
