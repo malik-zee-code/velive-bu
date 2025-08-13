@@ -2,14 +2,13 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Phone, Mail, MapPin, Send, Briefcase } from 'lucide-react';
-import Image from 'next/image';
 import { gql, useQuery } from '@apollo/client';
 import { Skeleton } from '../ui/skeleton';
 import { Label } from '../ui/label';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
 
 const GET_SETTINGS = gql`
   query GetSettings {
@@ -21,7 +20,13 @@ const GET_SETTINGS = gql`
   }
 `;
 
-const getSetting = (settings: any[], title: string) => settings.find(s => s.title === title)?.value || null;
+const getSetting = (settings: any[], title: string) => {
+    const setting = settings.find(s => s.title === title);
+    if (setting?.title === 'address_2' && setting?.value.includes('(Coming Soon)')) {
+        return null;
+    }
+    return setting?.value || null;
+};
 
 export const ContactDetails = () => {
   const { data, loading, error } = useQuery(GET_SETTINGS);
@@ -62,15 +67,13 @@ export const ContactDetails = () => {
                                 <Label htmlFor="name">Your Name</Label>
                                 <Input id="name" name="name" placeholder="John Doe" required />
                             </div>
-                            <div className="grid sm:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Your Email</Label>
-                                    <Input id="email" type="email" name="email" placeholder="john@example.com" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone">Phone</Label>
-                                    <Input id="phone" type="tel" name="phone" placeholder="+1 234 567 890" required />
-                                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Your Email</Label>
+                                <Input id="email" type="email" name="email" placeholder="john@example.com" required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone</Label>
+                                <Input id="phone" type="tel" name="phone" placeholder="+1 234 567 890" required />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="unitType">Unit Type</Label>
@@ -115,8 +118,8 @@ export const ContactDetails = () => {
                     )}
                     {error && <p className="text-destructive">Failed to load contact information.</p>}
                     {!loading && !error && contactInfo.map((info) => (
-                        <div key={info.title} className="flex items-start gap-4">
-                            <div className="bg-primary/10 p-3 rounded-lg">
+                        <div key={info.title} className="flex items-center gap-4">
+                            <div className="bg-primary/10 p-2 rounded-lg">
                                 {info.icon}
                             </div>
                             <div className='-mt-1'>
@@ -127,7 +130,16 @@ export const ContactDetails = () => {
                     ))}
                 </div>
                  <div className="mt-8">
-                    <Image src="/assets/images/city/01.jpg" alt="Map" width={600} height={400} className="rounded-lg shadow-lg w-full" data-ai-hint="map location" />
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3610.459039335689!2d55.26049231500947!3d25.18781988390029!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f6905b8e9a269%3A0x28f2445100657573!2sBay%20Square%2C%20Dubai!5e0!3m2!1sen!2sae!4v1626260838385!5m2!1sen!2sae"
+                        width="600"
+                        height="400"
+                        style={{ border: 0 }}
+                        allowFullScreen={false}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="rounded-lg shadow-lg w-full"
+                    ></iframe>
                 </div>
             </div>
         </div>
