@@ -77,18 +77,12 @@ export const ContactDetails = () => {
                                 <Textarea id="message" name="message" placeholder="Type your message here..." rows={5} required />
                             </div>
                             <Button type="submit" size="lg" className="w-full" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
-                                <Send className="mr-2 h-5 w-5"/>
-                                Submit
+                                <Briefcase className="mr-2 h-5 w-5"/>
+                                Book Free Consultation
                             </Button>
                         </form>
                     </CardContent>
                 </Card>
-                <div className="mt-8 text-center">
-                    <Button size="lg" variant="outline" className="w-full md:w-auto">
-                        <Briefcase className="mr-2 h-5 w-5" />
-                        Book Free Consultation
-                    </Button>
-                </div>
             </div>
             <div className="space-y-8">
                 <div>
