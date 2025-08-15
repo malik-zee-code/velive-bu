@@ -75,26 +75,6 @@ export const Hero = ({
                 <p className="text-lg md:text-xl text-white/80 mb-8">
                     Exclusively managing LEOS developments with full-service leasing, maintenance, legal support & more — all under one roof.
                 </p>
-                <div className="flex justify-center gap-4 my-20">
-                    <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
-                        <Link href="/contact">
-                            <MessageCircle className="mr-2 h-5 w-5" />
-                            Get a Free Consultation
-                        </Link>
-                    </Button>
-                    <Button asChild size="lg" variant="outline" className="text-white bg-transparent hover:bg-white/10 hover:text-white border-white">
-                        <a href="/assets/images/download/brochure.pdf" download>
-                             <Download className="mr-2 h-5 w-5" />
-                            Download Brochure
-                        </a>
-                    </Button>
-                    <Button asChild size="lg" variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
-                        <Link href="/services">
-                            <Wrench className="mr-2 h-5 w-5" />
-                           View Our Services
-                        </Link>
-                    </Button>
-                </div>
             </div>
             <div className="max-w-7xl mx-auto mt-8">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg">
@@ -181,6 +161,26 @@ export const Hero = ({
                             </button>
                         );
                     })}
+                </div>
+                 <div className="flex justify-center gap-4 mt-20">
+                    <Button asChild size="lg" variant="outline" className="text-white bg-transparent hover:bg-white/10 hover:text-white border-white">
+                        <Link href="/services">
+                            <Wrench className="mr-2 h-5 w-5" />
+                           View Our Services
+                        </Link>
+                    </Button>
+                     <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
+                        <a href="/assets/images/download/brochure.pdf" download>
+                             <Download className="mr-2 h-5 w-5" />
+                            Download Brochure
+                        </a>
+                    </Button>
+                    <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }} className="hover:opacity-90">
+                        <Link href="/contact">
+                            <MessageCircle className="mr-2 h-5 w-5" />
+                            Get a Free Consultation
+                        </Link>
+                    </Button>
                 </div>
             </div>
         </div>

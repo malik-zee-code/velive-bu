@@ -3,7 +3,7 @@ import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, HandCoins, FileText, Repeat, ShieldCheck, UserCheck, Megaphone, Wrench } from 'lucide-react';
+import { CheckCircle, HandCoins, FileText, Repeat, ShieldCheck, UserCheck, Megaphone, Wrench, Download } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -56,9 +56,20 @@ const ServicesPage = () => {
               <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-4">
                 Our <span className="text-primary">Services</span>
               </h1>
-              <p className="text-lg md:text-xl text-white/80">
+              <p className="text-lg md:text-xl text-white/80 mb-8">
                 Comprehensive property management solutions tailored to your needs.
               </p>
+                <div className="flex justify-center gap-4">
+                  <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }} className="hover:opacity-90">
+                    <Link href="/contact">Contact Us</Link>
+                  </Button>
+                  <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
+                     <a href="/assets/images/download/brochure.pdf" download>
+                        <Download className="mr-2 h-5 w-5" />
+                        Download Brochure
+                    </a>
+                  </Button>
+                </div>
             </div>
           </div>
         </section>

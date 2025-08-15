@@ -3,6 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Download } from 'lucide-react';
 
 export const AboutHero = () => {
   return (
@@ -21,8 +22,14 @@ export const AboutHero = () => {
             We are a passionate team dedicated to helping you find the best places and experiences your city has to offer.
           </p>
            <div className="flex justify-center gap-4">
-              <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
+              <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }} className="hover:opacity-90">
                 <Link href="/listings">Explore Listings</Link>
+              </Button>
+              <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
+                 <a href="/assets/images/download/brochure.pdf" download>
+                    <Download className="mr-2 h-5 w-5" />
+                    Download Brochure
+                </a>
               </Button>
               <Button asChild size="lg" variant="outline" className="bg-white text-black hover:bg-white/90">
                 <Link href="/contact">Contact Us</Link>
