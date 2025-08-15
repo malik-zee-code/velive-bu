@@ -162,26 +162,6 @@ export const Hero = ({
                         );
                     })}
                 </div>
-                 <div className="flex justify-center gap-4 mt-20">
-                    <Button asChild size="lg" variant="outline" className="text-white bg-transparent hover:bg-white/10 hover:text-white border-white">
-                        <Link href="/services">
-                            <Wrench className="mr-2 h-5 w-5" />
-                           View Our Services
-                        </Link>
-                    </Button>
-                     <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
-                        <a href="/assets/images/download/brochure.pdf" download>
-                             <Download className="mr-2 h-5 w-5" />
-                            Download Brochure
-                        </a>
-                    </Button>
-                    <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }} className="hover:opacity-90">
-                        <Link href="/contact">
-                            <MessageCircle className="mr-2 h-5 w-5" />
-                            Get a Free Consultation
-                        </Link>
-                    </Button>
-                </div>
             </div>
         </div>
     </section>

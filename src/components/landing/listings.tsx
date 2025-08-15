@@ -6,6 +6,7 @@ import { ListingCard } from '@/components/landing/listing-card';
 import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { Download, MessageCircle, Wrench } from 'lucide-react';
 
 interface ListingsProps {
   listings: Listing[];
@@ -47,9 +48,24 @@ export const Listings = ({ listings, loading }: ListingsProps) => {
             <p className="text-muted-foreground mt-2">Check back later for our featured properties.</p>
           </div>
         )}
-        <div className="text-center mt-12">
-            <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
-                <Link href="/contact">List Your Unit With Us</Link>
+        <div className="flex justify-center gap-4 mt-20">
+            <Button asChild size="lg" variant="outline" className="text-foreground bg-transparent hover:bg-accent hover:text-accent-foreground border-border">
+                <Link href="/services">
+                    <Wrench className="mr-2 h-5 w-5" />
+                   View Our Services
+                </Link>
+            </Button>
+             <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
+                <a href="/assets/images/download/brochure.pdf" download>
+                     <Download className="mr-2 h-5 w-5" />
+                    Download Brochure
+                </a>
+            </Button>
+            <Button asChild size="lg" style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }} className="hover:opacity-90">
+                <Link href="/contact">
+                    <MessageCircle className="mr-2 h-5 w-5" />
+                    Get a Free Consultation
+                </Link>
             </Button>
         </div>
       </div>
