@@ -105,13 +105,13 @@ export const Hero = ({
                         </ToggleGroupItem>
                       </ToggleGroup>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-2 rounded-lg border border-white/20">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
                       <div className="md:col-span-4 relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <Input
                               type="text"
                               placeholder="What are you looking for?"
-                              className="pl-10 h-12 text-base bg-transparent border-0 text-white placeholder:text-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                              className="pl-10 h-12 text-base bg-transparent border-0 text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0"
                               value={searchQuery}
                               onChange={(e) => setSearchQuery(e.target.value)}
                               onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
@@ -120,7 +120,7 @@ export const Hero = ({
                       <div className="md:col-span-3 relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <Select value={selectedLocation} onValueChange={handleLocationChange}>
-                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-white focus:ring-0 focus:ring-offset-0">
+                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
                               <SelectValue placeholder="Location" />
                               </SelectTrigger>
                               <SelectContent>
@@ -132,7 +132,7 @@ export const Hero = ({
                       <div className="md:col-span-3 relative">
                           <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-white focus:ring-0 focus:ring-offset-0">
+                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
                                   <SelectValue placeholder="Category" />
                               </SelectTrigger>
                               <SelectContent>
@@ -155,7 +155,7 @@ export const Hero = ({
                               <Button 
                               size="icon"
                               variant="ghost"
-                              className="h-12 w-12 text-white hover:bg-white/20"
+                              className="h-12 w-12 text-muted-foreground hover:bg-black/10"
                               onClick={onClearClick}
                               >
                               <X className="h-5 w-5" />
