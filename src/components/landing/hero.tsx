@@ -88,83 +88,83 @@ export const Hero = ({
                 </p>
             </div>
             <div className="max-w-7xl mx-auto mt-8">
-            <Card className="p-4 bg-white/10 border-white/20 backdrop-blur-md">
-              <CardContent className="p-0">
-                  <div className="flex items-center gap-4 mb-4">
-                     <ToggleGroup
-                        type="single"
-                        value={listingType}
-                        onValueChange={handleListingTypeChange}
-                        className="flex items-center space-x-1 bg-black/20 p-1 rounded-md"
-                      >
-                        <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 text-white data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
-                          Sale
-                        </ToggleGroupItem>
-                         <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 text-white data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
-                          Rent
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
-                      <div className="md:col-span-4 relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <Input
-                              type="text"
-                              placeholder="What are you looking for?"
-                              className="pl-10 h-12 text-base bg-transparent border-0 text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0"
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
-                          />
-                      </div>
-                      <div className="md:col-span-3 relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <Select value={selectedLocation} onValueChange={handleLocationChange}>
-                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
-                              <SelectValue placeholder="Location" />
-                              </SelectTrigger>
-                              <SelectContent>
-                              <SelectItem value="all">All Locations</SelectItem>
-                              {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
-                              </SelectContent>
-                          </Select>
-                      </div>
-                      <div className="md:col-span-3 relative">
-                          <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
-                                  <SelectValue placeholder="Category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                  <SelectItem value="all">All Categories</SelectItem>
-                                  {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>)}
-                              </SelectContent>
-                          </Select>
-                      </div>
-                      <div className="md:col-span-2 flex items-center gap-2">
-                          <Button 
-                              size="lg" 
-                              className="w-full h-12 text-base rounded-lg transition-colors duration-300 ease-in-out hover:opacity-90"
-                              style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}
-                              onClick={onSearchClick}
-                              >
-                              <Search className="mr-2 h-5 w-5" />
-                              Search
-                          </Button>
-                          {isFiltered && (
-                              <Button 
-                              size="icon"
-                              variant="ghost"
-                              className="h-12 w-12 text-muted-foreground hover:bg-black/10"
-                              onClick={onClearClick}
-                              >
-                              <X className="h-5 w-5" />
-                              </Button>
-                          )}
-                      </div>
-                  </div>
-              </CardContent>
-            </Card>
+                <Card className="p-4 bg-white/10 border-white/20 backdrop-blur-md">
+                    <CardContent className="p-0">
+                        <div className="flex items-center gap-4 mb-4">
+                            <ToggleGroup
+                                type="single"
+                                value={listingType}
+                                onValueChange={handleListingTypeChange}
+                                className="flex items-center space-x-1 bg-black/20 p-1 rounded-md"
+                            >
+                                <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 text-white data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
+                                Sale
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 text-white data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
+                                Rent
+                                </ToggleGroupItem>
+                            </ToggleGroup>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
+                            <div className="md:col-span-4 relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                <Input
+                                    type="text"
+                                    placeholder="What are you looking for?"
+                                    className="pl-10 h-12 text-base bg-transparent border-0 text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
+                                />
+                            </div>
+                            <div className="md:col-span-3 relative">
+                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                <Select value={selectedLocation} onValueChange={handleLocationChange}>
+                                    <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
+                                    <SelectValue placeholder="Location" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    <SelectItem value="all">All Locations</SelectItem>
+                                    {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="md:col-span-3 relative">
+                                <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                                    <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
+                                        <SelectValue placeholder="Category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Categories</SelectItem>
+                                        {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="md:col-span-2 flex items-center gap-2">
+                                <Button 
+                                    size="lg" 
+                                    className="w-full h-12 text-base rounded-lg transition-colors duration-300 ease-in-out hover:opacity-90"
+                                    style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}
+                                    onClick={onSearchClick}
+                                    >
+                                    <Search className="mr-2 h-5 w-5" />
+                                    Search
+                                </Button>
+                                {isFiltered && (
+                                    <Button 
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-12 w-12 text-muted-foreground hover:bg-black/10"
+                                    onClick={onClearClick}
+                                    >
+                                    <X className="h-5 w-5" />
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
             <div className="mt-12 max-w-7xl mx-auto">
                 <p className="text-white mb-6">Or Browse Featured Categories</p>
