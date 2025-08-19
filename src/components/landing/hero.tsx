@@ -88,39 +88,39 @@ export const Hero = ({
                 </p>
             </div>
             <div className="max-w-7xl mx-auto mt-8">
-            <Card className="p-4">
+            <Card className="p-4 bg-white/10 border-white/20 backdrop-blur-md">
               <CardContent className="p-0">
                   <div className="flex items-center gap-4 mb-4">
                      <ToggleGroup
                         type="single"
                         value={listingType}
                         onValueChange={handleListingTypeChange}
-                        className="flex items-center space-x-1 bg-muted p-1 rounded-md"
+                        className="flex items-center space-x-1 bg-black/20 p-1 rounded-md"
                       >
-                        <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
+                        <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 text-white data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
                           Sale
                         </ToggleGroupItem>
-                         <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
+                         <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 text-white data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
                           Rent
                         </ToggleGroupItem>
                       </ToggleGroup>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-2 rounded-lg border border-white/20">
                       <div className="md:col-span-4 relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <Input
                               type="text"
                               placeholder="What are you looking for?"
-                              className="pl-10 h-12 text-base bg-transparent border-0 text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0"
+                              className="pl-10 h-12 text-base bg-transparent border-0 text-white placeholder:text-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
                               value={searchQuery}
                               onChange={(e) => setSearchQuery(e.target.value)}
                               onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
                           />
                       </div>
                       <div className="md:col-span-3 relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <Select value={selectedLocation} onValueChange={handleLocationChange}>
-                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
+                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-white focus:ring-0 focus:ring-offset-0">
                               <SelectValue placeholder="Location" />
                               </SelectTrigger>
                               <SelectContent>
@@ -130,9 +130,9 @@ export const Hero = ({
                           </Select>
                       </div>
                       <div className="md:col-span-3 relative">
-                          <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                          <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
+                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-white focus:ring-0 focus:ring-offset-0">
                                   <SelectValue placeholder="Category" />
                               </SelectTrigger>
                               <SelectContent>
@@ -155,7 +155,7 @@ export const Hero = ({
                               <Button 
                               size="icon"
                               variant="ghost"
-                              className="h-12 w-12 text-muted-foreground"
+                              className="h-12 w-12 text-white hover:bg-white/20"
                               onClick={onClearClick}
                               >
                               <X className="h-5 w-5" />
@@ -177,15 +177,14 @@ export const Hero = ({
                             onClick={() => onCategorySelect(category.title)}
                             className="w-full"
                             >
-                            <Card className={cn("group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 bg-white hover:bg-gray-100 rounded-lg", {
+                            <Card className={cn("group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 bg-white/20 hover:bg-white/30 rounded-lg border-transparent", {
                                 "border-primary": selectedCategoryName === category.title,
-                                "border-transparent": selectedCategoryName !== category.title
                             })}>
                                 <CardContent className="p-0">
                                 <div className="mx-auto h-16 w-16 rounded-lg flex items-center justify-center bg-primary/20 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                                     <Icon className="h-8 w-8" />
                                 </div>
-                                <h3 className="mt-4 font-semibold text-lg text-foreground">{category.title}</h3>
+                                <h3 className="mt-4 font-semibold text-lg text-white">{category.title}</h3>
                                 </CardContent>
                             </Card>
                             </button>
