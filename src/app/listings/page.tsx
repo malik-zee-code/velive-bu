@@ -73,10 +73,13 @@ const ListingsPageContent = () => {
     if (categoryQuery) {
         where._and.push({ category_id: { _eq: categoryQuery } });
     }
-    if (listingTypeQuery && listingTypeQuery !== 'all') {
+    if (listingTypeQuery) {
         where._and.push({ listing_type: { _eq: listingTypeQuery } });
+    } else {
+        // Default to sale if no listing type is provided
+        where._and.push({ listing_type: { _eq: 'sale' } });
     }
-    return where._and.length > 0 ? where : {};
+    return where;
   };
 
   const { data, loading, error } = useQuery(GET_PROPERTIES, {

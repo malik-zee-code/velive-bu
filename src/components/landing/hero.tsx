@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Dispatch, SetStateAction, ElementType } from 'react';
@@ -96,10 +97,10 @@ export const Hero = ({
                         onValueChange={handleListingTypeChange}
                         className="flex items-center space-x-1 bg-muted p-1 rounded-md"
                       >
-                        <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm rounded-md">
-                          Buy
+                        <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
+                          Sale
                         </ToggleGroupItem>
-                         <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm rounded-md">
+                         <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
                           Rent
                         </ToggleGroupItem>
                       </ToggleGroup>

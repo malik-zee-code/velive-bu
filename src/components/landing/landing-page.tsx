@@ -65,7 +65,7 @@ export function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [listingType, setListingType] = useState('');
+  const [listingType, setListingType] = useState('sale');
   const router = useRouter();
 
   const { data: categoriesData } = useQuery(GET_CATEGORIES);
@@ -77,7 +77,7 @@ export function LandingPage() {
     if (searchQuery) params.set('q', searchQuery);
     if (selectedLocation) params.set('location', selectedLocation);
     if (selectedCategory) params.set('category', selectedCategory);
-    if (listingType && listingType !== 'all') params.set('listing_type', listingType);
+    if (listingType) params.set('listing_type', listingType);
     router.push(`/listings?${params.toString()}`);
   };
   
@@ -85,7 +85,7 @@ export function LandingPage() {
     setSearchQuery('');
     setSelectedLocation('');
     setSelectedCategory('');
-    setListingType('');
+    setListingType('sale');
   };
 
   const handleCategorySelect = (category: string) => {
