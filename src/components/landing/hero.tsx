@@ -177,14 +177,14 @@ export const Hero = ({
                             onClick={() => onCategorySelect(category.title)}
                             className="w-full"
                             >
-                            <Card className={cn("group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 bg-white/20 hover:bg-white/30 rounded-lg border-transparent", {
+                            <Card className={cn("group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 bg-white hover:bg-gray-50 rounded-lg border-transparent", {
                                 "border-primary": selectedCategoryName === category.title,
                             })}>
                                 <CardContent className="p-0">
-                                <div className="mx-auto h-16 w-16 rounded-lg flex items-center justify-center bg-primary/20 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                                <div className="mx-auto h-16 w-16 rounded-lg flex items-center justify-center bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                                     <Icon className="h-8 w-8" />
                                 </div>
-                                <h3 className="mt-4 font-semibold text-lg text-white">{category.title}</h3>
+                                <h3 className="mt-4 font-semibold text-lg text-foreground">{category.title}</h3>
                                 </CardContent>
                             </Card>
                             </button>
