@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { Dispatch, SetStateAction, ElementType } from 'react';
@@ -9,8 +8,6 @@ import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Ca
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Label } from '../ui/label';
 
 interface HeroProps {
   searchQuery: string;
@@ -54,7 +51,7 @@ export const Hero = ({
     setSelectedCategory(value === 'all' ? '' : value);
   };
 
-  const isFiltered = searchQuery || selectedLocation || selectedCategory || listingType;
+  const isFiltered = searchQuery || selectedLocation || selectedCategory || (listingType && listingType !== 'all');
 
   const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.title;
 
@@ -82,77 +79,84 @@ export const Hero = ({
                 </p>
             </div>
             <div className="max-w-7xl mx-auto mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg">
-                <div className="md:col-span-3 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                    type="text"
-                    placeholder="What are you looking for?"
-                    className="pl-10 h-12 text-base bg-transparent border-0 text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
-                />
-                </div>
-                 <div className="md:col-span-3 relative">
-                    <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Select value={listingType} onValueChange={setListingType}>
-                        <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
-                            <SelectValue placeholder="For Sale or Rent" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">For Sale or Rent</SelectItem>
-                            <SelectItem value="sale">For Sale</SelectItem>
-                            <SelectItem value="rent">For Rent</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="md:col-span-2 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Select value={selectedLocation} onValueChange={handleLocationChange}>
-                    <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
-                    <SelectValue placeholder="Location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-                </div>
-                <div className="md:col-span-2 relative">
-                <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                    <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
-                        <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-                </div>
-                <div className="md:col-span-2 flex items-center gap-2">
-                <Button 
-                    size="lg" 
-                    className="w-full h-12 text-base rounded-lg transition-colors duration-300 ease-in-out hover:opacity-90"
-                    style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}
-                    onClick={onSearchClick}
-                    >
-                    <Search className="mr-2 h-5 w-5" />
-                    Search
-                </Button>
-                {isFiltered && (
-                    <Button 
-                    size="icon"
-                    variant="ghost"
-                    className="h-12 w-12 text-muted-foreground"
-                    onClick={onClearClick}
-                    >
-                    <X className="h-5 w-5" />
-                    </Button>
-                )}
-                </div>
-            </div>
+            <Card className="p-4">
+              <CardContent className="p-0">
+                  <div className="flex items-center gap-4 mb-4">
+                      <Button 
+                          variant={listingType === 'sale' ? 'default' : 'ghost'} 
+                          onClick={() => setListingType('sale')}
+                          className={cn("rounded-lg", listingType === 'sale' ? 'bg-primary/20 text-primary' : 'text-foreground')}
+                      >
+                          Buy
+                      </Button>
+                      <Button 
+                          variant={listingType === 'rent' ? 'default' : 'ghost'} 
+                          onClick={() => setListingType('rent')}
+                          className={cn("rounded-lg", listingType === 'rent' ? 'bg-primary/20 text-primary' : 'text-foreground')}
+                      >
+                          Rent
+                      </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
+                      <div className="md:col-span-4 relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                          <Input
+                              type="text"
+                              placeholder="What are you looking for?"
+                              className="pl-10 h-12 text-base bg-transparent border-0 text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
+                          />
+                      </div>
+                      <div className="md:col-span-3 relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                          <Select value={selectedLocation} onValueChange={handleLocationChange}>
+                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
+                              <SelectValue placeholder="Location" />
+                              </SelectTrigger>
+                              <SelectContent>
+                              <SelectItem value="all">All Locations</SelectItem>
+                              {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
+                              </SelectContent>
+                          </Select>
+                      </div>
+                      <div className="md:col-span-3 relative">
+                          <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                              <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
+                                  <SelectValue placeholder="Category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  <SelectItem value="all">All Categories</SelectItem>
+                                  {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>)}
+                              </SelectContent>
+                          </Select>
+                      </div>
+                      <div className="md:col-span-2 flex items-center gap-2">
+                          <Button 
+                              size="lg" 
+                              className="w-full h-12 text-base rounded-lg transition-colors duration-300 ease-in-out hover:opacity-90"
+                              style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}
+                              onClick={onSearchClick}
+                              >
+                              <Search className="mr-2 h-5 w-5" />
+                              Search
+                          </Button>
+                          {isFiltered && (
+                              <Button 
+                              size="icon"
+                              variant="ghost"
+                              className="h-12 w-12 text-muted-foreground"
+                              onClick={onClearClick}
+                              >
+                              <X className="h-5 w-5" />
+                              </Button>
+                          )}
+                      </div>
+                  </div>
+              </CardContent>
+            </Card>
             </div>
             <div className="mt-12 max-w-7xl mx-auto">
                 <p className="text-white mb-6">Or Browse Featured Categories</p>
