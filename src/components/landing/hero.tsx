@@ -8,6 +8,8 @@ import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Ca
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Label } from '../ui/label';
 
 interface HeroProps {
   searchQuery: string;
@@ -82,20 +84,32 @@ export const Hero = ({
             <Card className="p-4">
               <CardContent className="p-0">
                   <div className="flex items-center gap-4 mb-4">
-                      <Button 
-                          variant={listingType === 'sale' ? 'default' : 'ghost'} 
-                          onClick={() => setListingType('sale')}
-                          className={cn("rounded-lg", listingType === 'sale' ? 'bg-primary/20 text-primary' : 'text-foreground')}
+                     <RadioGroup
+                        value={listingType}
+                        onValueChange={setListingType}
+                        className="flex items-center space-x-4"
                       >
+                        <Label
+                          htmlFor="buy-option"
+                          className={cn(
+                            "cursor-pointer rounded-lg px-4 py-2 transition-colors",
+                            listingType === 'sale' ? 'bg-primary/20 text-primary' : 'text-foreground'
+                          )}
+                        >
+                          <RadioGroupItem value="sale" id="buy-option" className="sr-only" />
                           Buy
-                      </Button>
-                      <Button 
-                          variant={listingType === 'rent' ? 'default' : 'ghost'} 
-                          onClick={() => setListingType('rent')}
-                          className={cn("rounded-lg", listingType === 'rent' ? 'bg-primary/20 text-primary' : 'text-foreground')}
-                      >
+                        </Label>
+                         <Label
+                          htmlFor="rent-option"
+                          className={cn(
+                            "cursor-pointer rounded-lg px-4 py-2 transition-colors",
+                            listingType === 'rent' ? 'bg-primary/20 text-primary' : 'text-foreground'
+                          )}
+                        >
+                          <RadioGroupItem value="rent" id="rent-option" className="sr-only" />
                           Rent
-                      </Button>
+                        </Label>
+                      </RadioGroup>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
                       <div className="md:col-span-4 relative">
