@@ -8,7 +8,7 @@ import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Ca
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { Label } from '../ui/label';
 
 interface HeroProps {
@@ -52,8 +52,14 @@ export const Hero = ({
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value === 'all' ? '' : value);
   };
+  
+  const handleListingTypeChange = (value: string) => {
+    if (value) {
+      setListingType(value);
+    }
+  };
 
-  const isFiltered = searchQuery || selectedLocation || selectedCategory || (listingType && listingType !== 'all');
+  const isFiltered = searchQuery || selectedLocation || selectedCategory || (listingType && listingType !== 'sale');
 
   const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.title;
 
@@ -84,32 +90,19 @@ export const Hero = ({
             <Card className="p-4">
               <CardContent className="p-0">
                   <div className="flex items-center gap-4 mb-4">
-                     <RadioGroup
+                     <ToggleGroup
+                        type="single"
                         value={listingType}
-                        onValueChange={setListingType}
-                        className="flex items-center space-x-4"
+                        onValueChange={handleListingTypeChange}
+                        className="flex items-center space-x-1 bg-muted p-1 rounded-md"
                       >
-                        <Label
-                          htmlFor="buy-option"
-                          className={cn(
-                            "cursor-pointer rounded-lg px-4 py-2 transition-colors",
-                            listingType === 'sale' ? 'bg-primary/20 text-primary' : 'text-foreground'
-                          )}
-                        >
-                          <RadioGroupItem value="sale" id="buy-option" className="sr-only" />
+                        <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm rounded-md">
                           Buy
-                        </Label>
-                         <Label
-                          htmlFor="rent-option"
-                          className={cn(
-                            "cursor-pointer rounded-lg px-4 py-2 transition-colors",
-                            listingType === 'rent' ? 'bg-primary/20 text-primary' : 'text-foreground'
-                          )}
-                        >
-                          <RadioGroupItem value="rent" id="rent-option" className="sr-only" />
+                        </ToggleGroupItem>
+                         <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm rounded-md">
                           Rent
-                        </Label>
-                      </RadioGroup>
+                        </ToggleGroupItem>
+                      </ToggleGroup>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
                       <div className="md:col-span-4 relative">
