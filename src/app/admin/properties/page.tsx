@@ -1,3 +1,4 @@
+
 // src/app/admin/properties/page.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
@@ -31,6 +32,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from '@/components/ui/skeleton';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const GET_PROPERTIES = gql`
   query GetPropertiesAdmin {
@@ -40,6 +43,7 @@ const GET_PROPERTIES = gql`
       slug
       price
       currency
+      listing_type
       category {
         id
         title
@@ -69,6 +73,7 @@ const GET_PROPERTY_BY_ID = gql`
       category_id
       is_featured
       is_available
+      listing_type
       properties_images(order_by: {created_at: asc}) {
         id
         file_id
@@ -111,6 +116,7 @@ const INSERT_PROPERTY = gql`
     $category_id: uuid!,
     $is_featured: Boolean,
     $is_available: Boolean,
+    $listing_type: String,
   ) {
     insert_properties_one(object: {
       title: $title, 
@@ -125,7 +131,8 @@ const INSERT_PROPERTY = gql`
       location_id: $location_id, 
       category_id: $category_id,
       is_featured: $is_featured,
-      is_available: $is_available
+      is_available: $is_available,
+      listing_type: $listing_type
     }) {
       id
     }
@@ -206,6 +213,7 @@ const formSchema = z.object({
   category_id: z.string().min(1, "Category is required."),
   is_featured: z.boolean().default(false),
   is_available: z.boolean().default(true),
+  listing_type: z.enum(['sale', 'rent']).default('sale'),
 });
 
 type ImagePreview = {
@@ -258,12 +266,14 @@ const PropertyForm = ({
             category_id: property.category_id?.toString() || "",
             is_featured: property.is_featured || false,
             is_available: property.is_available ?? true,
+            listing_type: property.listing_type || 'sale',
         } : {
             title: "",
             slug: "",
             currency: "AED",
             is_featured: false,
             is_available: true,
+            listing_type: 'sale',
             price: undefined,
             area_in_feet: undefined,
             bathrooms: undefined,
@@ -321,6 +331,36 @@ const PropertyForm = ({
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="listing_type"
+                    render={({ field }) => (
+                        <FormItem className="space-y-3">
+                        <FormLabel>Listing Type</FormLabel>
+                        <FormControl>
+                            <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex items-center space-x-4"
+                            >
+                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                <RadioGroupItem value="sale" />
+                                </FormControl>
+                                <FormLabel className="font-normal">For Sale</FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                <RadioGroupItem value="rent" />
+                                </FormControl>
+                                <FormLabel className="font-normal">For Rent</FormLabel>
+                            </FormItem>
+                            </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <FormField
                     control={form.control}
                     name="title"
@@ -821,6 +861,7 @@ const PropertiesPage = () => {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Title</TableHead>
+                                        <TableHead>Type</TableHead>
                                         <TableHead>Category</TableHead>
                                         <TableHead>Location</TableHead>
                                         <TableHead>Price</TableHead>
@@ -831,6 +872,7 @@ const PropertiesPage = () => {
                                     {propertiesData?.properties.map((property: any) => (
                                         <TableRow key={property.id}>
                                             <TableCell className="font-medium">{property.title}</TableCell>
+                                            <TableCell className="capitalize">{property.listing_type}</TableCell>
                                             <TableCell>{property.category?.title}</TableCell>
                                             <TableCell>{property.location?.name}</TableCell>
                                             <TableCell>{property.currency} {new Intl.NumberFormat().format(property.price)}</TableCell>

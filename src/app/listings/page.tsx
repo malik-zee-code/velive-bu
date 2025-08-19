@@ -1,3 +1,4 @@
+
 'use client';
 import React, { Suspense } from 'react';
 import { useQuery, gql } from '@apollo/client';
@@ -8,8 +9,8 @@ import { SearchComponent } from '@/components/listings/search';
 import { PropertyCard } from '@/components/listings/property-card';
 
 const GET_PROPERTIES = gql`
-  query GetProperties {
-    properties {
+  query GetProperties($where: properties_bool_exp) {
+    properties(where: $where) {
       id
       title
       slug
@@ -19,6 +20,7 @@ const GET_PROPERTIES = gql`
       bathrooms
       area_in_feet
       tagline
+      listing_type
       properties_images(order_by: { is_primary: desc, created_at: asc }) {
         id
         file_id
@@ -54,21 +56,35 @@ const GET_LOCATIONS = gql`
 `;
 
 const ListingsPageContent = () => {
-  const { data, loading, error } = useQuery(GET_PROPERTIES);
-  const { data: categoriesData, loading: categoriesLoading, error: categoriesError } = useQuery(GET_CATEGORIES);
-  const { data: locationsData, loading: locationsLoading, error: locationsError } = useQuery(GET_LOCATIONS);
-
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('q') || '';
   const locationQuery = searchParams.get('location');
   const categoryQuery = searchParams.get('category');
+  const listingTypeQuery = searchParams.get('listing_type');
 
-  const filteredProperties = data?.properties.filter((property: any) => {
-    const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = locationQuery ? property.location?.id === parseInt(locationQuery, 10) : true;
-    const matchesCategory = categoryQuery ? property.category?.id === categoryQuery : true;
-    return matchesSearch && matchesLocation && matchesCategory;
+  const createWhereClause = () => {
+    const where: any = { _and: [] };
+    if (searchQuery) {
+        where._and.push({ title: { _ilike: `%${searchQuery}%` } });
+    }
+    if (locationQuery) {
+        where._and.push({ location_id: { _eq: parseInt(locationQuery, 10) } });
+    }
+    if (categoryQuery) {
+        where._and.push({ category_id: { _eq: categoryQuery } });
+    }
+    if (listingTypeQuery && listingTypeQuery !== 'all') {
+        where._and.push({ listing_type: { _eq: listingTypeQuery } });
+    }
+    return where._and.length > 0 ? where : {};
+  };
+
+  const { data, loading, error } = useQuery(GET_PROPERTIES, {
+      variables: { where: createWhereClause() }
   });
+  const { data: categoriesData, loading: categoriesLoading, error: categoriesError } = useQuery(GET_CATEGORIES);
+  const { data: locationsData, loading: locationsLoading, error: locationsError } = useQuery(GET_LOCATIONS);
+
 
   if (loading || categoriesLoading || locationsLoading) return (
       <div className="container mx-auto py-20 text-center max-w-7xl">
@@ -90,6 +106,8 @@ const ListingsPageContent = () => {
         <p>Error loading locations! {locationsError.message}</p>
       </div>
   );
+
+  const filteredProperties = data?.properties || [];
 
   return (
     <>

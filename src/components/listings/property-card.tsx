@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
@@ -61,6 +62,9 @@ export const PropertyCard = ({ property }: { property: any }) => {
                                     </Button>
                                 </>
                             )}
+                             <Badge variant="default" className="absolute top-4 left-4 capitalize">
+                                For {property.listing_type}
+                            </Badge>
                         </div>
                     </Link>
                     {imageUrls.length > 1 && (

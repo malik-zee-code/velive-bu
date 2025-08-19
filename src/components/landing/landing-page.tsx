@@ -44,6 +44,7 @@ const GET_FEATURED_PROPERTIES = gql`
       bedrooms
       bathrooms
       area_in_feet
+      listing_type
       category {
         id
         title
@@ -64,6 +65,7 @@ export function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [listingType, setListingType] = useState('');
   const router = useRouter();
 
   const { data: categoriesData } = useQuery(GET_CATEGORIES);
@@ -75,6 +77,7 @@ export function LandingPage() {
     if (searchQuery) params.set('q', searchQuery);
     if (selectedLocation) params.set('location', selectedLocation);
     if (selectedCategory) params.set('category', selectedCategory);
+    if (listingType && listingType !== 'all') params.set('listing_type', listingType);
     router.push(`/listings?${params.toString()}`);
   };
   
@@ -82,6 +85,7 @@ export function LandingPage() {
     setSearchQuery('');
     setSelectedLocation('');
     setSelectedCategory('');
+    setListingType('');
   };
 
   const handleCategorySelect = (category: string) => {
@@ -106,7 +110,8 @@ export function LandingPage() {
       author: { name: 'VE LIVE', avatar: '/assets/images/testimonial/01.jpg' }, // Mocked
       price: p.price,
       status: 'Open', // Mocked
-      date: 'Posted recently' // Mocked
+      date: 'Posted recently', // Mocked
+      listing_type: p.listing_type,
   })) || [];
 
   return (
@@ -120,6 +125,8 @@ export function LandingPage() {
           setSelectedLocation={setSelectedLocation}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
+          listingType={listingType}
+          setListingType={setListingType}
           locations={locationsData?.locations || []}
           categories={categoriesData?.categories || []}
           onSearchClick={handleSearchClick}

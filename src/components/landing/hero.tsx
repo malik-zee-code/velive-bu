@@ -5,10 +5,12 @@ import type { Dispatch, SetStateAction, ElementType } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Calendar, Dumbbell, X, Download, MessageCircle, Wrench } from 'lucide-react';
+import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Calendar, Dumbbell, X, Download, MessageCircle, Wrench, Home } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Label } from '../ui/label';
 
 interface HeroProps {
   searchQuery: string;
@@ -17,6 +19,8 @@ interface HeroProps {
   setSelectedLocation: Dispatch<SetStateAction<string>>;
   selectedCategory: string;
   setSelectedCategory: Dispatch<SetStateAction<string>>;
+  listingType: string;
+  setListingType: Dispatch<SetStateAction<string>>;
   locations: { id: string; name: string }[];
   categories: { id: string; title: string }[];
   onSearchClick: () => void;
@@ -38,6 +42,7 @@ export const Hero = ({
   searchQuery, setSearchQuery, 
   selectedLocation, setSelectedLocation, 
   selectedCategory, setSelectedCategory, 
+  listingType, setListingType,
   locations, categories, onSearchClick, onClearClick, onCategorySelect
 }: HeroProps) => {
   
@@ -49,7 +54,7 @@ export const Hero = ({
     setSelectedCategory(value === 'all' ? '' : value);
   };
 
-  const isFiltered = searchQuery || selectedLocation || selectedCategory;
+  const isFiltered = searchQuery || selectedLocation || selectedCategory || listingType;
 
   const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.title;
 
@@ -78,7 +83,7 @@ export const Hero = ({
             </div>
             <div className="max-w-7xl mx-auto mt-8">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg">
-                <div className="md:col-span-4 relative">
+                <div className="md:col-span-3 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                     type="text"
@@ -89,7 +94,20 @@ export const Hero = ({
                     onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
                 />
                 </div>
-                <div className="md:col-span-3 relative">
+                 <div className="md:col-span-3 relative">
+                    <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Select value={listingType} onValueChange={setListingType}>
+                        <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
+                            <SelectValue placeholder="For Sale or Rent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">For Sale or Rent</SelectItem>
+                            <SelectItem value="sale">For Sale</SelectItem>
+                            <SelectItem value="rent">For Rent</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="md:col-span-2 relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Select value={selectedLocation} onValueChange={handleLocationChange}>
                     <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
@@ -101,7 +119,7 @@ export const Hero = ({
                     </SelectContent>
                 </Select>
                 </div>
-                <div className="md:col-span-3 relative">
+                <div className="md:col-span-2 relative">
                 <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                     <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">

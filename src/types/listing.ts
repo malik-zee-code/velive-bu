@@ -1,3 +1,4 @@
+
 export type Listing = {
   id: string;
   slug: string;
@@ -15,4 +16,5 @@ export type Listing = {
   price: number;
   status: 'Open' | 'Closed';
   date: string;
+  listing_type: 'sale' | 'rent';
 };
