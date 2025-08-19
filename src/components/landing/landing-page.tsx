@@ -98,8 +98,8 @@ export function LandingPage() {
       slug: p.slug,
       title: p.title,
       description: p.tagline,
-      category: p.category.title,
-      location: p.location.name,
+      category: p.category?.title || 'Uncategorized',
+      location: p.location?.name || 'Unknown Location',
       image: p.properties_images[0] ? nhost.storage.getPublicUrl({ fileId: p.properties_images[0].file_id }) : 'https://placehold.co/400x250.png',
       rating: 4.5, // Mocked
       reviews: 100, // Mocked
