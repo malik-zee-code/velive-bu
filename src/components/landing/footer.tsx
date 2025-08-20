@@ -11,7 +11,7 @@ import { Skeleton } from '../ui/skeleton';
 
 const GET_FOOTER_DATA = gql`
   query GetFooterData {
-    properties(where: {is_featured: {_eq: true}}, limit: 6) {
+    properties(where: {is_featured: {_eq: true}}, order_by: {created_at: desc}, limit: 6) {
       id
       title
       slug
