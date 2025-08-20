@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import type { Listing } from '@/types/listing';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -33,9 +34,13 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
         >
           {listing.category}
         </Badge>
-        <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-card/70 hover:bg-card rounded-full">
-          <Bookmark className="h-5 w-5" />
-        </Button>
+        <Badge
+          className={cn(
+            "absolute top-4 right-4 capitalize"
+          )}
+        >
+          For {listing.listing_type}
+        </Badge>
       </CardHeader>
       <CardContent className="p-4 flex-grow">
         <div className="flex justify-between items-start mb-2">
