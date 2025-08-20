@@ -70,7 +70,7 @@ export const Hero = ({
             loop 
             muted 
             playsInline
-            className="absolute z-0 w-auto min-w-full min-h-full max-w-none pb-[122px]"
+            className="absolute z-0 w-auto min-w-full min-h-full max-w-none lg:pb-[122px]"
         >
             <source src="/assets/images/hero/hadley-heights1.mp4" type="video/mp4" />
             Your browser does not support the video tag.
