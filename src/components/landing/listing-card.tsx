@@ -29,14 +29,14 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
         </Link>
         <Badge
           className={cn(
-            "absolute top-4 left-4 bg-primary text-primary-foreground"
+            "absolute top-4 right-4 bg-primary text-primary-foreground"
           )}
         >
           {listing.category}
         </Badge>
         <Badge
           className={cn(
-            "absolute top-4 right-4 capitalize"
+            "absolute top-4 left-4 capitalize"
           )}
         >
           For {listing.listing_type}
