@@ -34,7 +34,7 @@ const GET_LOCATIONS = gql`
 
 const GET_FEATURED_PROPERTIES = gql`
   query GetFeaturedProperties {
-    properties(where: {is_featured: {_eq: true}}) {
+    properties(where: {is_featured: {_eq: true}}, order_by: {created_at: desc}) {
       id
       slug
       title
