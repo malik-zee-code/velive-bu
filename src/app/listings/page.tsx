@@ -10,7 +10,7 @@ import { PropertyCard } from '@/components/listings/property-card';
 
 const GET_PROPERTIES = gql`
   query GetProperties($where: properties_bool_exp) {
-    properties(where: $where) {
+    properties(where: $where, order_by: {created_at: desc}) {
       id
       title
       slug
