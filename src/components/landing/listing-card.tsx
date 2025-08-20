@@ -13,19 +13,6 @@ interface ListingCardProps {
 }
 
 export const ListingCard = ({ listing }: ListingCardProps) => {
-  const getCategoryIcon = (category: Listing['category']) => {
-    const icons: { [key: string]: string } = {
-      'Restaurants': '🍽️',
-      'Hotels': '🏨',
-      'Shopping': '🛍️',
-      'Apartment': '🏢',
-      'Events': '🎉',
-      'Fitness': '💪',
-      'Business': '💼'
-    };
-    return icons[category] || '❓';
-  };
-
   return (
     <Card className="overflow-hidden flex flex-col h-full group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-card text-card-foreground border-border">
       <CardHeader className="p-0 relative">
@@ -44,7 +31,7 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
             "absolute top-4 left-4 bg-primary text-primary-foreground"
           )}
         >
-          {getCategoryIcon(listing.category)}
+          {listing.category}
         </Badge>
         <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-card/70 hover:bg-card rounded-full">
           <Bookmark className="h-5 w-5" />
