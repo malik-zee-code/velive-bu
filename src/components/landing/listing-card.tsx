@@ -28,8 +28,9 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
             />
         </Link>
         <Badge
+          variant="secondary"
           className={cn(
-            "absolute top-4 right-4 bg-primary text-primary-foreground"
+            "absolute top-4 right-4"
           )}
         >
           {listing.category}
@@ -51,7 +52,7 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
             <span className="text-muted-foreground">({listing.reviews})</span>
           </div>
         </div>
-        <h3 className="font-bold font-headline text-xl mb-2 text-foreground truncate">
+        <h3 className="font-bold font-headline text-xl mb-2 text-foreground">
             <Link href={`/listings/${listing.slug}`} className="hover:text-primary transition-colors">
                 {listing.title}
             </Link>
