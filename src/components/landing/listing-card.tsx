@@ -52,7 +52,7 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
             <span className="text-muted-foreground">({listing.reviews})</span>
           </div>
         </div>
-        <h3 className="font-bold font-headline text-xl mb-2 text-foreground">
+        <h3 className="font-bold font-headline text-xl mb-2 text-foreground truncate">
             <Link href={`/listings/${listing.slug}`} className="hover:text-primary transition-colors">
                 {listing.title}
             </Link>
