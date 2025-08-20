@@ -29,14 +29,16 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
   return (
     <Card className="overflow-hidden flex flex-col h-full group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-card text-card-foreground border-border">
       <CardHeader className="p-0 relative">
-        <Image
-          src={listing.image}
-          alt={listing.title}
-          width={400}
-          height={250}
-          className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
-          data-ai-hint="cityscape building"
-        />
+        <Link href={`/listings/${listing.slug}`}>
+            <Image
+              src={listing.image}
+              alt={listing.title}
+              width={400}
+              height={250}
+              className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+              data-ai-hint="cityscape building"
+            />
+        </Link>
         <Badge
           className={cn(
             "absolute top-4 left-4 bg-primary text-primary-foreground"
@@ -57,7 +59,11 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
             <span className="text-muted-foreground">({listing.reviews})</span>
           </div>
         </div>
-        <h3 className="font-bold font-headline text-xl mb-2 text-foreground truncate">{listing.title}</h3>
+        <h3 className="font-bold font-headline text-xl mb-2 text-foreground truncate">
+            <Link href={`/listings/${listing.slug}`} className="hover:text-primary transition-colors">
+                {listing.title}
+            </Link>
+        </h3>
         <p className="flex items-center text-sm text-muted-foreground mb-4">
           <MapPin className="w-4 h-4 mr-2 shrink-0" />
           {listing.location}
