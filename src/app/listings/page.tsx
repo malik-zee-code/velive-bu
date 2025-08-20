@@ -7,6 +7,7 @@ import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { SearchComponent } from '@/components/listings/search';
 import { PropertyCard } from '@/components/listings/property-card';
+import { getSetting } from '@/lib/settings';
 
 const GET_PROPERTIES = gql`
   query GetProperties($where: properties_bool_exp) {
@@ -55,7 +56,17 @@ const GET_LOCATIONS = gql`
   }
 `;
 
-const ListingsPageContent = () => {
+const GET_SETTINGS = gql`
+  query GetSettings {
+    settings(where: {title: {_eq: "phone_1"}}) {
+      id
+      title
+      value
+    }
+  }
+`;
+
+const ListingsPageContent = ({ contactPhone }: { contactPhone: string | null }) => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('q') || '';
   const locationQuery = searchParams.get('location');
@@ -122,7 +133,7 @@ const ListingsPageContent = () => {
           {filteredProperties && filteredProperties.length > 0 ? (
             <div className="space-y-8">
               {filteredProperties.map((property: any) => (
-                <PropertyCard key={property.id} property={property} />
+                <PropertyCard key={property.id} property={property} contactPhone={contactPhone} />
               ))}
             </div>
           ) : (
@@ -137,17 +148,28 @@ const ListingsPageContent = () => {
 }
 
 
-const ListingsPage = () => (
-  <div className="flex flex-col min-h-screen">
-    <Header />
-    <main className="flex-grow bg-background">
-      <Suspense fallback={<div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading search...</p></div>}>
-        <ListingsPageContent />
-      </Suspense>
-    </main>
-    <Footer />
-  </div>
-);
+const ListingsPage = () => {
+    const { data: settingsData, loading: settingsLoading, error: settingsError } = useQuery(GET_SETTINGS);
+    const contactPhone = getSetting(settingsData?.settings || [], 'phone_1');
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow bg-background">
+            <Suspense fallback={<div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading search...</p></div>}>
+                {settingsLoading ? (
+                    <div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading...</p></div>
+                ) : settingsError ? (
+                     <div className="container mx-auto py-20 text-center max-w-7xl"><p>Error loading settings...</p></div>
+                ) : (
+                    <ListingsPageContent contactPhone={contactPhone} />
+                )}
+            </Suspense>
+            </main>
+            <Footer />
+        </div>
+    );
+};
 
 
 export default ListingsPage;

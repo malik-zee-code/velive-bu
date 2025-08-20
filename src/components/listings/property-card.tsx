@@ -10,7 +10,7 @@ import { nhost } from '@/lib/nhost';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 
-export const PropertyCard = ({ property }: { property: any }) => {
+export const PropertyCard = ({ property, contactPhone }: { property: any, contactPhone: string | null }) => {
     const imageUrls = useMemo(() =>
         (property.properties_images && property.properties_images.length > 0)
             ? property.properties_images.map((img: any) => nhost.storage.getPublicUrl({ fileId: img.file_id }))
@@ -125,8 +125,16 @@ export const PropertyCard = ({ property }: { property: any }) => {
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                        <Button variant="outline" className="flex-1"><Phone className="mr-2 h-4 w-4" /> Call</Button>
-                        <Button variant="outline" className="flex-1"><MessageSquare className="mr-2 h-4 w-4" /> Whatsapp</Button>
+                        <Button asChild variant="outline" className="flex-1">
+                            <a href={`tel:${contactPhone}`}>
+                                <Phone className="mr-2 h-4 w-4" /> Call
+                            </a>
+                        </Button>
+                        <Button asChild variant="outline" className="flex-1">
+                             <a href={`https://wa.me/${contactPhone?.replace(/\s+/g, '')}`} target="_blank" rel="noopener noreferrer">
+                                <MessageSquare className="mr-2 h-4 w-4" /> Whatsapp
+                            </a>
+                        </Button>
                         <Button asChild className="flex-1" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
                             <Link href={`/listings/${property.slug}`}>
                                 <ArrowRight className="mr-2 h-4 w-4" /> More
