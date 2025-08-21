@@ -31,8 +31,8 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
   const goToNextPage = () => setPageNumber(prev => Math.min(prev + 1, numPages || 1));
 
   const LoadingSkeleton = () => (
-    <div className="flex justify-center items-center h-full bg-secondary rounded-lg">
-      <Skeleton className="w-full h-[70vh]" />
+    <div className="flex justify-center items-center bg-secondary rounded-lg p-4">
+      <Skeleton className="w-full h-[50vh] md:h-[70vh]" />
     </div>
   );
 
@@ -81,7 +81,6 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
                         renderAnnotationLayer
                         loading={<LoadingSkeleton />}
                         className="shadow-md"
-                        width={isMobile ? 350 : undefined}
                         />
                     </Document>
                     </div>
