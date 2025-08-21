@@ -77,7 +77,7 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
             </Button>
           </div>
           <CardContent className="p-0 flex justify-center bg-secondary">
-            <div className="overflow-auto w-full">
+            <div className="overflow-auto w-full h-[500px] md:h-[700px]">
               <Document
                 file={file}
                 onLoadSuccess={onDocumentLoadSuccess}
