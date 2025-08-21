@@ -23,7 +23,7 @@ const ClientJourneyPage = () => {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main>
-        <section className="relative py-20 md:py-32 bg-card text-card-foreground" style={{
+        <section className="relative h-screen flex items-center bg-card text-card-foreground" style={{
           backgroundImage: 'url(/assets/images/city/01.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
