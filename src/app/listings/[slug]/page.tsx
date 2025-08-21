@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone, Sofa } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone, Sofa, MessageSquare } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { nhost } from '@/lib/nhost';
@@ -214,10 +214,18 @@ const PropertyDetailPageContent = () => {
                     </CardHeader>
                     <CardContent>
                        {contactPhone ? (
-                           <a href={`tel:${contactPhone}`} className="flex items-center gap-4 text-primary hover:underline">
-                               <Phone className="w-6 h-6" />
-                               <span className="font-semibold text-lg">{contactPhone}</span>
-                           </a>
+                           <div className="flex items-center space-x-2">
+                                <Button asChild variant="outline" className="flex-1">
+                                    <a href={`tel:${contactPhone}`}>
+                                        <Phone className="mr-2 h-4 w-4" /> Call
+                                    </a>
+                                </Button>
+                                <Button asChild className="flex-1" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
+                                    <a href={`https://wa.me/${contactPhone.replace(/\s+/g, '')}`} target="_blank" rel="noopener noreferrer">
+                                        <MessageSquare className="mr-2 h-4 w-4" /> Whatsapp
+                                    </a>
+                                </Button>
+                            </div>
                        ) : (
                            <p className="text-muted-foreground">Contact information not available.</p>
                        )}
@@ -242,5 +250,3 @@ const PropertyDetailPage = () => (
 );
   
 export default PropertyDetailPage;
-
-    
