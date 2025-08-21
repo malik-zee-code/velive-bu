@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useCallback } from 'react';
@@ -87,7 +86,7 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
               >
                 <Page
                   pageNumber={pageNumber}
-                  scale={isMobile ? 1.0 : scale}
+                  scale={scale}
                   renderTextLayer={false}
                   renderAnnotationLayer
                   loading={<LoadingSkeleton />}
