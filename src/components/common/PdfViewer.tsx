@@ -35,7 +35,7 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
   const zoomOut = () => setScale(prev => Math.max(prev - 0.2, 0.5));
 
   const LoadingSkeleton = () => (
-    <div className="flex justify-center items-center h-[500px] md:h-[700px] bg-secondary rounded-lg">
+    <div className="flex justify-center items-center h-[50vh] bg-secondary rounded-lg">
       <Skeleton className="w-full h-full" />
     </div>
   );
@@ -76,7 +76,7 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
             </Button>
           </div>
           <CardContent className="p-0 flex justify-center bg-secondary">
-            <div className="overflow-auto w-full h-[500px] md:h-[700px]">
+            <div className="overflow-auto w-full h-[50vh]">
               <Document
                 file={file}
                 onLoadSuccess={onDocumentLoadSuccess}
