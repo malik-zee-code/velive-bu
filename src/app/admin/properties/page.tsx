@@ -44,6 +44,7 @@ const GET_PROPERTIES = gql`
       price
       currency
       listing_type
+      is_furnished
       category {
         id
         title
@@ -905,6 +906,7 @@ const PropertiesPage = () => {
                                         <TableHead>Category</TableHead>
                                         <TableHead>Location</TableHead>
                                         <TableHead>Price</TableHead>
+                                        <TableHead>Furnished</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -916,6 +918,7 @@ const PropertiesPage = () => {
                                             <TableCell>{property.category?.title}</TableCell>
                                             <TableCell>{property.location?.name}</TableCell>
                                             <TableCell>{property.currency} {new Intl.NumberFormat().format(property.price)}</TableCell>
+                                            <TableCell>{property.is_furnished ? 'Yes' : 'No'}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleEditClick(property.id)}>
                                                     <Pencil className="h-4 w-4" />
