@@ -13,6 +13,7 @@ import { Testimonials } from './testimonials';
 import { nhost } from '@/lib/nhost';
 import { WhyVeLive } from './why-ve-live';
 import { OurServices } from './our-services';
+import { PdfViewer } from '../common/PdfViewer';
 
 const GET_CATEGORIES = gql`
   query GetCategories {
@@ -134,6 +135,7 @@ export function LandingPage() {
           onCategorySelect={handleCategorySelect}
         />
         <WhyVeLive />
+        <PdfViewer file="/assets/images/download/brochure.pdf" />
         <OurServices />
         <div id="listings">
           <Listings
