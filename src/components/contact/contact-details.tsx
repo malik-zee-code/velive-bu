@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Phone, Mail, MapPin, Send, Briefcase } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, Briefcase, Download } from 'lucide-react';
 import { gql, useQuery } from '@apollo/client';
 import { Skeleton } from '../ui/skeleton';
 import { Label } from '../ui/label';
@@ -76,10 +76,18 @@ export const ContactDetails = () => {
                                 <Label htmlFor="message">Message</Label>
                                 <Textarea id="message" name="message" placeholder="Type your message here..." rows={5} required />
                             </div>
-                            <Button type="submit" size="lg" className="w-full" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
-                                <Briefcase className="mr-2 h-5 w-5"/>
-                                Book Free Consultation
-                            </Button>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Button type="submit" size="lg" className="flex-1" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
+                                    <Briefcase className="mr-2 h-5 w-5"/>
+                                    Book Free Consultation
+                                </Button>
+                                <Button asChild size="lg" className="flex-1" variant="outline">
+                                    <a href="/assets/images/download/brochure.pdf" download>
+                                        <Download className="mr-2 h-5 w-5" />
+                                        Download Brochure
+                                    </a>
+                                </Button>
+                            </div>
                         </form>
                     </CardContent>
                 </Card>
