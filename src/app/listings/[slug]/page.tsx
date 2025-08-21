@@ -1,3 +1,4 @@
+
 // src/app/listings/[slug]/page.tsx
 'use client';
 import React, { useMemo, useState, Suspense } from 'react'
@@ -7,7 +8,7 @@ import Image from 'next/image';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone, Sofa } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { nhost } from '@/lib/nhost';
@@ -25,6 +26,7 @@ const GET_PROPERTY_BY_SLUG = gql`
       bedrooms
       bathrooms
       area_in_feet
+      is_furnished
       long_description
       properties_images(order_by: {is_primary: desc, created_at: asc}) {
         id
@@ -196,6 +198,10 @@ const PropertyDetailPageContent = () => {
                                 <span className="text-muted-foreground flex items-center gap-2"><Building className="w-5 h-5"/> Type</span>
                                 <span className="font-semibold text-foreground">{property.category.title}</span>
                             </div>
+                             <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground flex items-center gap-2"><Sofa className="w-5 h-5"/> Furnished</span>
+                                <span className="font-semibold text-foreground">{property.is_furnished ? 'Yes' : 'No'}</span>
+                            </div>
                         </div>
                          <Separator className="my-4" />
                          <p className="text-sm text-muted-foreground italic">"{property.tagline}"</p>
@@ -236,3 +242,5 @@ const PropertyDetailPage = () => (
 );
   
 export default PropertyDetailPage;
+
+    

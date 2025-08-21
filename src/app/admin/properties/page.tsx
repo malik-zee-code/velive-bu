@@ -73,6 +73,7 @@ const GET_PROPERTY_BY_ID = gql`
       category_id
       is_featured
       is_available
+      is_furnished
       listing_type
       properties_images(order_by: {created_at: asc}) {
         id
@@ -116,6 +117,7 @@ const INSERT_PROPERTY = gql`
     $category_id: uuid!,
     $is_featured: Boolean,
     $is_available: Boolean,
+    $is_furnished: Boolean,
     $listing_type: String,
   ) {
     insert_properties_one(object: {
@@ -132,6 +134,7 @@ const INSERT_PROPERTY = gql`
       category_id: $category_id,
       is_featured: $is_featured,
       is_available: $is_available,
+      is_furnished: $is_furnished,
       listing_type: $listing_type
     }) {
       id
@@ -213,6 +216,7 @@ const formSchema = z.object({
   category_id: z.string().min(1, "Category is required."),
   is_featured: z.boolean().default(false),
   is_available: z.boolean().default(true),
+  is_furnished: z.boolean().default(false),
   listing_type: z.enum(['sale', 'rent']).default('sale'),
 });
 
@@ -266,6 +270,7 @@ const PropertyForm = ({
             category_id: property.category_id?.toString() || "",
             is_featured: property.is_featured || false,
             is_available: property.is_available ?? true,
+            is_furnished: property.is_furnished || false,
             listing_type: property.listing_type || 'sale',
         } : {
             title: "",
@@ -273,6 +278,7 @@ const PropertyForm = ({
             currency: "AED",
             is_featured: false,
             is_available: true,
+            is_furnished: false,
             listing_type: 'sale',
             price: undefined,
             area_in_feet: undefined,
@@ -518,7 +524,7 @@ const PropertyForm = ({
                         ))}
                     </div>
                 )}
-                <div className="flex items-center space-x-4">
+                <div className="flex flex-wrap items-center gap-4">
                     <FormField
                         control={form.control}
                         name="is_featured"
@@ -544,6 +550,24 @@ const PropertyForm = ({
                             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                             <div className="space-y-0.5 mr-4">
                                 <FormLabel>Available</FormLabel>
+                                <FormMessage />
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="is_furnished"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5 mr-4">
+                                <FormLabel>Furnished</FormLabel>
                                 <FormMessage />
                             </div>
                             <FormControl>
