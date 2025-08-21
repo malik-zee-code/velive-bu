@@ -1,7 +1,7 @@
 
 // src/app/admin/properties/page.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -600,6 +600,7 @@ const PropertyEditForm = ({ propertyId, onCancel, onFormSubmit, locations, categ
 
 const PropertiesPage = () => {
     const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const { toast } = useToast();
     const { upload, isUploading, progress } = useFileUpload();
 
@@ -619,6 +620,13 @@ const PropertiesPage = () => {
       variables: { id: editingPropertyId },
       skip: !editingPropertyId,
     });
+
+    const filteredProperties = useMemo(() => {
+        if (!propertiesData) return [];
+        return propertiesData.properties.filter((property: any) => 
+            property.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [propertiesData, searchTerm]);
 
 
     const handleFormSubmit = async (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => {
@@ -846,6 +854,14 @@ const PropertiesPage = () => {
                     <CardHeader>
                         <CardTitle>Properties</CardTitle>
                         <CardDescription>A list of all your properties.</CardDescription>
+                        <div className="mt-4">
+                            <Input
+                                placeholder="Search by title..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="max-w-sm"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         {propertiesLoading ? (
@@ -869,7 +885,7 @@ const PropertiesPage = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {propertiesData?.properties.map((property: any) => (
+                                    {filteredProperties.map((property: any) => (
                                         <TableRow key={property.id}>
                                             <TableCell className="font-medium">{property.title}</TableCell>
                                             <TableCell className="capitalize">{property.listing_type}</TableCell>
@@ -915,3 +931,5 @@ const PropertiesPage = () => {
 };
 
 export default PropertiesPage;
+
+    
