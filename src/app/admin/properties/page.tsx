@@ -53,6 +53,10 @@ const GET_PROPERTIES = gql`
         id
         name
       }
+      properties_images(where: {is_primary: {_eq: true}}, limit: 1) {
+        id
+        file_id
+      }
     }
   }
 `;
@@ -901,6 +905,7 @@ const PropertiesPage = () => {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
+                                        <TableHead>Image</TableHead>
                                         <TableHead>Title</TableHead>
                                         <TableHead>Type</TableHead>
                                         <TableHead>Category</TableHead>
@@ -913,6 +918,21 @@ const PropertiesPage = () => {
                                 <TableBody>
                                     {filteredProperties.map((property: any) => (
                                         <TableRow key={property.id}>
+                                            <TableCell>
+                                                {property.properties_images && property.properties_images.length > 0 ? (
+                                                    <Image
+                                                        src={nhost.storage.getPublicUrl({ fileId: property.properties_images[0].file_id })}
+                                                        alt={property.title}
+                                                        width={64}
+                                                        height={64}
+                                                        className="rounded-md object-cover w-16 h-16"
+                                                    />
+                                                ) : (
+                                                    <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center text-xs text-muted-foreground">
+                                                        No Image
+                                                    </div>
+                                                )}
+                                            </TableCell>
                                             <TableCell className="font-medium">{property.title}</TableCell>
                                             <TableCell className="capitalize">{property.listing_type}</TableCell>
                                             <TableCell>{property.category?.title}</TableCell>
@@ -958,5 +978,7 @@ const PropertiesPage = () => {
 };
 
 export default PropertiesPage;
+
+    
 
     
