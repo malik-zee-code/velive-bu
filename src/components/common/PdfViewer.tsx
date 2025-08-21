@@ -20,7 +20,6 @@ interface PdfViewerProps {
 export const PdfViewer = ({ file }: PdfViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
-  const [scale, setScale] = useState(1.0);
   const isMobile = useIsMobile();
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
@@ -30,9 +29,6 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
 
   const goToPrevPage = () => setPageNumber(prev => Math.max(prev - 1, 1));
   const goToNextPage = () => setPageNumber(prev => Math.min(prev + 1, numPages || 1));
-
-  const zoomIn = () => setScale(prev => Math.min(prev + 0.2, 3));
-  const zoomOut = () => setScale(prev => Math.max(prev - 0.2, 0.5));
 
   const LoadingSkeleton = () => (
     <div className="flex justify-center items-center h-full bg-secondary rounded-lg">
@@ -69,13 +65,6 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
                     <Button variant="ghost" size="icon" onClick={goToNextPage} disabled={pageNumber >= (numPages || 0)}>
                     <ChevronRight className="h-5 w-5" />
                     </Button>
-                    <span className="hidden md:block w-px h-6 bg-border mx-2"></span>
-                    <Button variant="ghost" size="icon" onClick={zoomOut} disabled={scale <= 0.5}>
-                    <ZoomOut className="h-5 w-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={zoomIn} disabled={scale >= 3}>
-                    <ZoomIn className="h-5 w-5" />
-                    </Button>
                 </div>
                 <CardContent className="p-0 flex justify-center bg-secondary">
                     <div className="w-full overflow-hidden">
@@ -88,12 +77,11 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
                     >
                         <Page
                         pageNumber={pageNumber}
-                        scale={scale}
                         renderTextLayer={false}
                         renderAnnotationLayer
                         loading={<LoadingSkeleton />}
-                        width={350}
                         className="shadow-md"
+                        width={isMobile ? 350 : undefined}
                         />
                     </Document>
                     </div>
