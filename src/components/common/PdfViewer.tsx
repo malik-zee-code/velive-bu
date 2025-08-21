@@ -35,68 +35,72 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
   const zoomOut = () => setScale(prev => Math.max(prev - 0.2, 0.5));
 
   const LoadingSkeleton = () => (
-    <div className="flex justify-center items-center h-[50vh] bg-secondary rounded-lg">
-      <Skeleton className="w-full h-full" />
+    <div className="flex justify-center items-center h-full bg-secondary rounded-lg">
+      <Skeleton className="w-full h-[70vh]" />
     </div>
   );
 
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Our Company Brochure</h2>
-            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-                Discover more about our services, mission, and the value we bring to your property investment.
-            </p>
-        </div>
-
-        <Card className="overflow-hidden shadow-lg border">
-          <div className="bg-muted p-2 flex flex-wrap items-center justify-center gap-2 md:gap-4 border-b">
-            <Button variant="ghost" size="icon" onClick={goToPrevPage} disabled={pageNumber <= 1}>
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <span className="text-sm font-medium text-muted-foreground">
-              Page {pageNumber} of {numPages || '...'}
-            </span>
-            <Button variant="ghost" size="icon" onClick={goToNextPage} disabled={pageNumber >= (numPages || 0)}>
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-            <span className="hidden md:block w-px h-6 bg-border mx-2"></span>
-            <Button variant="ghost" size="icon" onClick={zoomOut} disabled={scale <= 0.5}>
-              <ZoomOut className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={zoomIn} disabled={scale >= 3}>
-              <ZoomIn className="h-5 w-5" />
-            </Button>
-            <Button asChild variant="ghost" size="sm" className="ml-auto">
-              <a href={file} download>
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </a>
-            </Button>
-          </div>
-          <CardContent className="p-0 flex justify-center bg-secondary">
-            <div className="overflow-auto w-full h-[50vh]">
-              <Document
-                file={file}
-                onLoadSuccess={onDocumentLoadSuccess}
-                onLoadError={console.error}
-                loading={<LoadingSkeleton />}
-                className="flex justify-center"
-              >
-                <Page
-                  pageNumber={pageNumber}
-                  scale={scale}
-                  renderTextLayer={false}
-                  renderAnnotationLayer
-                  loading={<LoadingSkeleton />}
-                  width={isMobile ? 380 : undefined}
-                  className="shadow-md"
-                />
-              </Document>
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="text-left">
+                <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Our Company Brochure</h2>
+                <p className="text-muted-foreground mt-4 max-w-2xl">
+                    Discover more about our services, mission, and the value we bring to your property investment. Download our brochure for an in-depth look at how VE-Live is redefining property management in the UAE.
+                </p>
+                 <Button asChild size="lg" className="mt-8">
+                  <a href={file} download>
+                    <Download className="mr-2 h-5 w-5" />
+                    Download Now
+                  </a>
+                </Button>
             </div>
-          </CardContent>
-        </Card>
+
+            <div className="w-full">
+                <Card className="overflow-hidden shadow-lg border">
+                <div className="bg-muted p-2 flex flex-wrap items-center justify-center gap-2 md:gap-4 border-b">
+                    <Button variant="ghost" size="icon" onClick={goToPrevPage} disabled={pageNumber <= 1}>
+                    <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    <span className="text-sm font-medium text-muted-foreground">
+                    Page {pageNumber} of {numPages || '...'}
+                    </span>
+                    <Button variant="ghost" size="icon" onClick={goToNextPage} disabled={pageNumber >= (numPages || 0)}>
+                    <ChevronRight className="h-5 w-5" />
+                    </Button>
+                    <span className="hidden md:block w-px h-6 bg-border mx-2"></span>
+                    <Button variant="ghost" size="icon" onClick={zoomOut} disabled={scale <= 0.5}>
+                    <ZoomOut className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={zoomIn} disabled={scale >= 3}>
+                    <ZoomIn className="h-5 w-5" />
+                    </Button>
+                </div>
+                <CardContent className="p-0 flex justify-center bg-secondary">
+                    <div className="w-full overflow-hidden">
+                    <Document
+                        file={file}
+                        onLoadSuccess={onDocumentLoadSuccess}
+                        onLoadError={console.error}
+                        loading={<LoadingSkeleton />}
+                        className="flex justify-center"
+                    >
+                        <Page
+                        pageNumber={pageNumber}
+                        scale={scale}
+                        renderTextLayer={false}
+                        renderAnnotationLayer
+                        loading={<LoadingSkeleton />}
+                        width={isMobile ? 380 : 550} // Adjust width as needed
+                        className="shadow-md"
+                        />
+                    </Document>
+                    </div>
+                </CardContent>
+                </Card>
+            </div>
+        </div>
       </div>
     </section>
   );
