@@ -92,7 +92,7 @@ export const PdfViewer = ({ file }: PdfViewerProps) => {
                         renderTextLayer={false}
                         renderAnnotationLayer
                         loading={<LoadingSkeleton />}
-                        width={isMobile ? 350 : 500}
+                        width={350}
                         className="shadow-md"
                         />
                     </Document>
