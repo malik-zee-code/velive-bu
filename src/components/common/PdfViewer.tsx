@@ -12,10 +12,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Skeleton } from '../ui/skeleton';
 
 // Configure the PDF.js worker from a CDN
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PdfViewerProps {
   file: string;

@@ -13,7 +13,28 @@ import { Testimonials } from './testimonials';
 import { nhost } from '@/lib/nhost';
 import { WhyVeLive } from './why-ve-live';
 import { OurServices } from './our-services';
-import { PdfViewer } from '../common/PdfViewer';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '../ui/skeleton';
+
+const PdfViewer = dynamic(() => import('../common/PdfViewer').then(mod => mod.PdfViewer), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-background py-20">
+      <div className="container mx-auto max-w-7xl">
+        <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2 text-foreground">Our Company Brochure</h2>
+            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+                Discover more about our services, mission, and the value we bring to your property investment.
+            </p>
+        </div>
+        <div className="flex justify-center items-center h-[500px] md:h-[700px] bg-secondary rounded-lg">
+            <Skeleton className="w-full h-full" />
+        </div>
+      </div>
+    </div>
+  )
+});
+
 
 const GET_CATEGORIES = gql`
   query GetCategories {
