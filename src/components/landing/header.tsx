@@ -96,7 +96,7 @@ export const Header = () => {
           ) : null}
 
           <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
-            <Link href="/contact">Contact us</Link>
+            <Link href="/contact">Contact Us</Link>
           </Button>
         </div>
 
@@ -130,7 +130,7 @@ export const Header = () => {
                           </>
                         ) : null}
                         <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold w-full mt-4" onClick={handleLinkClick}>
-                          <Link href="/contact">Contact us</Link>
+                          <Link href="/contact">Contact Us</Link>
                         </Button>
                       </div>
                   </div>
