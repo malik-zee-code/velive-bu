@@ -11,7 +11,6 @@ const teamMembers = [
   { name: 'Mohamed Gharib', title: 'CEO & Founder', avatar: 'https://placehold.co/128x128.png' },
   { name: 'Sam Jacobs', title: 'Chief Operating Officer', avatar: 'https://placehold.co/128x128.png' },
   { name: 'Yousra Ammi', title: 'Lead Developer', avatar: 'https://placehold.co/128x128.png' },
-  { name: 'Brain Maleki', title: 'Head of Marketing', avatar: 'https://placehold.co/128x128.png' },
 ];
 
 const differentiators = [
@@ -108,7 +107,7 @@ const AboutPage = () => {
             <p className="text-muted-foreground mt-4 max-w-3xl mx-auto">
               Our people are our strength. We’re a team of passionate leasing professionals, creative marketers, meticulous property coordinators, and client service experts — all united by one goal: to protect and grow your investment. With local market knowledge, international standards, and an on-site presence at Hadley Heights, we ensure your property gets the attention it deserves.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mt-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-12">
               {teamMembers.map((member) => (
                 <Card key={member.name} className="bg-card text-center p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                   <CardContent className="p-0">
