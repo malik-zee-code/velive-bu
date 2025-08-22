@@ -5,11 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, MapPin, X, ListFilter, Home } from 'lucide-react';
+import { Search, MapPin, X, ListFilter, Home, Sofa } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { cn } from '@/lib/utils';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
 
 interface SearchComponentProps {
   locations: { id: string; name: string }[];
@@ -24,12 +25,14 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
   const [selectedLocation, setSelectedLocation] = useState(searchParams.get('location') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [listingType, setListingType] = useState(searchParams.get('listing_type') || 'sale');
+  const [isFurnished, setIsFurnished] = useState(searchParams.get('is_furnished') === 'true');
   
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
     setSelectedLocation(searchParams.get('location') || '');
     setSelectedCategory(searchParams.get('category') || '');
     setListingType(searchParams.get('listing_type') || 'sale');
+    setIsFurnished(searchParams.get('is_furnished') === 'true');
   }, [searchParams]);
 
   const handleSearch = () => {
@@ -54,6 +57,11 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
     } else {
       params.delete('listing_type');
     }
+     if (isFurnished) {
+      params.set('is_furnished', 'true');
+    } else {
+      params.delete('is_furnished');
+    }
     router.push(`/listings?${params.toString()}`);
   };
 
@@ -63,10 +71,12 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
     params.delete('location');
     params.delete('category');
     params.delete('listing_type');
+    params.delete('is_furnished');
     setSearchQuery('');
     setSelectedLocation('');
     setSelectedCategory('');
     setListingType('sale');
+    setIsFurnished(false);
     router.push(`/listings?${params.toString()}`);
   };
 
@@ -76,7 +86,7 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
     }
   };
 
-  const isFiltered = !!searchQuery || !!selectedLocation || !!selectedCategory || (!!listingType && listingType !== 'sale');
+  const isFiltered = !!searchQuery || !!selectedLocation || !!selectedCategory || (!!listingType && listingType !== 'sale') || isFurnished;
 
   return (
     <div className="bg-secondary py-8 mb-12">
@@ -97,6 +107,10 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
                           Rent
                         </ToggleGroupItem>
                       </ToggleGroup>
+                       <div className="flex items-center space-x-2">
+                          <Switch id="furnished-toggle-listing" checked={isFurnished} onCheckedChange={setIsFurnished} />
+                          <Label htmlFor="furnished-toggle-listing">Furnished</Label>
+                      </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
                       <div className="md:col-span-4 relative">

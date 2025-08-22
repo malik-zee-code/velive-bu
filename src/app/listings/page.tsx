@@ -72,6 +72,8 @@ const ListingsPageContent = ({ contactPhone }: { contactPhone: string | null }) 
   const locationQuery = searchParams.get('location');
   const categoryQuery = searchParams.get('category');
   const listingTypeQuery = searchParams.get('listing_type');
+  const isFurnishedQuery = searchParams.get('is_furnished');
+
 
   const createWhereClause = () => {
     const where: any = { _and: [] };
@@ -89,6 +91,9 @@ const ListingsPageContent = ({ contactPhone }: { contactPhone: string | null }) 
     } else {
         // Default to sale if no listing type is provided
         where._and.push({ listing_type: { _eq: 'sale' } });
+    }
+     if (isFurnishedQuery === 'true') {
+      where._and.push({ is_furnished: { _eq: true } });
     }
     return where;
   };

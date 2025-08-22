@@ -27,8 +27,8 @@ const PdfViewer = dynamic(() => import('../common/PdfViewer').then(mod => mod.Pd
                 Discover more about our services, mission, and the value we bring to your property investment.
             </p>
         </div>
-        <div className="flex justify-center items-center h-[500px] md:h-[700px] bg-secondary rounded-lg">
-            <Skeleton className="w-full h-full" />
+        <div className="flex justify-center items-center h-[50vh] bg-secondary rounded-lg">
+          <Skeleton className="w-full h-full" />
         </div>
       </div>
     </div>
@@ -88,6 +88,7 @@ export function LandingPage() {
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [listingType, setListingType] = useState('sale');
+  const [isFurnished, setIsFurnished] = useState(false);
   const router = useRouter();
 
   const { data: categoriesData } = useQuery(GET_CATEGORIES);
@@ -100,6 +101,7 @@ export function LandingPage() {
     if (selectedLocation) params.set('location', selectedLocation);
     if (selectedCategory) params.set('category', selectedCategory);
     if (listingType) params.set('listing_type', listingType);
+    if (isFurnished) params.set('is_furnished', 'true');
     router.push(`/listings?${params.toString()}`);
   };
   
@@ -108,6 +110,7 @@ export function LandingPage() {
     setSelectedLocation('');
     setSelectedCategory('');
     setListingType('sale');
+    setIsFurnished(false);
   };
 
   const handleCategorySelect = (category: string) => {
@@ -149,6 +152,8 @@ export function LandingPage() {
           setSelectedCategory={setSelectedCategory}
           listingType={listingType}
           setListingType={setListingType}
+          isFurnished={isFurnished}
+          setIsFurnished={setIsFurnished}
           locations={locationsData?.locations || []}
           categories={categoriesData?.categories || []}
           onSearchClick={handleSearchClick}

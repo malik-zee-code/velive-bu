@@ -1,15 +1,17 @@
+
 'use client';
 
 import type { Dispatch, SetStateAction, ElementType } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Calendar, Dumbbell, X, Download, MessageCircle, Wrench, Home } from 'lucide-react';
+import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Calendar, Dumbbell, X, Download, MessageCircle, Wrench, Home, Sofa } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
 
 interface HeroProps {
   searchQuery: string;
@@ -20,6 +22,8 @@ interface HeroProps {
   setSelectedCategory: Dispatch<SetStateAction<string>>;
   listingType: string;
   setListingType: Dispatch<SetStateAction<string>>;
+  isFurnished: boolean;
+  setIsFurnished: Dispatch<SetStateAction<boolean>>;
   locations: { id: string; name: string }[];
   categories: { id: string; title: string }[];
   onSearchClick: () => void;
@@ -42,6 +46,7 @@ export const Hero = ({
   selectedLocation, setSelectedLocation, 
   selectedCategory, setSelectedCategory, 
   listingType, setListingType,
+  isFurnished, setIsFurnished,
   locations, categories, onSearchClick, onClearClick, onCategorySelect
 }: HeroProps) => {
   
@@ -103,6 +108,10 @@ export const Hero = ({
                                 Rent
                                 </ToggleGroupItem>
                             </ToggleGroup>
+                            <div className="flex items-center space-x-2">
+                                <Switch id="furnished-toggle-hero" checked={isFurnished} onCheckedChange={setIsFurnished} />
+                                <Label htmlFor="furnished-toggle-hero" className="text-white">Furnished</Label>
+                            </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
                             <div className="md:col-span-4 relative">
