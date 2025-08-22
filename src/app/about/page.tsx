@@ -8,10 +8,9 @@ import Image from 'next/image';
 import { Building, Globe, Target, ShieldCheck, Users, Handshake, CheckCircle } from 'lucide-react';
 
 const teamMembers = [
-  { name: 'John Doe', title: 'CEO & Founder', avatar: 'https://placehold.co/128x128.png' },
-  { name: 'Jane Smith', title: 'Chief Operating Officer', avatar: 'https://placehold.co/128x128.png' },
-  { name: 'Sam Wilson', title: 'Lead Developer', avatar: 'https://placehold.co/128x128.png' },
-  { name: 'Emily White', title: 'Marketing Director', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'Mohamed Gharib', title: 'CEO & Founder', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'Sam Jacobs', title: 'Chief Operating Officer', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'Yousra Ammi', title: 'Lead Developer', avatar: 'https://placehold.co/128x128.png' },
 ];
 
 const differentiators = [
