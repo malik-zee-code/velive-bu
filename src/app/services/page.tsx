@@ -3,7 +3,7 @@ import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, HandCoins, FileText, Repeat, ShieldCheck, UserCheck, Megaphone, Wrench, Download } from 'lucide-react';
+import { CheckCircle, HandCoins, FileText, Repeat, ShieldCheck, UserCheck, Megaphone, Wrench, Download, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -103,8 +103,11 @@ const ServicesPage = () => {
                         <p className="mt-4 text-muted-foreground">
                            Let us handle the complexities of property management so you can enjoy the returns. Contact us today for a free consultation and discover how VE-Live can help you achieve your property goals.
                         </p>
-                        <Button asChild size="lg" className="mt-8 px-16 text-lg">
-                           <Link href="/contact">Contact Us</Link>
+                        <Button asChild size="lg" className="mt-8 group relative inline-flex items-center justify-center overflow-hidden rounded-full px-12 py-6 text-lg font-bold text-primary-foreground shadow-md transition-all duration-300 ease-in-out hover:shadow-lg bg-gradient-to-r from-primary to-yellow-400 hover:from-yellow-400 hover:to-primary">
+                           <Link href="/contact">
+                                <span>Contact Us</span>
+                                <ChevronRight className="ml-2 h-6 w-6 transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
+                           </Link>
                         </Button>
                     </div>
                     <div>
