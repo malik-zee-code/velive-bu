@@ -26,8 +26,9 @@ const GET_FOOTER_DATA = gql`
 const quickLinks = [
     { href: "/", text: "Home" },
     { href: "/about", text: "About" },
-    { href: "/services", text: "Services" },
     { href: "/listings", text: "Listing" },
+    { href: "/services", text: "Services" },
+    { href: "/client-journey", text: "Client Journey" },
     { href: "/blog", text: "Blog" },
     { href: "/contact", text: "Contact Us" },
     { href: "/privacy-policy", text: "Privacy Policy" },
