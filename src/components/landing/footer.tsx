@@ -67,7 +67,7 @@ export const Footer = () => {
                                             <div className="bg-primary/20 text-primary p-2 rounded-md">
                                                 <Phone className="w-5 h-5" />
                                             </div>
-                                            <span>{phone}</span>
+                                            <a href={`tel:${phone}`} className="hover:text-primary transition-colors">{phone}</a>
                                         </li>
                                     )}
                                     {address && (
@@ -83,7 +83,7 @@ export const Footer = () => {
                                             <div className="bg-primary/20 text-primary p-2 rounded-md">
                                                 <Mail className="w-5 h-5" />
                                             </div>
-                                            <span>{email}</span>
+                                            <a href={`mailto:${email}`} className="hover:text-primary transition-colors">{email}</a>
                                         </li>
                                     )}
                                 </>
