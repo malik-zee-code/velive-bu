@@ -8,7 +8,7 @@ import { Download } from 'lucide-react';
 export const AboutHero = () => {
   return (
     <section className="relative py-20 md:py-32 bg-card text-card-foreground" style={{
-      backgroundImage: 'url(/assets/images/blog/02.jpg)',
+      backgroundImage: 'url(/assets/images/banners/about_us.jpg)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
     }}>

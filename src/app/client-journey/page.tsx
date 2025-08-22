@@ -24,7 +24,7 @@ const ClientJourneyPage = () => {
       <Header />
       <main>
         <section className="relative h-screen flex items-center bg-card text-card-foreground" style={{
-          backgroundImage: 'url(/assets/images/city/01.jpg)',
+          backgroundImage: 'url(/assets/images/banners/client_journey.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}>

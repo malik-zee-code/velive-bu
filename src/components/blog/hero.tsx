@@ -4,7 +4,7 @@
 export const BlogHero = () => {
   return (
     <section className="relative py-20 md:py-32 bg-card text-card-foreground" style={{
-      backgroundImage: 'url(/assets/images/blog/01.jpg)',
+      backgroundImage: 'url(/assets/images/banners/blog.jpg)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
     }}>

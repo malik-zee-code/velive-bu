@@ -46,7 +46,7 @@ const ServicesPage = () => {
       <Header />
       <main>
         <section className="relative py-20 md:py-32 bg-card text-card-foreground" style={{
-          backgroundImage: 'url(/assets/images/city/02.jpg)',
+          backgroundImage: 'url(/assets/images/banners/our_services.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}>

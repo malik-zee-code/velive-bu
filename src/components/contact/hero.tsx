@@ -4,7 +4,7 @@
 export const ContactHero = () => {
   return (
     <section className="relative py-20 md:py-32 bg-card text-card-foreground" style={{
-      backgroundImage: 'url(/assets/images/blog/03.jpg)',
+      backgroundImage: 'url(/assets/images/banners/contact_us.jpg)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
     }}>
