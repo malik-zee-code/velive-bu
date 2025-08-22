@@ -29,7 +29,7 @@ const quickLinks = [
     { href: "/services", text: "Services" },
     { href: "/listings", text: "Listing" },
     { href: "/blog", text: "Blog" },
-    { href: "/contact", text: "Contact" },
+    { href: "/contact", text: "Contact Us" },
     { href: "/privacy-policy", text: "Privacy Policy" },
 ];
 
