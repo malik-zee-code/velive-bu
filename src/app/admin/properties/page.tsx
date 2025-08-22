@@ -123,7 +123,7 @@ const INSERT_PROPERTY = gql`
     $is_featured: Boolean,
     $is_available: Boolean,
     $is_furnished: Boolean,
-    $listing_type: String,
+    $listing_type: listing_type_enum,
   ) {
     insert_properties_one(object: {
       title: $title, 
