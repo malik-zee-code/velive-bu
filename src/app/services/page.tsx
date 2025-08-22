@@ -103,7 +103,7 @@ const ServicesPage = () => {
                         <p className="mt-4 text-muted-foreground">
                            Let us handle the complexities of property management so you can enjoy the returns. Contact us today for a free consultation and discover how VE-Live can help you achieve your property goals.
                         </p>
-                        <Button asChild size="lg" className="mt-8">
+                        <Button asChild size="lg" className="mt-8 px-16 text-lg">
                            <Link href="/contact">Contact Us</Link>
                         </Button>
                     </div>
