@@ -11,6 +11,7 @@ const teamMembers = [
   { name: 'Mohamed Gharib', title: 'CEO & Founder', avatar: 'https://placehold.co/128x128.png' },
   { name: 'Sam Jacobs', title: 'Chief Operating Officer', avatar: 'https://placehold.co/128x128.png' },
   { name: 'Yousra Ammi', title: 'Lead Developer', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'Brain Maleki', title: 'Head of Marketing', avatar: 'https://placehold.co/128x128.png' },
 ];
 
 const differentiators = [
