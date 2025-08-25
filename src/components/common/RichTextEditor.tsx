@@ -2,15 +2,12 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css'; // import styles
-import ImageResize from 'quill-image-resize-module-react';
 
 // Dynamically import ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(async () => {
-    const { default: RQ } = await import('react-quill-new');
-    // @ts-expect-error We are registering a custom module
-    RQ.Quill.register('modules/imageResize', ImageResize);
-    return RQ;
-}, { ssr: false });
+const ReactQuill = dynamic(
+    () => import('react-quill-new'), 
+    { ssr: false }
+);
 
 interface RichTextEditorProps {
   value: string;
@@ -28,16 +25,13 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
       ['link', 'image'],
       ['clean']
     ],
-    imageResize: {
-      modules: ['Resize', 'DisplaySize']
-    }
   };
 
   const formats = [
     'header', 'font', 'size',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
-    'link', 'image', 'alt', 'height', 'width', 'style'
+    'link', 'image'
   ];
 
   return (
