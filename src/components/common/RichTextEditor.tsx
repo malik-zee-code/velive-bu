@@ -2,7 +2,7 @@
 'use client';
 import React from 'react';
 import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css'; // import styles
+import 'react-quill-new/dist/quill.snow.css'; // import styles
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
