@@ -14,6 +14,13 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { Metadata } from 'next';
+
+// This is a client component, so we can't export metadata directly.
+// We can set the title using useEffect.
+// export const metadata: Metadata = {
+//   title: 'Sign In',
+// };
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -24,6 +31,10 @@ const SignInPage = () => {
   const { toast } = useToast();
   const router = useRouter();
   const { signInEmailPassword, isLoading } = useSignInEmailPassword();
+  
+  React.useEffect(() => {
+    document.title = 'Sign In | VE LIVE';
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

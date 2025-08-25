@@ -4,6 +4,11 @@ import { Footer } from '@/components/landing/footer';
 import { BlogHero } from '@/components/blog/hero';
 import { BlogCard } from '@/components/blog/blog-card';
 import { blogPosts } from '@/lib/blog-data';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Blog',
+};
 
 const BlogPage = () => {
   return (

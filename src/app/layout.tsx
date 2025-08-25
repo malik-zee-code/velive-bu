@@ -1,10 +1,14 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import LayoutClient from './LayoutClient';
 
 export const metadata: Metadata = {
-  title: 'VE LIVE',
+  title: {
+    template: '%s | VE LIVE',
+    default: 'VE LIVE - Developer-Led Property Management',
+  },
   description: 'Developer-Led Property Management, Built for Trust',
 };
 

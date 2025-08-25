@@ -4,6 +4,12 @@ import { Footer } from '@/components/landing/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { KeyRound, Search, Brush, Megaphone, UserCheck, FilePen, LogIn, ClipboardCheck, Banknote, RefreshCcw } from 'lucide-react';
 import Image from 'next/image';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Client Journey',
+};
+
 
 const journeySteps = [
     { icon: <KeyRound className="w-10 h-10 text-primary" />, title: "Key Handover", description: "The journey begins when you entrust us with your keys, marking the start of our partnership." },

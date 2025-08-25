@@ -3,6 +3,11 @@ import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { ContactHero } from '@/components/contact/hero';
 import { ContactDetails } from '@/components/contact/contact-details';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contact Us',
+};
 
 const ContactPage = () => {
   return (

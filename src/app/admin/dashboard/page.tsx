@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -46,6 +47,10 @@ const StatCard = ({ title, value, icon: Icon, loading }: { title: string; value:
 
 const DashboardPage = () => {
     const { data, loading, error } = useQuery(GET_DASHBOARD_STATS);
+    
+    React.useEffect(() => {
+        document.title = 'Dashboard | VE LIVE';
+    }, []);
 
     if (error) {
         return <p>Error loading dashboard data: {error.message}</p>;

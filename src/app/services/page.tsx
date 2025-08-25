@@ -6,6 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, HandCoins, FileText, Repeat, ShieldCheck, UserCheck, Megaphone, Wrench, Download, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Our Services',
+};
 
 const services = [
     {

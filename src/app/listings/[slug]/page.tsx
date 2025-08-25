@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { nhost } from '@/lib/nhost';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import type { Metadata } from 'next';
 
 const GET_PROPERTY_BY_SLUG = gql`
   query GetPropertyBySlug($slug: String!) {
@@ -65,6 +66,13 @@ const PropertyDetailPageContent = () => {
     variables: { slug },
     skip: !slug,
   });
+  
+  React.useEffect(() => {
+    if (data?.properties[0]?.title) {
+      document.title = `${data.properties[0].title} | VE LIVE`;
+    }
+  }, [data]);
+
 
   const { data: settingsData, loading: settingsLoading } = useQuery(GET_SETTINGS);
   

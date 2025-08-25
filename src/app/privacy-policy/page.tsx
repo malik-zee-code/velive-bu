@@ -1,6 +1,11 @@
 
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+};
 
 const PrivacyPolicyPage = () => {
   return (

@@ -1,7 +1,6 @@
 
-'use client';
-
-import { useParams } from 'next/navigation';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { blogPosts } from '@/lib/blog-data';
@@ -10,24 +9,36 @@ import { Calendar, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
-const BlogPostPage = () => {
-  const params = useParams();
-  const slug = params.slug as string;
+type Props = {
+  params: { slug: string }
+}
 
-  const post = blogPosts.find((p) => p.slug === slug);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const post = blogPosts.find((p) => p.slug === params.slug);
 
   if (!post) {
-    return (
-        <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-grow">
-                <div className="container mx-auto py-20 text-center max-w-7xl">
-                    <h1 className="text-4xl font-bold">Post not found</h1>
-                </div>
-            </main>
-            <Footer />
-        </div>
-    );
+    return {
+      title: 'Post Not Found',
+    }
+  }
+
+  return {
+    title: post.title,
+    description: post.content.substring(0, 160),
+  }
+}
+
+export async function generateStaticParams() {
+  return blogPosts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+const BlogPostPage = ({ params }: Props) => {
+  const post = blogPosts.find((p) => p.slug === params.slug);
+
+  if (!post) {
+    notFound();
   }
 
   return (
