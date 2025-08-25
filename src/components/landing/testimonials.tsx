@@ -6,19 +6,19 @@ const testimonials = [
   {
     name: "John Doe",
     avatar: "/assets/images/category/01.jpg",
-    text: "This is the best service I have ever used. Highly recommended!",
+    text: "A truly trusted and reliable management service. The team is professional and always responsive.",
     rating: 5,
   },
   {
     name: "Jane Smith",
     avatar: "/assets/images/category/02.jpg",
-    text: "Excellent experience and great support. I found exactly what I was looking for.",
+    text: "The transparency in each step and the clarity of the process is outstanding. Highly recommended!",
     rating: 5,
   },
   {
     name: "Sam Wilson",
     avatar: "/assets/images/category/03.jpg",
-    text: "A fantastic platform with a wide variety of options. Will use again!",
+    text: "This property management service provides complete ease and peace of mind. My unit is in safe hands.",
     rating: 5,
   },
 ]
