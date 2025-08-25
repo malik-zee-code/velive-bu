@@ -4,14 +4,7 @@ import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css'; // import styles
 
 // Dynamically import ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(
-  async () => {
-    const { default: RQ } = await import('react-quill');
-    // eslint-disable-next-line react/display-name
-    return ({ forwardedRef, ...props }: any) => <RQ ref={forwardedRef} {...props} />;
-  },
-  { ssr: false }
-);
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 interface RichTextEditorProps {
   value: string;
