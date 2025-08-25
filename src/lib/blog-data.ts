@@ -12,7 +12,7 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
     {
         slug: 'leos-and-ve-live-completing-the-journey',
-        image: '/assets/images/blog/01.jpg',
+        image: '/assets/images/services/service_small.jpg',
         category: 'Partnership',
         title: 'LEOS & VE Live: Completing the Journey for Our Owners',
         author: 'Admin',
@@ -44,7 +44,7 @@ export const blogPosts: BlogPost[] = [
     },
     {
         slug: 'from-handover-to-roi',
-        image: '/assets/images/services/service_small.jpg',
+        image: '/assets/images/about/about-us-01.jpg',
         category: 'Investment',
         title: 'From Handover to ROI: How VE Live Protects and Grows Your Investment',
         author: 'Admin',
