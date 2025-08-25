@@ -2,28 +2,40 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, User, Calendar } from 'lucide-react';
+import { nhost } from '@/lib/nhost';
 
 interface BlogCardProps {
   post: {
+    id: string;
     slug: string;
-    image: string;
-    category: string;
+    blog_image: string;
     title: string;
-    author: string;
-    date: string;
+    user: {
+        displayName: string;
+    }
+    created_at: string;
   };
 }
 
 export const BlogCard = ({ post }: BlogCardProps) => {
+    const imageUrl = post.blog_image 
+        ? nhost.storage.getPublicUrl({ fileId: post.blog_image }) 
+        : 'https://placehold.co/400x250.png';
+
+    const postDate = new Date(post.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
   return (
     <Card className="overflow-hidden flex flex-col h-full group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
       <div className="relative">
         <Link href={`/blog/${post.slug}`}>
           <Image
-            src={post.image}
+            src={imageUrl}
             alt={post.title}
             width={400}
             height={250}
@@ -37,11 +49,11 @@ export const BlogCard = ({ post }: BlogCardProps) => {
           <div className="flex items-center text-sm text-muted-foreground mb-4 space-x-4">
             <div className="flex items-center gap-2">
               <User className="w-4 h-4" />
-              <span>By {post.author}</span>
+              <span>By {post.user?.displayName || 'Admin'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span>{post.date}</span>
+              <span>{postDate}</span>
             </div>
           </div>
           <h3 className="font-bold font-headline text-xl mb-4 text-foreground">
