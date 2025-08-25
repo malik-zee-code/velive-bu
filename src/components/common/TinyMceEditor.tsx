@@ -10,12 +10,10 @@ interface TinyMceEditorProps {
 
 export const TinyMceEditor = ({ value, onEditorChange }: TinyMceEditorProps) => {
     const editorRef = useRef(null);
-    // This is your public API key from TinyMCE.
-    // Replace with your own key in a real application.
-    const apiKey = "YOUR_API_KEY"; 
+    const apiKey = process.env.NEXT_PUBLIC_TINYMCE_API_KEY; 
 
     if (!apiKey || apiKey === "YOUR_API_KEY") {
-        console.warn("TinyMCE API key is not set. The editor will run in read-only mode. Please get a free key from tiny.cloud.");
+        console.warn("TinyMCE API key is not set. The editor may not function correctly. Please get a free key from tiny.cloud.");
     }
     
     return (
