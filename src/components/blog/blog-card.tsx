@@ -48,10 +48,6 @@ export const BlogCard = ({ post }: BlogCardProps) => {
         <div className="flex-grow">
           <div className="flex items-center text-sm text-muted-foreground mb-4 space-x-4">
             <div className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              <span>By {post.user?.displayName || 'Admin'}</span>
-            </div>
-            <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               <span>{postDate}</span>
             </div>

@@ -98,10 +98,6 @@ const BlogPostPageContent = () => {
                         </h1>
                         <div className="flex items-center justify-center text-sm text-white/80 space-x-4">
                             <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            <span>By {post.user?.displayName || 'Admin'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
                             <span>{postDate}</span>
                             </div>
