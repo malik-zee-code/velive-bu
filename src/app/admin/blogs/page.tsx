@@ -37,10 +37,7 @@ const GET_BLOGS = gql`
       id
       title
       slug
-      category {
-        id
-        title
-      }
+      category_id
       blog_image
     }
   }
@@ -371,6 +368,13 @@ const BlogsPage = () => {
     const handleAddNewClick = () => {
         setEditingBlogId(null);
     };
+    
+    const getCategoryTitle = (categoryId: string) => {
+        if (!categoriesData) return '...';
+        const category = categoriesData.categories.find((c: any) => c.id === categoryId);
+        return category ? category.title : 'Uncategorized';
+    };
+
 
     const isMutating = insertLoading || updateLoading || isUploading;
     const isLoading = categoriesLoading;
@@ -423,7 +427,7 @@ const BlogsPage = () => {
                         <CardDescription>A list of all your blog posts.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {blogsLoading ? (
+                        {blogsLoading || categoriesLoading ? (
                             <div className="space-y-2">
                                 <Skeleton className="h-12 w-full" />
                                 <Skeleton className="h-12 w-full" />
@@ -460,7 +464,7 @@ const BlogsPage = () => {
                                                 )}
                                             </TableCell>
                                             <TableCell className="font-medium">{blog.title}</TableCell>
-                                            <TableCell>{blog.category?.title}</TableCell>
+                                            <TableCell>{getCategoryTitle(blog.category_id)}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleEditClick(blog.id)}>
                                                     <Pencil className="h-4 w-4" />
