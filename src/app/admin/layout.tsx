@@ -4,7 +4,7 @@ import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButt
 import { Header } from '@/components/landing/header';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { MapPin, Tag, Building2, PanelLeft, Globe, LayoutDashboard, LogOut, Cog } from 'lucide-react';
+import { MapPin, Tag, Building2, PanelLeft, Globe, LayoutDashboard, LogOut, Cog, Rss } from 'lucide-react';
 import { useAuthenticationStatus, useSignOut } from '@nhost/nextjs';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         { href: '/admin/categories', label: 'Categories', icon: Tag },
         { href: '/admin/locations', label: 'Locations', icon: MapPin },
         { href: '/admin/countries', label: 'Countries', icon: Globe },
+        { href: '/admin/blogs', label: 'Blogs', icon: Rss },
         { href: '/admin/settings', label: 'Settings', icon: Cog },
     ];
 
