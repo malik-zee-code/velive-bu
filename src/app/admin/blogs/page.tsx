@@ -1,4 +1,3 @@
-
 // src/app/admin/blogs/page.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
@@ -30,7 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from '@/components/ui/skeleton';
-import RichTextEditor from '@/components/common/RichTextEditor';
+import { Textarea } from '@/components/ui/textarea';
 
 const GET_BLOGS = gql`
   query GetBlogsAdmin {
@@ -233,9 +232,10 @@ const BlogForm = ({
                         <FormItem>
                             <FormLabel>Content</FormLabel>
                             <FormControl>
-                                <RichTextEditor
-                                    value={field.value ?? ''}
-                                    onChange={field.onChange}
+                                <Textarea
+                                    rows={10}
+                                    placeholder="Write your blog content here..."
+                                    {...field}
                                 />
                             </FormControl>
                             <FormMessage />
