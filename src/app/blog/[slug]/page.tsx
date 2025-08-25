@@ -6,7 +6,7 @@ import { notFound, useParams } from 'next/navigation';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import Image from 'next/image';
-import { Calendar, User } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { gql, useQuery } from '@apollo/client';
 import { nhost } from '@/lib/nhost';
@@ -20,9 +20,6 @@ const GET_BLOG_BY_SLUG = gql`
       content
       created_at
       blog_image
-      user {
-        displayName
-      }
     }
   }
 `;

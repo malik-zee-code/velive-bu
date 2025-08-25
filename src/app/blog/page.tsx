@@ -26,10 +26,6 @@ const GET_BLOGS = gql`
         id
         title
       }
-      user {
-        id
-        displayName
-      }
     }
   }
 `;
