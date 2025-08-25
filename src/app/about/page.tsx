@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 
 
 const teamMembers = [
-  { name: 'Mohamed Gharib', title: 'CEO & Founder', avatar: 'https://placehold.co/128x128.png' },
-  { name: 'Sam Jacobs', title: 'Chief Operating Officer', avatar: 'https://placehold.co/128x128.png' },
-  { name: 'Yousra Ammi', title: 'Lead Developer', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'Sam Jacobs', title: 'Chief Operations Officer (C.O.O)', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'Mohamed Gharib', title: 'Operations Manager', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'Yousra Ammi', title: 'Leasing & Property Manager', avatar: 'https://placehold.co/128x128.png' },
 ];
 
 const differentiators = [
