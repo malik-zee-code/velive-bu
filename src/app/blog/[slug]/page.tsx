@@ -57,7 +57,6 @@ const BlogPostPage = ({ params }: Props) => {
             <div className="absolute inset-0 bg-black/70" />
             <div className="container relative mx-auto text-center">
                 <div className="max-w-4xl mx-auto">
-                <Badge style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="mb-4">{post.category}</Badge>
                 <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-4">
                     {post.title}
                 </h1>
