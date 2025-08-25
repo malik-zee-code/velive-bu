@@ -1,6 +1,6 @@
 // src/app/admin/blogs/page.tsx
 'use client';
-import React, 'useState', useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
