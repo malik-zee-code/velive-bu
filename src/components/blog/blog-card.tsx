@@ -31,7 +31,6 @@ export const BlogCard = ({ post }: BlogCardProps) => {
             data-ai-hint="blog post image"
           />
         </Link>
-        <Badge className="absolute top-4 left-4" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>{post.category}</Badge>
       </div>
       <CardContent className="p-6 flex-grow flex flex-col">
         <div className="flex-grow">
