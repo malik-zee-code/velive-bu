@@ -1,8 +1,12 @@
-
 'use client';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css'; // import styles
+import Quill from 'quill';
+import ImageResize from 'quill-image-resize-module-react';
+
+// Register the image resize module
+Quill.register('modules/imageResize', ImageResize);
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
@@ -23,13 +27,17 @@ const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
       ['link', 'image'],
       ['clean']
     ],
+    imageResize: {
+      parchment: Quill.import('parchment'),
+      modules: ['Resize', 'DisplaySize']
+    }
   };
 
   const formats = [
     'header', 'font', 'size',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
-    'link', 'image'
+    'link', 'image', 'alt', 'height', 'width', 'style'
   ];
 
   return (
