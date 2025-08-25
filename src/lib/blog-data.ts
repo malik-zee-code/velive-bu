@@ -44,7 +44,7 @@ export const blogPosts: BlogPost[] = [
     },
     {
         slug: 'from-handover-to-roi',
-        image: '/assets/images/blog/02.jpg',
+        image: '/assets/images/services/service_small.jpg',
         category: 'Investment',
         title: 'From Handover to ROI: How VE Live Protects and Grows Your Investment',
         author: 'Admin',
@@ -75,10 +75,10 @@ export const blogPosts: BlogPost[] = [
             <p>We also handle ongoing tenant communications — from renewals to problem-solving — ensuring your relationship with tenants remains professional and positive without requiring your direct involvement.</p>
             <h4 class="font-bold text-lg mt-8 mb-4">Step 6: Transparent Reporting and Updates</h4>
             <p>Many owners say their biggest frustration with property managers is the lack of visibility. With VE Live, you’re never left guessing. We provide regular updates and detailed reports so you always know the status of your property, your tenant, and your rental income. Transparency isn’t just a promise — it’s a built-in part of our service.</p>
-            <h3 class="text-2xl font-bold mt-8 mb-4">More Than Management: A Trusted Partner</h3>
+            <h4 class="font-bold text-lg mt-8 mb-4">More Than Management: A Trusted Partner</h4>
             <p>The difference between VE Live and a typical property manager is simple: we’re not here just to “collect rent.” We’re here to complete the ownership journey you began with LEOS Development. From the moment you receive your keys to the moment your first rental payment is aligned with your financial plan, VE Live is by your side.</p>
             <p>Our mission is to ensure your investment is more than just a property. It’s a secure, profitable, and stress-free asset — managed by a partner you already know and trust.</p>
-            <h3 class="text-2xl font-bold mt-8 mb-4">The Bottom Line</h3>
+            <h4 class="font-bold text-lg mt-8 mb-4">The Bottom Line</h4>
             <p>In Dubai’s fast-paced real estate market, it’s not enough to buy a property. What matters is how that property is managed. VE Live was created to bridge the gap between ownership and return on investment, protecting your asset and maximizing its potential every step of the way.</p>
             <p>From handover to ROI, VE Live isn’t just a management service — it’s your partner in making ownership effortless, transparent, and rewarding.</p>
         `
@@ -92,10 +92,10 @@ export const blogPosts: BlogPost[] = [
         date: 'July 29, 2024',
         content: `
             <p>For many investors, purchasing a property in Dubai is an exciting milestone. The city’s real estate market offers strong potential returns, world-class infrastructure, and growing demand from residents and professionals worldwide. But buying a property is only the first step. The real challenge — and opportunity — lies in how that property is managed.</p>
-            <h3 class="text-2xl font-bold mt-8 mb-4">What Is Property Management?</h3>
+            <h4 class="font-bold text-lg mt-8 mb-4">What Is Property Management?</h4>
             <p>Property management is more than just finding a tenant. It’s the complete process of ensuring your property generates consistent income while staying protected, maintained, and legally compliant. A professional property manager handles everything on behalf of the owner, from marketing and contracts to maintenance and rent collection.</p>
             <p>In Dubai, this service is especially important for international owners who may not live in the city or have the time to oversee their property directly.</p>
-            <h3 class="text-2xl font-bold mt-8 mb-4">Key Responsibilities of a Property Manager</h3>
+            <h4 class="font-bold text-lg mt-8 mb-4">Key Responsibilities of a Property Manager</h4>
             <p>A strong property management company takes care of all the tasks that can otherwise overwhelm an owner. This includes:</p>
             <ul class="list-disc list-inside my-4 space-y-2">
                 <li>Tenant sourcing and screening: Marketing the property, filtering applicants, and ensuring only qualified tenants are approved.</li>
@@ -104,10 +104,10 @@ export const blogPosts: BlogPost[] = [
                 <li>Maintenance and inspections: Coordinating repairs, handling emergencies, and scheduling inspections to protect the unit’s condition.</li>
                 <li>Reporting and communication: Providing regular updates so owners are always informed.</li>
             </ul>
-            <h3 class="text-2xl font-bold mt-8 mb-4">Why It Matters in Dubai</h3>
+            <h4 class="font-bold text-lg mt-8 mb-4">Why It Matters in Dubai</h4>
             <p>Dubai has specific regulations that make property management a specialized task. For example, every tenancy agreement must be registered with Ejari, rental disputes are handled through the Dubai Rental Dispute Center, and advertising a property requires a Trakheesi permit. Navigating these rules without professional support can lead to delays, disputes, or even penalties.</p>
             <p>At the same time, the city’s competitive market means properties that are well-managed — with professional marketing, reliable tenants, and proactive maintenance — simply perform better.</p>
-            <h3 class="text-2xl font-bold mt-8 mb-4">Self-Management vs. Professional Management</h3>
+            <h4 class="font-bold text-lg mt-8 mb-4">Self-Management vs. Professional Management</h4>
             <p>Some owners consider managing their property themselves. While this may seem cost-saving at first, it often creates more risks:</p>
             <ul class="list-disc list-inside my-4 space-y-2">
                 <li>Difficulty finding reliable tenants.</li>
@@ -116,7 +116,7 @@ export const blogPosts: BlogPost[] = [
                 <li>Stress from being directly involved in day-to-day operations.</li>
             </ul>
             <p>By contrast, professional property management ensures everything is handled seamlessly, reducing risk and maximizing returns.</p>
-            <h3 class="text-2xl font-bold mt-8 mb-4">How VE Live Supports Owners</h3>
+            <h4 class="font-bold text-lg mt-8 mb-4">How VE Live Supports Owners</h4>
             <p>At VE Live, we built our model around the real needs of owners:</p>
             <ul class="list-disc list-inside my-4 space-y-2">
                 <li>Seamless end-to-end management: From handover to rental income.</li>
@@ -125,7 +125,7 @@ export const blogPosts: BlogPost[] = [
                 <li>Local compliance, international standards: UK-tested practices tailored for Dubai’s legal framework.</li>
             </ul>
             <p>This means owners don’t just get tenants — they get peace of mind.</p>
-            <h3 class="text-2xl font-bold mt-8 mb-4">The Bottom Line</h3>
+            <h4 class="font-bold text-lg mt-8 mb-4">The Bottom Line</h4>
             <p>Owning property in Dubai can be one of the best financial decisions you make. But to unlock its full potential, professional management is not just an option — it’s a necessity. It ensures your property is legally compliant, financially productive, and physically protected.</p>
             <p>Whether you are a first-time investor or a seasoned landlord, understanding the value of property management can make all the difference between a stressful experience and a successful one.</p>
             <p>At VE Live, our goal is simple: to make your ownership journey effortless, transparent, and profitable.</p>
