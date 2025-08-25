@@ -30,7 +30,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
+import { TinyMceEditor } from '@/components/common/TinyMceEditor';
 
 const GET_BLOGS = gql`
   query GetBlogsAdmin {
@@ -233,10 +233,9 @@ const BlogForm = ({
                         <FormItem>
                             <FormLabel>Content</FormLabel>
                             <FormControl>
-                                <Textarea
-                                    rows={10}
-                                    placeholder="Write your blog content here..."
-                                    {...field}
+                                <TinyMceEditor
+                                    value={field.value || ''}
+                                    onEditorChange={field.onChange}
                                 />
                             </FormControl>
                             <FormMessage />
