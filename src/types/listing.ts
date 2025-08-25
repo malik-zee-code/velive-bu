@@ -17,4 +17,7 @@ export type Listing = {
   status: 'Open' | 'Closed';
   date: string;
   listing_type: 'sale' | 'rent';
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
 };

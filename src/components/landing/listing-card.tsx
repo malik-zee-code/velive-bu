@@ -5,9 +5,10 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bookmark, Star, MapPin, CalendarDays, ArrowRight } from 'lucide-react';
+import { Bookmark, Star, MapPin, CalendarDays, ArrowRight, BedDouble, Bath, Ruler } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { Separator } from '../ui/separator';
 
 interface ListingCardProps {
   listing: Listing;
@@ -43,16 +44,13 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
           For {listing.listing_type}
         </Badge>
       </CardHeader>
-      <CardContent className="p-4 flex-grow">
-        <div className="flex justify-between items-start mb-2">
-          <span className="text-sm text-muted-foreground">{listing.category}</span>
-          <div className="flex items-center gap-1 text-sm text-amber-500">
-            <Star className="w-4 h-4 fill-current" />
-            <span className="font-bold">{listing.rating.toFixed(1)}</span>
-            <span className="text-muted-foreground">({listing.reviews})</span>
-          </div>
+      <CardContent className="p-4 flex-grow flex flex-col">
+        <div className="flex justify-between items-center mb-2">
+            <p className="text-2xl font-bold text-primary">
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'AED', minimumFractionDigits: 0 }).format(listing.price)}
+            </p>
         </div>
-        <h3 className="font-bold font-headline text-xl mb-2 text-foreground truncate">
+        <h3 className="font-bold font-headline text-xl mb-2 text-foreground truncate h-7">
             <Link href={`/listings/${listing.slug}`} className="hover:text-primary transition-colors">
                 {listing.title}
             </Link>
@@ -61,19 +59,32 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
           <MapPin className="w-4 h-4 mr-2 shrink-0" />
           {listing.location}
         </p>
-      </CardContent>
-      <CardFooter className="p-4 border-t flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={listing.author.avatar} alt={listing.author.name} />
-            <AvatarFallback>{listing.author.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <span className="text-sm font-medium text-muted-foreground">{listing.author.name}</span>
+
+        <div className="flex-grow" />
+
+        <Separator className="my-4" />
+
+        <div className="flex justify-between items-center text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+                <BedDouble className="w-4 h-4 text-primary" />
+                <span>{listing.bedrooms} Beds</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <Bath className="w-4 h-4 text-primary" />
+                <span>{listing.bathrooms} Baths</span>
+            </div>
+             <div className="flex items-center gap-2">
+                <Ruler className="w-4 h-4 text-primary" />
+                <span>{listing.area} sqft</span>
+            </div>
         </div>
-        <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} size="sm" >
-          <Link href={`/listings/${listing.slug}`}>Details</Link>
+
+        <Separator className="my-4" />
+        
+        <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} size="sm" className="w-full">
+          <Link href={`/listings/${listing.slug}`}>View Details</Link>
         </Button>
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 };

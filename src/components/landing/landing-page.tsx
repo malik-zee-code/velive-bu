@@ -137,6 +137,9 @@ export function LandingPage() {
       status: 'Open', // Mocked
       date: 'Posted recently', // Mocked
       listing_type: p.listing_type,
+      bedrooms: p.bedrooms,
+      bathrooms: p.bathrooms,
+      area: p.area_in_feet
   })) || [];
 
   return (
