@@ -1,6 +1,6 @@
 // src/app/admin/blogs/page.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, 'useState', useEffect } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { nhost } from '@/lib/nhost';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -30,6 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from '@/components/ui/skeleton';
+import RichTextEditor from '@/components/common/RichTextEditor';
 
 const GET_BLOGS = gql`
   query GetBlogsAdmin {
@@ -231,7 +231,12 @@ const BlogForm = ({
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Content</FormLabel>
-                            <FormControl><Textarea rows={10} placeholder="Write your blog content here..." {...field} value={field.value ?? ''} /></FormControl>
+                            <FormControl>
+                                <RichTextEditor
+                                    value={field.value ?? ''}
+                                    onChange={field.onChange}
+                                />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
