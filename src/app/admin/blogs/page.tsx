@@ -137,7 +137,7 @@ const BlogForm = ({
 }: {
     blog?: any;
     categories: any[];
-    onFormSubmit: (values: z.infer<typeof formSchema>, imageFile?: File) => Promise<void>;
+    onFormSubmit: (values: z.infer<typeof formSchema>, imageFile?: File, form?: any) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
     isMutating?: boolean;
@@ -201,7 +201,7 @@ const BlogForm = ({
     };
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-        await onFormSubmit(values, imagePreview?.file);
+        await onFormSubmit(values, imagePreview?.file, form);
     };
 
     if (isLoading) {
@@ -291,15 +291,15 @@ const BlogForm = ({
 const BlogEditForm = ({ blogId, onCancel, onFormSubmit, categories }: {
     blogId: string;
     onCancel: () => void;
-    onFormSubmit: (values: z.infer<typeof formSchema>, imageFile?: File) => Promise<void>;
+    onFormSubmit: (values: z.infer<typeof formSchema>, imageFile?: File, form?: any) => Promise<void>;
     categories: any[];
 }) => {
     const { data, loading, error, refetch } = useQuery(GET_BLOG_BY_ID, {
         variables: { id: blogId },
     });
     
-    const handlePostSubmit = async (values: z.infer<typeof formSchema>, imageFile?: File) => {
-        await onFormSubmit(values, imageFile);
+    const handlePostSubmit = async (values: z.infer<typeof formSchema>, imageFile?: File, form?: any) => {
+        await onFormSubmit(values, imageFile, form);
         refetch();
     };
 
@@ -335,7 +335,7 @@ const BlogsPage = () => {
     const { data: blogsData, loading: blogsLoading, error: blogsError } = useQuery(GET_BLOGS);
     const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
 
-    const handleFormSubmit = async (values: z.infer<typeof formSchema>, imageFile?: File) => {
+    const handleFormSubmit = async (values: z.infer<typeof formSchema>, imageFile?: File, form?: any) => {
         const slug = generateSlug(values.title);
         const submissionData: any = {
             ...values,
@@ -351,24 +351,19 @@ const BlogsPage = () => {
                  submissionData.blog_image = id;
             }
 
-            let currentBlogId = editingBlogId;
-
-            if (currentBlogId) {
+            if (editingBlogId) {
                 await updateBlog({
-                    variables: { id: currentBlogId, data: submissionData },
+                    variables: { id: editingBlogId, data: submissionData },
                 });
                 toast({ title: "Success!", description: "Blog post updated successfully." });
+                setEditingBlogId(null);
             } else {
                 const { data } = await insertBlog({ variables: submissionData });
-                currentBlogId = data.insert_blogs_one.id;
                 toast({ title: "Success!", description: "Blog post has been added successfully." });
             }
-            
 
-            if (!editingBlogId && currentBlogId) {
-                setEditingBlogId(currentBlogId);
-            } else if (!editingBlogId) {
-                handleAddNewClick(); 
+            if (form) {
+                form.reset();
             }
 
         } catch (e) {
@@ -534,3 +529,5 @@ const BlogsPage = () => {
 };
 
 export default BlogsPage;
+
+    
