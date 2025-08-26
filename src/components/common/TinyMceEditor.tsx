@@ -20,7 +20,7 @@ export const TinyMceEditor = ({ value, onEditorChange }: TinyMceEditorProps) => 
         <Editor
             apiKey={apiKey}
             onInit={(evt, editor) => editorRef.current = editor}
-            initialValue={value}
+            value={value}
             onEditorChange={(newValue, editor) => onEditorChange(newValue)}
             init={{
                 height: 500,
@@ -35,9 +35,8 @@ export const TinyMceEditor = ({ value, onEditorChange }: TinyMceEditorProps) => 
                     'alignright alignjustify | bullist numlist outdent indent | ' +
                     'removeformat | help',
                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                skin: (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'oxide-dark' : 'oxide',
-                content_css: (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'default',
-
+                skin: 'oxide',
+                content_css: 'default',
             }}
         />
     );
