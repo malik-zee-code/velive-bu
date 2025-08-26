@@ -1,7 +1,7 @@
 
 // src/app/admin/blogs/page.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +29,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TinyMceEditor } from '@/components/common/TinyMceEditor';
 
@@ -127,7 +128,7 @@ const generateSlug = (title: string) => {
         .replace(/-+/g, '-');
 }
 
-const BlogForm = ({
+const BlogForm = React.memo(({
     blog,
     categories,
     onFormSubmit,
@@ -176,7 +177,7 @@ const BlogForm = ({
                  setImagePreview(null);
             }
         }
-    }, [blog, form.reset]);
+    }, [blog, form]);
 
 
     useEffect(() => {
@@ -274,11 +275,11 @@ const BlogForm = ({
                     </div>
                 )}
                 <div className="flex justify-end space-x-4">
-                   {blog && (
-                    <Button type="button" variant="outline" onClick={onCancel}>
+                   <DialogClose asChild>
+                    <Button type="button" variant="outline">
                         Cancel
                     </Button>
-                   )}
+                   </DialogClose>
                     <Button type="submit" disabled={isMutating} className="w-48">
                         {isMutating ? 'Saving...' : (blog ? "Update Post" : "Add Post")}
                     </Button>
@@ -286,7 +287,9 @@ const BlogForm = ({
             </form>
         </Form>
     )
-}
+});
+BlogForm.displayName = 'BlogForm';
+
 
 const BlogEditForm = ({ blogId, onCancel, onFormSubmit, categories }: {
     blogId: string;
@@ -318,6 +321,7 @@ const BlogEditForm = ({ blogId, onCancel, onFormSubmit, categories }: {
 };
 
 const BlogsPage = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
     const { toast } = useToast();
     const { upload, isUploading, progress } = useFileUpload();
@@ -332,10 +336,10 @@ const BlogsPage = () => {
         refetchQueries: [{ query: GET_BLOGS }],
     });
 
-    const { data: blogsData, loading: blogsLoading, error: blogsError } = useQuery(GET_BLOGS);
+    const { data: blogsData, loading: blogsLoading, error: blogsError, refetch: refetchBlogs } = useQuery(GET_BLOGS);
     const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
 
-    const handleFormSubmit = async (values: z.infer<typeof formSchema>, imageFile?: File, form?: any) => {
+    const handleFormSubmit = useCallback(async (values: z.infer<typeof formSchema>, imageFile?: File, form?: any) => {
         const slug = generateSlug(values.title);
         const submissionData: any = {
             ...values,
@@ -356,22 +360,25 @@ const BlogsPage = () => {
                     variables: { id: editingBlogId, data: submissionData },
                 });
                 toast({ title: "Success!", description: "Blog post updated successfully." });
-                setEditingBlogId(null);
             } else {
-                const { data } = await insertBlog({ variables: submissionData });
+                await insertBlog({ variables: submissionData });
                 toast({ title: "Success!", description: "Blog post has been added successfully." });
             }
 
             if (form) {
                 form.reset();
             }
+            
+            refetchBlogs();
+            setIsModalOpen(false);
+            setEditingBlogId(null);
 
         } catch (e) {
             console.error(e);
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
             toast({ title: "Error!", description: `Failed to save post. ${errorMessage}`, variant: "destructive" });
         }
-    };
+    }, [editingBlogId, insertBlog, updateBlog, upload, toast, refetchBlogs]);
 
     const handleDeleteBlog = async (blogId: string) => {
         try {
@@ -388,146 +395,138 @@ const BlogsPage = () => {
 
     const handleEditClick = (blogId: string) => {
         setEditingBlogId(blogId);
+        setIsModalOpen(true);
     };
 
     const handleAddNewClick = () => {
         setEditingBlogId(null);
+        setIsModalOpen(true);
     };
-    
-    const getCategoryTitle = (categoryId: string) => {
-        if (!categoriesData) return '...';
-        const category = categoriesData.categories.find((c: any) => c.id === categoryId);
-        return category ? category.title : 'Uncategorized';
-    };
-
 
     const isMutating = insertLoading || updateLoading || isUploading;
     const isLoading = categoriesLoading;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-1 space-y-8">
-                <Card>
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <CardTitle className="font-headline">{editingBlogId ? 'Edit Blog Post' : 'Add New Post'}</CardTitle>
-                                <CardDescription>{editingBlogId ? 'Update the details of your blog post.' : 'Fill out the form to create a new post.'}</CardDescription>
-                            </div>
-                            {editingBlogId && (
-                                <Button variant="outline" size="sm" onClick={handleAddNewClick}>
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    Add New
-                                </Button>
-                            )}
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {isLoading ? <p>Loading...</p> : (
-                            editingBlogId ? (
-                                <BlogEditForm
-                                    key={editingBlogId}
-                                    blogId={editingBlogId}
-                                    onCancel={handleAddNewClick}
-                                    onFormSubmit={handleFormSubmit}
-                                    categories={categoriesData?.categories || []}
-                                />
-                            ) : (
-                                <BlogForm
-                                    categories={categoriesData?.categories || []}
-                                    onFormSubmit={handleFormSubmit}
-                                    onCancel={handleAddNewClick}
-                                    isMutating={isMutating}
-                                />
-                            )
-                        )}
-                         {isUploading && <Progress value={progress} className="w-full mt-4" />}
-                    </CardContent>
-                </Card>
-            </div>
-            <div className="md:col-span-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Blog Posts</CardTitle>
-                        <CardDescription>A list of all your blog posts.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {blogsLoading || categoriesLoading ? (
-                            <div className="space-y-2">
-                                <Skeleton className="h-12 w-full" />
-                                <Skeleton className="h-12 w-full" />
-                                <Skeleton className="h-12 w-full" />
-                            </div>
-                        ) : blogsError ? (
-                            <p className="text-destructive">Error: {blogsError.message}</p>
+        <div className="space-y-8">
+            <Dialog open={isModalOpen} onOpenChange={(open) => {
+                setIsModalOpen(open);
+                if (!open) {
+                    setEditingBlogId(null);
+                }
+            }}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{editingBlogId ? 'Edit Blog Post' : 'Add New Post'}</DialogTitle>
+                        <DialogDescription>{editingBlogId ? 'Update the details of your blog post.' : 'Fill out the form to create a new post.'}</DialogDescription>
+                    </DialogHeader>
+                    {isLoading ? <p>Loading...</p> : (
+                        editingBlogId ? (
+                            <BlogEditForm
+                                key={editingBlogId}
+                                blogId={editingBlogId}
+                                onCancel={() => setIsModalOpen(false)}
+                                onFormSubmit={handleFormSubmit}
+                                categories={categoriesData?.categories || []}
+                            />
                         ) : (
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Image</TableHead>
-                                        <TableHead>Title</TableHead>
-                                        <TableHead>Category</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                            <BlogForm
+                                categories={categoriesData?.categories || []}
+                                onFormSubmit={handleFormSubmit}
+                                onCancel={() => setIsModalOpen(false)}
+                                isMutating={isMutating}
+                            />
+                        )
+                    )}
+                    {isUploading && <Progress value={progress} className="w-full mt-4" />}
+                </DialogContent>
+            </Dialog>
+
+            <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle>Blog Posts</CardTitle>
+                            <CardDescription>A list of all your blog posts.</CardDescription>
+                        </div>
+                        <Button onClick={handleAddNewClick}>
+                            <PlusCircle className="mr-2 h-4 w-4"/> Add New Post
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {blogsLoading || categoriesLoading ? (
+                        <div className="space-y-2">
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                        </div>
+                    ) : blogsError ? (
+                        <p className="text-destructive">Error: {blogsError.message}</p>
+                    ) : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Image</TableHead>
+                                    <TableHead>Title</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {blogsData?.blogs.map((blog: any) => (
+                                    <TableRow key={blog.id}>
+                                        <TableCell>
+                                            {blog.blog_image ? (
+                                                <Image
+                                                    src={nhost.storage.getPublicUrl({ fileId: blog.blog_image })}
+                                                    alt={blog.title}
+                                                    width={64}
+                                                    height={64}
+                                                    className="rounded-md object-cover w-16 h-16"
+                                                />
+                                            ) : (
+                                                <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center text-xs text-muted-foreground">
+                                                    No Image
+                                                </div>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="font-medium">{blog.title}</TableCell>
+                                        <TableCell>{blog.category?.title ?? 'Uncategorized'}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(blog.id)}>
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon">
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This action cannot be undone. This will permanently delete the blog post.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDeleteBlog(blog.id)}>
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </TableCell>
                                     </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {blogsData?.blogs.map((blog: any) => (
-                                        <TableRow key={blog.id}>
-                                            <TableCell>
-                                                {blog.blog_image ? (
-                                                    <Image
-                                                        src={nhost.storage.getPublicUrl({ fileId: blog.blog_image })}
-                                                        alt={blog.title}
-                                                        width={64}
-                                                        height={64}
-                                                        className="rounded-md object-cover w-16 h-16"
-                                                    />
-                                                ) : (
-                                                    <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center text-xs text-muted-foreground">
-                                                        No Image
-                                                    </div>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="font-medium">{blog.title}</TableCell>
-                                            <TableCell>{blog.category?.title ?? 'Uncategorized'}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleEditClick(blog.id)}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon">
-                                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                This action cannot be undone. This will permanently delete the blog post.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteBlog(blog.id)}>
-                                                                Delete
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     );
 };
 
 export default BlogsPage;
-
-    
