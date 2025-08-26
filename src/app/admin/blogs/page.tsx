@@ -33,13 +33,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { TinyMceEditor } from '@/components/common/TinyMceEditor';
 
 const GET_BLOGS = gql`
-  query GetBlogsAdmin {
+  query GetBlogs {
     blogs(order_by: {created_at: desc}) {
       id
       title
       slug
-      category_id
+      created_at
       blog_image
+      category {
+        id
+        title
+      }
     }
   }
 `;
@@ -154,15 +158,26 @@ const BlogForm = ({
             category_id: "",
         },
     });
-
+    
     useEffect(() => {
-        if (blog?.blog_image) {
-            const imageUrl = nhost.storage.getPublicUrl({ fileId: blog.blog_image });
-            if (imageUrl) {
-                 setImagePreview({ file: new File([], ""), previewUrl: imageUrl });
+        if (blog) {
+            form.reset({
+                title: blog.title || "",
+                slug: blog.slug || "",
+                content: blog.content || "",
+                category_id: blog.category_id?.toString() || "",
+            });
+            if (blog.blog_image) {
+                const imageUrl = nhost.storage.getPublicUrl({ fileId: blog.blog_image });
+                if (imageUrl) {
+                    setImagePreview({ file: new File([], ""), previewUrl: imageUrl });
+                }
+            } else {
+                 setImagePreview(null);
             }
         }
-    }, [blog]);
+    }, [blog, form.reset]);
+
 
     useEffect(() => {
         return () => {
@@ -279,9 +294,14 @@ const BlogEditForm = ({ blogId, onCancel, onFormSubmit, categories }: {
     onFormSubmit: (values: z.infer<typeof formSchema>, imageFile?: File) => Promise<void>;
     categories: any[];
 }) => {
-    const { data, loading, error } = useQuery(GET_BLOG_BY_ID, {
+    const { data, loading, error, refetch } = useQuery(GET_BLOG_BY_ID, {
         variables: { id: blogId },
     });
+    
+    const handlePostSubmit = async (values: z.infer<typeof formSchema>, imageFile?: File) => {
+        await onFormSubmit(values, imageFile);
+        refetch();
+    };
 
     if (loading) return <p>Loading post data...</p>;
     if (error) return <p>Error loading post: {error.message}</p>;
@@ -290,7 +310,7 @@ const BlogEditForm = ({ blogId, onCancel, onFormSubmit, categories }: {
         <BlogForm
             blog={data.blogs_by_pk}
             categories={categories}
-            onFormSubmit={onFormSubmit}
+            onFormSubmit={handlePostSubmit}
             onCancel={onCancel}
             isLoading={loading}
         />
@@ -474,7 +494,7 @@ const BlogsPage = () => {
                                                 )}
                                             </TableCell>
                                             <TableCell className="font-medium">{blog.title}</TableCell>
-                                            <TableCell>{getCategoryTitle(blog.category_id)}</TableCell>
+                                            <TableCell>{blog.category?.title ?? 'Uncategorized'}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleEditClick(blog.id)}>
                                                     <Pencil className="h-4 w-4" />
