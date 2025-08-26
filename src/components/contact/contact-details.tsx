@@ -82,7 +82,7 @@ export const ContactDetails = () => {
                     </CardHeader>
                     <CardContent>
                         <form
-                            action="https://formspree.io/f/mjkolrkw"
+                            action={process.env.NEXT_PUBLIC_FORMSPREE_URL}
                             method="POST"
                             className="space-y-6"
                         >
