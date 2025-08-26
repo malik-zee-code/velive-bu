@@ -1,4 +1,3 @@
-
 // src/app/admin/properties/page.tsx
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
@@ -31,6 +30,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -586,11 +586,9 @@ const PropertyForm = ({
                     />
                 </div>
                 <div className="flex justify-end space-x-4">
-                   {property && (
-                    <Button type="button" variant="outline" onClick={onCancel}>
-                        Cancel
-                    </Button>
-                   )}
+                    <DialogClose asChild>
+                        <Button type="button" variant="outline">Cancel</Button>
+                    </DialogClose>
                     <Button type="submit" disabled={isMutating} className="w-48">
                     {isMutating ? `Saving...` : (property ? "Update Property" : "Add Property")}
                     </Button>
@@ -600,12 +598,12 @@ const PropertyForm = ({
     )
 }
 
-const PropertyEditForm = ({ propertyId, onCancel, onFormSubmit, locations, categories }: {
+const PropertyEditForm = ({ propertyId, onFormSubmit, locations, categories, onCancel }: {
     propertyId: string;
-    onCancel: () => void;
     onFormSubmit: (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => Promise<void>;
     locations: any[];
     categories: any[];
+    onCancel: () => void;
 }) => {
     const { data, loading, error } = useQuery(GET_PROPERTY_BY_ID, {
         variables: { id: propertyId },
@@ -628,6 +626,7 @@ const PropertyEditForm = ({ propertyId, onCancel, onFormSubmit, locations, categ
 
 
 const PropertiesPage = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const { toast } = useToast();
@@ -709,11 +708,8 @@ const PropertiesPage = () => {
                 await refetchProperty({id: currentPropertyId});
             }
 
-            if (!propertyId && currentPropertyId) {
-                setEditingPropertyId(currentPropertyId);
-            } else if (!propertyId) {
-                handleAddNewClick();
-            }
+            setIsModalOpen(false);
+            setEditingPropertyId(null);
 
         } catch (e) {
             console.error(e);
@@ -762,10 +758,12 @@ const PropertiesPage = () => {
 
     const handleEditClick = (propertyId: string) => {
         setEditingPropertyId(propertyId);
+        setIsModalOpen(true);
     };
 
     const handleAddNewClick = () => {
         setEditingPropertyId(null);
+        setIsModalOpen(true);
     };
 
     const isMutating = insertLoading || updateLoading || isUploading;
@@ -774,30 +772,26 @@ const PropertiesPage = () => {
     const propertyImages = propertyData?.properties_by_pk?.properties_images || [];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-1 space-y-8">
-                <Card>
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <CardTitle className="font-headline">{editingPropertyId ? 'Edit Property' : 'Add New Property'}</CardTitle>
-                                <CardDescription>{editingPropertyId ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</CardDescription>
-                            </div>
-                            {editingPropertyId && (
-                                <Button variant="outline" size="sm" onClick={handleAddNewClick}>
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    Add New
-                                </Button>
-                            )}
-                        </div>
-                    </CardHeader>
-                    <CardContent>
+        <div className="space-y-8">
+            <Dialog open={isModalOpen} onOpenChange={(open) => {
+                setIsModalOpen(open);
+                if (!open) {
+                    setEditingPropertyId(null);
+                }
+            }}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{editingPropertyId ? 'Edit Property' : 'Add New Property'}</DialogTitle>
+                        <DialogDescription>{editingPropertyId ? 'Update the details of your property.' : 'Fill out the form below to add a new property listing.'}</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
                         {isLoading ? <p>Loading...</p> : (
                             editingPropertyId ? (
                                 <PropertyEditForm
                                     key={editingPropertyId}
                                     propertyId={editingPropertyId}
-                                    onCancel={handleAddNewClick}
+                                    onCancel={() => setIsModalOpen(false)}
                                     onFormSubmit={handleFormSubmit}
                                     locations={locationsData?.locations || []}
                                     categories={categoriesData?.categories || []}
@@ -807,178 +801,182 @@ const PropertiesPage = () => {
                                     locations={locationsData?.locations || []}
                                     categories={categoriesData?.categories || []}
                                     onFormSubmit={handleFormSubmit}
-                                    onCancel={handleAddNewClick}
+                                    onCancel={() => setIsModalOpen(false)}
                                     isMutating={isMutating}
                                 />
                             )
                         )}
-                         {isUploading && <Progress value={progress} className="w-full mt-4" />}
-                    </CardContent>
-                </Card>
+                        </div>
+                        <div>
+                        {editingPropertyId && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Property Images</CardTitle>
+                                    <CardDescription>Manage the images associated with this property.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {propertyImages.length > 0 ? (
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {propertyImages.map((image: any) => (
+                                                <div key={image.id} className="relative group">
+                                                    <Image
+                                                        src={nhost.storage.getPublicUrl({ fileId: image.file_id })}
+                                                        alt="Property Image"
+                                                        width={200}
+                                                        height={150}
+                                                        className="rounded-md object-cover w-full h-32"
+                                                    />
+                                                    {image.is_primary && (
+                                                        <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1 text-xs flex items-center">
+                                                            <Star className="w-3 h-3 mr-1" />
+                                                            Primary
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                        {!image.is_primary && (
+                                                            <Button size="sm" onClick={() => handleSetPrimaryImage(image.id)}>
+                                                                <Star className="w-4 h-4" />
+                                                            </Button>
+                                                        )}
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Button size="sm" variant="destructive">
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </Button>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                                    <AlertDialogDescription>
+                                                                        This action cannot be undone. This will permanently delete the image.
+                                                                    </AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleDeleteImage(image.id)}>
+                                                                        Delete
+                                                                    </AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-muted-foreground">No images uploaded for this property yet.</p>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )}
+                        </div>
+                    </div>
+                     {isUploading && <Progress value={progress} className="w-full mt-4" />}
+                </DialogContent>
+            </Dialog>
 
-                {editingPropertyId && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Property Images</CardTitle>
-                            <CardDescription>Manage the images associated with this property.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {propertyImages.length > 0 ? (
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {propertyImages.map((image: any) => (
-                                        <div key={image.id} className="relative group">
-                                            <Image
-                                                src={nhost.storage.getPublicUrl({ fileId: image.file_id })}
-                                                alt="Property Image"
-                                                width={200}
-                                                height={150}
-                                                className="rounded-md object-cover w-full h-32"
-                                            />
-                                            {image.is_primary && (
-                                                <div className="absolute top-2 left-2 bg-primary text-primary-foreground rounded-full p-1 text-xs flex items-center">
-                                                    <Star className="w-3 h-3 mr-1" />
-                                                    Primary
+            <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle>Properties</CardTitle>
+                            <CardDescription>A list of all your properties.</CardDescription>
+                        </div>
+                        <Button onClick={handleAddNewClick}>
+                            <PlusCircle className="mr-2 h-4 w-4"/> Add New Property
+                        </Button>
+                    </div>
+                    <div className="mt-4">
+                        <Input
+                            placeholder="Search by title..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="max-w-sm"
+                        />
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {propertiesLoading ? (
+                        <div className="space-y-2">
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                        </div>
+                    ) : propertiesError ? (
+                        <p className="text-destructive">Error: {propertiesError.message}</p>
+                    ) : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Image</TableHead>
+                                    <TableHead>Title</TableHead>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>Location</TableHead>
+                                    <TableHead>Price</TableHead>
+                                    <TableHead>Furnished</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredProperties.map((property: any) => (
+                                    <TableRow key={property.id}>
+                                        <TableCell>
+                                            {property.properties_images && property.properties_images.length > 0 ? (
+                                                <Image
+                                                    src={nhost.storage.getPublicUrl({ fileId: property.properties_images[0].file_id })}
+                                                    alt={property.title}
+                                                    width={64}
+                                                    height={64}
+                                                    className="rounded-md object-cover w-16 h-16"
+                                                />
+                                            ) : (
+                                                <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center text-xs text-muted-foreground">
+                                                    No Image
                                                 </div>
                                             )}
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                {!image.is_primary && (
-                                                    <Button size="sm" onClick={() => handleSetPrimaryImage(image.id)}>
-                                                        <Star className="w-4 h-4" />
+                                        </TableCell>
+                                        <TableCell className="font-medium">{property.title}</TableCell>
+                                        <TableCell className="capitalize">{property.listing_type}</TableCell>
+                                        <TableCell>{property.category?.title}</TableCell>
+                                        <TableCell>{property.location?.name}</TableCell>
+                                        <TableCell>{property.currency} {new Intl.NumberFormat().format(property.price)}</TableCell>
+                                        <TableCell>{property.is_furnished ? 'Yes' : 'No'}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(property.id)}>
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon">
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
                                                     </Button>
-                                                )}
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button size="sm" variant="destructive">
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                This action cannot be undone. This will permanently delete the image.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteImage(image.id)}>
-                                                                Delete
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-muted-foreground">No images uploaded for this property yet.</p>
-                            )}
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
-            <div className="md:col-span-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Properties</CardTitle>
-                        <CardDescription>A list of all your properties.</CardDescription>
-                        <div className="mt-4">
-                            <Input
-                                placeholder="Search by title..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="max-w-sm"
-                            />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {propertiesLoading ? (
-                            <div className="space-y-2">
-                                <Skeleton className="h-12 w-full" />
-                                <Skeleton className="h-12 w-full" />
-                                <Skeleton className="h-12 w-full" />
-                            </div>
-                        ) : propertiesError ? (
-                            <p className="text-destructive">Error: {propertiesError.message}</p>
-                        ) : (
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Image</TableHead>
-                                        <TableHead>Title</TableHead>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead>Category</TableHead>
-                                        <TableHead>Location</TableHead>
-                                        <TableHead>Price</TableHead>
-                                        <TableHead>Furnished</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This action cannot be undone. This will permanently delete the property and all associated images.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </TableCell>
                                     </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredProperties.map((property: any) => (
-                                        <TableRow key={property.id}>
-                                            <TableCell>
-                                                {property.properties_images && property.properties_images.length > 0 ? (
-                                                    <Image
-                                                        src={nhost.storage.getPublicUrl({ fileId: property.properties_images[0].file_id })}
-                                                        alt={property.title}
-                                                        width={64}
-                                                        height={64}
-                                                        className="rounded-md object-cover w-16 h-16"
-                                                    />
-                                                ) : (
-                                                    <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center text-xs text-muted-foreground">
-                                                        No Image
-                                                    </div>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="font-medium">{property.title}</TableCell>
-                                            <TableCell className="capitalize">{property.listing_type}</TableCell>
-                                            <TableCell>{property.category?.title}</TableCell>
-                                            <TableCell>{property.location?.name}</TableCell>
-                                            <TableCell>{property.currency} {new Intl.NumberFormat().format(property.price)}</TableCell>
-                                            <TableCell>{property.is_furnished ? 'Yes' : 'No'}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleEditClick(property.id)}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon">
-                                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                This action cannot be undone. This will permanently delete the property and all associated images.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
-                                                                Delete
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     );
 };
 
 export default PropertiesPage;
-
-    
-
-    
