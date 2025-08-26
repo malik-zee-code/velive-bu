@@ -302,11 +302,17 @@ const BlogsPage = () => {
     const { toast } = useToast();
     const { upload, isUploading, progress } = useFileUpload();
 
-    const [insertBlog, { loading: insertLoading }] = useMutation(INSERT_BLOG);
-    const [updateBlog, { loading: updateLoading }] = useMutation(UPDATE_BLOG);
-    const [deleteBlog] = useMutation(DELETE_BLOG);
+    const [insertBlog, { loading: insertLoading }] = useMutation(INSERT_BLOG, {
+        refetchQueries: [{ query: GET_BLOGS }],
+    });
+    const [updateBlog, { loading: updateLoading }] = useMutation(UPDATE_BLOG, {
+        refetchQueries: [{ query: GET_BLOGS }],
+    });
+    const [deleteBlog] = useMutation(DELETE_BLOG, {
+        refetchQueries: [{ query: GET_BLOGS }],
+    });
 
-    const { data: blogsData, loading: blogsLoading, error: blogsError, refetch: refetchBlogs } = useQuery(GET_BLOGS);
+    const { data: blogsData, loading: blogsLoading, error: blogsError } = useQuery(GET_BLOGS);
     const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
 
     const handleFormSubmit = async (values: z.infer<typeof formSchema>, imageFile?: File) => {
@@ -338,7 +344,6 @@ const BlogsPage = () => {
                 toast({ title: "Success!", description: "Blog post has been added successfully." });
             }
             
-            refetchBlogs();
 
             if (!editingBlogId && currentBlogId) {
                 setEditingBlogId(currentBlogId);
@@ -357,7 +362,6 @@ const BlogsPage = () => {
         try {
             await deleteBlog({ variables: { id: blogId } });
             toast({ title: "Success!", description: "Blog post deleted." });
-            refetchBlogs();
             if (editingBlogId === blogId) {
                 setEditingBlogId(null);
             }
