@@ -2,6 +2,8 @@
 'use client';
 import React, { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
+import type { Editor as TinyMceEditorType } from 'tinymce';
+
 
 interface TinyMceEditorProps {
     value: string;
@@ -9,7 +11,7 @@ interface TinyMceEditorProps {
 }
 
 export const TinyMceEditor = ({ value, onEditorChange }: TinyMceEditorProps) => {
-    const editorRef = useRef(null);
+    const editorRef = useRef<TinyMceEditorType | null>(null);
     const apiKey = process.env.NEXT_PUBLIC_TINYMCE_API_KEY; 
 
     if (!apiKey || apiKey === "YOUR_API_KEY") {
