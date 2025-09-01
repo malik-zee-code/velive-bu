@@ -55,16 +55,9 @@ export const ContactDetails = () => {
     },
     { 
         icon: <Phone className="w-5 h-5 text-primary" />, 
-        title: "Phone Number 1", 
+        title: "Phone Number", 
         value: "+971 4 873 7122",
         tel: "tel:+97148737122",
-        whatsapp: "https://wa.me/97148737122"
-    },
-    { 
-        icon: <Phone className="w-5 h-5 text-primary" />, 
-        title: "Phone Number 2", 
-        value: "+971 50 305 8531",
-        tel: "tel:+971503058531",
         whatsapp: "https://wa.me/971503058531"
     },
   ];
