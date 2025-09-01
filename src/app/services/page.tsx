@@ -116,7 +116,7 @@ const ServicesPage = () => {
                         </Button>
                     </div>
                     <div>
-                        <Image src="/assets/images/services/service_small.jpg" alt="Consultation" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="team meeting" />
+                        <Image src="/assets/images/services/service-3.jpg" alt="Consultation" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="team meeting" />
                     </div>
                 </div>
             </div>

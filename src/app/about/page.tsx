@@ -53,7 +53,7 @@ const AboutPage = () => {
             <div className="container mx-auto max-w-7xl">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <Image src="/assets/images/about/about-us-01.jpg" alt="VE Live Team" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="office team collaboration" />
+                        <Image src="/assets/images/about/about-1.jpg" alt="VE Live Team" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="office team collaboration" />
                     </div>
                     <div>
                         <span className="text-primary font-semibold">OUR STORY</span>
@@ -80,7 +80,7 @@ const AboutPage = () => {
                         </p>
                     </div>
                     <div className="order-1 md:order-2">
-                        <Image src="/assets/images/about/about-us-02.jpg" alt="Property Management" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="dubai skyline" />
+                        <Image src="/assets/images/about/about-2.jpg" alt="Property Management" width={600} height={400} className="rounded-lg shadow-lg" data-ai-hint="dubai skyline" />
                     </div>
                 </div>
             </div>
