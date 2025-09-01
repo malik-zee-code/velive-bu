@@ -32,7 +32,8 @@ export const ContactDetails = () => {
   const phone2 = getSetting(settings, 'phone_2');
 
   const baySquareAddress = "Office 206, Building 7, Bay Square, Business Bay, Dubai, United Arab Emirates";
-  const hadleyHeightsAddress = "Hadley Heights 2 by LEOS";
+  const hadleyHeightsAddressText = "Retail No. 1, Hadley Heights, District 11, Jumeirah Village Circle (JVC), Dubai, United Arab Emirates (Coming Soon)";
+  const hadleyHeightsMapQuery = "Hadley Heights 2 by LEOS";
   
   const contactInfo = [
     { 
@@ -44,8 +45,8 @@ export const ContactDetails = () => {
     { 
         icon: <MapPin className="w-5 h-5 text-primary" />, 
         title: "Hadley Heights", 
-        value: hadleyHeightsAddress,
-        href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hadleyHeightsAddress)}`
+        value: hadleyHeightsAddressText,
+        href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hadleyHeightsMapQuery)}`
     },
     { 
         icon: <Mail className="w-5 h-5 text-primary" />, 
@@ -167,7 +168,7 @@ export const ContactDetails = () => {
                 </div>
                  <div className="mt-8">
                     <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3613.986341496668!2d55.22359487537681!3d25.06843007780004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f6dbf23c6a6e9%3A0xe1d6621b67d28ee0!2sHadley%20Heights!5e0!3m2!1sen!2sae!4v1700000000000!5m2!1sen!2sae"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3613.986341496668!2d55.2084034!3d25.0684301!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f6dbf23c6a6e9%3A0xe1d6621b67d28ee0!2sHadley%20Heights%202%20by%20LEOS!5e0!3m2!1sen!2sae"
                         width="600"
                         height="400"
                         style={{ border: 0 }}
