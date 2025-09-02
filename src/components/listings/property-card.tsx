@@ -110,10 +110,12 @@ export const PropertyCard = ({ property, contactPhone }: { property: any, contac
                         {property.tagline && <p className="text-sm text-muted-foreground mb-4 italic">"{property.tagline}"</p>}
                         
                         <div className="flex items-center space-x-6 text-muted-foreground mb-8">
-                            <div className="flex items-center space-x-2">
-                                <BedDouble className="w-5 h-5 text-primary" />
-                                <span>{property.bedrooms} Beds</span>
-                            </div>
+                            {property.category?.title !== 'Studio' && (
+                                <div className="flex items-center space-x-2">
+                                    <BedDouble className="w-5 h-5 text-primary" />
+                                    <span>{property.bedrooms} Beds</span>
+                                </div>
+                            )}
                             <div className="flex items-center space-x-2">
                                 <Bath className="w-5 h-5 text-primary" />
                                 <span>{property.bathrooms} Baths</span>

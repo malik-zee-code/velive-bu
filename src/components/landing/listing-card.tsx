@@ -64,11 +64,13 @@ export const ListingCard = ({ listing }: ListingCardProps) => {
 
         <Separator className="my-4" />
 
-        <div className="flex justify-between items-center text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-                <BedDouble className="w-4 h-4 text-primary" />
-                <span>{listing.bedrooms} Beds</span>
-            </div>
+        <div className="flex justify-around items-center text-sm text-muted-foreground">
+            {listing.category !== 'Studio' && (
+                <div className="flex items-center gap-2">
+                    <BedDouble className="w-4 h-4 text-primary" />
+                    <span>{listing.bedrooms} Beds</span>
+                </div>
+            )}
             <div className="flex items-center gap-2">
                 <Bath className="w-4 h-4 text-primary" />
                 <span>{listing.bathrooms} Baths</span>

@@ -190,10 +190,12 @@ const PropertyDetailPageContent = () => {
                         <p className="text-3xl font-bold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
                         <Separator className="my-4" />
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground flex items-center gap-2"><BedDouble className="w-5 h-5"/> Bedrooms</span>
-                                <span className="font-semibold text-foreground">{property.bedrooms}</span>
-                            </div>
+                            {property.category.title !== 'Studio' && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground flex items-center gap-2"><BedDouble className="w-5 h-5"/> Bedrooms</span>
+                                    <span className="font-semibold text-foreground">{property.bedrooms}</span>
+                                </div>
+                            )}
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground flex items-center gap-2"><Bath className="w-5 h-5"/> Bathrooms</span>
                                 <span className="font-semibold text-foreground">{property.bathrooms}</span>
