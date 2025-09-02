@@ -1,6 +1,6 @@
 // src/app/admin/properties/page.tsx
 'use client';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -296,6 +296,9 @@ const PropertyForm = ({
         },
     });
 
+    const watchedCategoryId = form.watch("category_id");
+    const selectedCategory = categories.find(cat => cat.id === watchedCategoryId);
+
     useEffect(() => {
         return () => {
             imagePreviews.forEach(p => URL.revokeObjectURL(p.previewUrl));
@@ -453,16 +456,18 @@ const PropertyForm = ({
                         </FormItem>
                     )}
                 />
-                <FormField
-                    control={form.control} name="bedrooms"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Bedrooms</FormLabel>
-                        <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                {selectedCategory?.title !== 'Studio' && (
+                    <FormField
+                        control={form.control} name="bedrooms"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Bedrooms</FormLabel>
+                            <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )}
                 <FormField
                 control={form.control} name="tagline"
                 render={({ field }) => (
@@ -657,7 +662,7 @@ const PropertiesPage = () => {
     }, [propertiesData, searchTerm]);
 
 
-    const handleFormSubmit = async (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => {
+    const handleFormSubmit = useCallback(async (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => {
         const slug = generateSlug(values.title);
         const submissionData = {
             ...values,
@@ -716,7 +721,7 @@ const PropertiesPage = () => {
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
             toast({ title: "Error!", description: `Failed to save property. ${errorMessage}`, variant: "destructive" });
         }
-    };
+    }, [editingPropertyId, insertProperty, updateProperty, upload, toast, refetchProperties, propertyData, refetchProperty]);
 
     const handleDeleteImage = async (imageId: string) => {
         try {
