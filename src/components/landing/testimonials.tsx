@@ -4,19 +4,19 @@ import { Star } from "lucide-react"
 
 const testimonials = [
   {
-    name: "John Doe",
+    name: "Ahmed Khan",
     avatar: "/assets/images/category/01.jpg",
     text: "A truly trusted and reliable management service. The team is professional and always responsive.",
     rating: 5,
   },
   {
-    name: "Jane Smith",
+    name: "Fatima Al Fassi",
     avatar: "/assets/images/category/02.jpg",
     text: "The transparency in each step and the clarity of the process is outstanding. Highly recommended!",
     rating: 5,
   },
   {
-    name: "Sam Wilson",
+    name: "Youssef El-Masry",
     avatar: "/assets/images/category/03.jpg",
     text: "This property management service provides complete ease and peace of mind. My unit is in safe hands.",
     rating: 5,
