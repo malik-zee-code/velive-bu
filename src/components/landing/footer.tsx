@@ -17,7 +17,7 @@ const GET_FOOTER_DATA = gql`
       title
       slug
     }
-    settings(where: {title: {_in: ["address_1", "email", "phone_1"]}}) {
+    settings(where: {title: {_in: ["address_1", "address_2", "email", "phone_1"]}}) {
       title
       value
     }
@@ -39,7 +39,8 @@ export const Footer = () => {
     const { data, loading, error } = useQuery(GET_FOOTER_DATA);
 
     const phone = getSetting(data?.settings || [], 'phone_1');
-    const address = getSetting(data?.settings || [], 'address_1');
+    const address1 = getSetting(data?.settings || [], 'address_1');
+    const address2 = getSetting(data?.settings || [], 'address_2');
     const email = getSetting(data?.settings || [], 'email');
 
     return (
@@ -70,12 +71,20 @@ export const Footer = () => {
                                             <a href={`tel:${phone}`} className="hover:text-primary transition-colors">{phone}</a>
                                         </li>
                                     )}
-                                    {address && (
-                                        <li className="flex items-center gap-3">
-                                            <div className="bg-primary/20 text-primary p-2 rounded-md">
+                                    {address1 && (
+                                        <li className="flex items-start gap-3">
+                                            <div className="bg-primary/20 text-primary p-2 rounded-md mt-1">
                                                 <MapPin className="w-5 h-5" />
                                             </div>
-                                            <span>{address}</span>
+                                            <span>{address1}</span>
+                                        </li>
+                                    )}
+                                     {address2 && (
+                                        <li className="flex items-start gap-3">
+                                            <div className="bg-primary/20 text-primary p-2 rounded-md mt-1">
+                                                <MapPin className="w-5 h-5" />
+                                            </div>
+                                            <span>{address2}</span>
                                         </li>
                                     )}
                                     {email && (
