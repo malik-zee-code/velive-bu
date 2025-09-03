@@ -281,11 +281,15 @@ const PropertyForm = ({
     const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
     const [floorPlanFile, setFloorPlanFile] = useState<File | undefined>();
     const [installmentPlanFile, setInstallmentPlanFile] = useState<File | undefined>();
+    
+    const [floorPlanToRemove, setFloorPlanToRemove] = useState(false);
+    const [installmentPlanToRemove, setInstallmentPlanToRemove] = useState(false);
+
     const [floorPlanFileName, setFloorPlanFileName] = useState<string | null>(property?.floorPlanFile?.name || null);
     const [installmentPlanFileName, setInstallmentPlanFileName] = useState<string | null>(property?.installmentPlanFile?.name || null);
 
-    const floorPlanUrl = property?.floor_plan ? nhost.storage.getPublicUrl({ fileId: property.floor_plan }) : null;
-    const installmentPlanUrl = property?.installment_plan ? nhost.storage.getPublicUrl({ fileId: property.installment_plan }) : null;
+    const floorPlanUrl = property?.floor_plan && !floorPlanToRemove ? nhost.storage.getPublicUrl({ fileId: property.floor_plan }) : null;
+    const installmentPlanUrl = property?.installment_plan && !installmentPlanToRemove ? nhost.storage.getPublicUrl({ fileId: property.installment_plan }) : null;
 
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -356,6 +360,8 @@ const PropertyForm = ({
         if (event.target.files && event.target.files[0]) {
             setFloorPlanFile(event.target.files[0]);
             setFloorPlanFileName(event.target.files[0].name);
+            setFloorPlanToRemove(false);
+            form.setValue('floor_plan', event.target.files[0]);
         }
     };
     
@@ -363,7 +369,23 @@ const PropertyForm = ({
         if (event.target.files && event.target.files[0]) {
             setInstallmentPlanFile(event.target.files[0]);
             setInstallmentPlanFileName(event.target.files[0].name);
+            setInstallmentPlanToRemove(false);
+            form.setValue('installment_plan', event.target.files[0]);
         }
+    };
+
+    const handleRemoveFloorPlan = () => {
+        setFloorPlanToRemove(true);
+        setFloorPlanFile(undefined);
+        setFloorPlanFileName(null);
+        form.setValue('floor_plan', null);
+    };
+
+    const handleRemoveInstallmentPlan = () => {
+        setInstallmentPlanToRemove(true);
+        setInstallmentPlanFile(undefined);
+        setInstallmentPlanFileName(null);
+        form.setValue('installment_plan', null);
     };
 
 
@@ -384,7 +406,11 @@ const PropertyForm = ({
     };
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-        await onFormSubmit(values, imagePreviews, floorPlanFile, installmentPlanFile, property?.id);
+        const updatedValues = { ...values };
+        if (floorPlanToRemove) updatedValues.floor_plan = null;
+        if (installmentPlanToRemove) updatedValues.installment_plan = null;
+
+        await onFormSubmit(updatedValues, imagePreviews, floorPlanFile, installmentPlanFile, property?.id);
         setImagePreviews([]);
         setFloorPlanFile(undefined);
         setInstallmentPlanFile(undefined);
@@ -575,10 +601,13 @@ const PropertyForm = ({
                                 </Card>
                             </label>
                             {floorPlanUrl && (
-                                <div className="text-sm mt-2">
+                                <div className="text-sm mt-2 flex items-center justify-between">
                                     <Link href={floorPlanUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
                                        <View className="h-4 w-4"/> View Current PDF
                                     </Link>
+                                    <Button variant="ghost" size="icon" type="button" onClick={handleRemoveFloorPlan} className="h-6 w-6 text-destructive hover:bg-destructive/10">
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             )}
                             <FormMessage />
@@ -600,10 +629,13 @@ const PropertyForm = ({
                                 </Card>
                             </label>
                             {installmentPlanUrl && (
-                                <div className="text-sm mt-2">
+                                <div className="text-sm mt-2 flex items-center justify-between">
                                      <Link href={installmentPlanUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
                                        <View className="h-4 w-4"/> View Current PDF
                                     </Link>
+                                    <Button variant="ghost" size="icon" type="button" onClick={handleRemoveInstallmentPlan} className="h-6 w-6 text-destructive hover:bg-destructive/10">
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             )}
                             <FormMessage />
@@ -782,35 +814,28 @@ const PropertiesPage = () => {
             location_id: parseInt(values.location_id, 10),
             category_id: values.category_id,
         };
-        
-        delete submissionData.floor_plan;
-        delete submissionData.installment_plan;
 
         try {
             if (floorPlanFile) {
                 const { id, isError, error } = await upload({ file: floorPlanFile });
                 if (isError) throw error;
                 submissionData.floor_plan = id;
-            } else if (propertyId && values.floor_plan) {
-                 submissionData.floor_plan = values.floor_plan;
+            } else if (values.floor_plan === null) {
+                submissionData.floor_plan = null;
             }
 
             if (installmentPlanFile) {
                 const { id, isError, error } = await upload({ file: installmentPlanFile });
                 if (isError) throw error;
                 submissionData.installment_plan = id;
-            } else if (propertyId && values.installment_plan) {
-                submissionData.installment_plan = values.installment_plan;
+            } else if (values.installment_plan === null) {
+                submissionData.installment_plan = null;
             }
 
 
             let currentPropertyId = propertyId;
 
             if (currentPropertyId) {
-                // Ensure nulls are sent if fields are cleared
-                if (!submissionData.floor_plan) submissionData.floor_plan = null;
-                if (!submissionData.installment_plan) submissionData.installment_plan = null;
-
                 await updateProperty({
                     variables: { id: currentPropertyId, data: submissionData },
                 });
