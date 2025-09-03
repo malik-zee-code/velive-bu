@@ -233,8 +233,8 @@ const formSchema = z.object({
   is_available: z.boolean().default(true),
   is_furnished: z.boolean().default(false),
   listing_type: z.enum(['sale', 'rent']).default('rent'),
-  floor_plan: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-  installment_plan: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  floor_plan: z.string().optional(),
+  installment_plan: z.string().optional(),
 });
 
 type ImagePreview = {
@@ -530,8 +530,8 @@ const PropertyForm = ({
                     control={form.control} name="floor_plan"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Floor Plan URL</FormLabel>
-                        <FormControl><Input placeholder="https://example.com/plan.pdf" {...field} value={field.value ?? ''} /></FormControl>
+                        <FormLabel>Floor Plan</FormLabel>
+                        <FormControl><Textarea placeholder="Enter floor plan details..." {...field} value={field.value ?? ''} /></FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -540,8 +540,8 @@ const PropertyForm = ({
                     control={form.control} name="installment_plan"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Installment Plan URL</FormLabel>
-                        <FormControl><Input placeholder="https://example.com/installments.pdf" {...field} value={field.value ?? ''} /></FormControl>
+                        <FormLabel>Installment Plan</FormLabel>
+                        <FormControl><Textarea placeholder="Enter installment plan details..." {...field} value={field.value ?? ''} /></FormControl>
                         <FormMessage />
                         </FormItem>
                     )}

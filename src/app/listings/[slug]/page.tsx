@@ -184,35 +184,27 @@ const PropertyDetailPageContent = () => {
                     </CardContent>
                 </Card>
 
-                {(floorPlanUrl || installmentPlanUrl) && (
+                {(property.floor_plan || property.installment_plan) && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                        {floorPlanUrl && (
+                        {property.floor_plan && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Floor Plan</CardTitle>
-                                    <CardDescription>View the property layout.</CardDescription>
+                                    <CardDescription>Details about the property layout.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <Button asChild className="w-full">
-                                        <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer">
-                                            <Download className="mr-2 h-4 w-4" /> View Floor Plan
-                                        </a>
-                                    </Button>
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{property.floor_plan}</p>
                                 </CardContent>
                             </Card>
                         )}
-                         {installmentPlanUrl && (
+                         {property.installment_plan && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Installment Plan</CardTitle>
-                                    <CardDescription>Check the payment schedule.</CardDescription>
+                                    <CardDescription>Information on the payment schedule.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <Button asChild className="w-full">
-                                        <a href={installmentPlanUrl} target="_blank" rel="noopener noreferrer">
-                                            <FileText className="mr-2 h-4 w-4" /> View Installment Plan
-                                        </a>
-                                    </Button>
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{property.installment_plan}</p>
                                 </CardContent>
                             </Card>
                         )}
