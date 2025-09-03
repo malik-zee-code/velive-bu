@@ -7,7 +7,7 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone, Sofa, MessageSquare } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -220,7 +220,8 @@ const PropertyDetailPageContent = () => {
 
                  <Card className="mt-8">
                     <CardHeader>
-                        <CardTitle>Contact Us</CardTitle>
+                        <CardTitle>Interested? Arrange a Viewing</CardTitle>
+                        <CardDescription>Contact us to schedule a visit or for more details.</CardDescription>
                     </CardHeader>
                     <CardContent>
                        {contactPhone ? (
