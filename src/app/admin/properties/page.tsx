@@ -17,7 +17,7 @@ import { nhost } from '@/lib/nhost';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import Image from 'next/image';
-import { Trash2, Star, Pencil, PlusCircle, FileText } from 'lucide-react';
+import { Trash2, Star, Pencil, PlusCircle, FileText, View } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   AlertDialog,
@@ -34,6 +34,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Skeleton } from '@/components/ui/skeleton';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import Link from 'next/link';
 
 const GET_PROPERTIES = gql`
   query GetPropertiesAdmin {
@@ -87,6 +88,14 @@ const GET_PROPERTY_BY_ID = gql`
         id
         file_id
         is_primary
+      }
+      floorPlanFile {
+        id
+        name
+      }
+      installmentPlanFile {
+        id
+        name
       }
     }
   }
@@ -272,8 +281,11 @@ const PropertyForm = ({
     const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
     const [floorPlanFile, setFloorPlanFile] = useState<File | undefined>();
     const [installmentPlanFile, setInstallmentPlanFile] = useState<File | undefined>();
-    const [floorPlanFileName, setFloorPlanFileName] = useState<string | null>(property?.floor_plan ? 'Floor plan uploaded' : null);
-    const [installmentPlanFileName, setInstallmentPlanFileName] = useState<string | null>(property?.installment_plan ? 'Installment plan uploaded' : null);
+    const [floorPlanFileName, setFloorPlanFileName] = useState<string | null>(property?.floorPlanFile?.name || null);
+    const [installmentPlanFileName, setInstallmentPlanFileName] = useState<string | null>(property?.installmentPlanFile?.name || null);
+
+    const floorPlanUrl = property?.floor_plan ? nhost.storage.getPublicUrl({ fileId: property.floor_plan }) : null;
+    const installmentPlanUrl = property?.installment_plan ? nhost.storage.getPublicUrl({ fileId: property.installment_plan }) : null;
 
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -562,6 +574,13 @@ const PropertyForm = ({
                                     <p className="mt-2 text-sm text-muted-foreground">{floorPlanFileName || 'Click to upload or drag and drop'}</p>
                                 </Card>
                             </label>
+                            {floorPlanUrl && (
+                                <div className="text-sm mt-2">
+                                    <Link href={floorPlanUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
+                                       <View className="h-4 w-4"/> View Current PDF
+                                    </Link>
+                                </div>
+                            )}
                             <FormMessage />
                         </FormItem>
                     )}
@@ -580,6 +599,13 @@ const PropertyForm = ({
                                     <p className="mt-2 text-sm text-muted-foreground">{installmentPlanFileName || 'Click to upload or drag and drop'}</p>
                                 </Card>
                             </label>
+                            {installmentPlanUrl && (
+                                <div className="text-sm mt-2">
+                                     <Link href={installmentPlanUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
+                                       <View className="h-4 w-4"/> View Current PDF
+                                    </Link>
+                                </div>
+                            )}
                             <FormMessage />
                         </FormItem>
                     )}
@@ -757,25 +783,26 @@ const PropertiesPage = () => {
             category_id: values.category_id,
         };
         
-        // Retain existing file IDs if no new file is uploaded
-        if (!floorPlanFile) {
-            submissionData.floor_plan = values.floor_plan || null;
-        }
-        if (!installmentPlanFile) {
-            submissionData.installment_plan = values.installment_plan || null;
-        }
+        delete submissionData.floor_plan;
+        delete submissionData.installment_plan;
 
         try {
             if (floorPlanFile) {
                 const { id, isError, error } = await upload({ file: floorPlanFile });
                 if (isError) throw error;
                 submissionData.floor_plan = id;
+            } else if (propertyId && values.floor_plan) {
+                 submissionData.floor_plan = values.floor_plan;
             }
+
             if (installmentPlanFile) {
                 const { id, isError, error } = await upload({ file: installmentPlanFile });
                 if (isError) throw error;
                 submissionData.installment_plan = id;
+            } else if (propertyId && values.installment_plan) {
+                submissionData.installment_plan = values.installment_plan;
             }
+
 
             let currentPropertyId = propertyId;
 
