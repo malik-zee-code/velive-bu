@@ -121,11 +121,11 @@ export const Header = () => {
                     </Link>
                   </Button>
               )}
-              <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
-                <Link href="/contact">Contact Us</Link>
-              </Button>
             </>
           )}
+          <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
+            <Link href="/contact">Contact Us</Link>
+          </Button>
         </div>
 
         <div className="flex md:hidden items-center ml-auto">
