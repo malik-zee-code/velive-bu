@@ -92,8 +92,8 @@ const PropertyDetailPageContent = () => {
 
   const contactPhone = settingsData?.settings[0]?.value;
 
-  const floorPlanUrl = property.floor_plan;
-  const installmentPlanUrl = property.installment_plan;
+  const floorPlanUrl = property.floor_plan ? nhost.storage.getPublicUrl({ fileId: property.floor_plan }) : null;
+  const installmentPlanUrl = property.installment_plan ? nhost.storage.getPublicUrl({ fileId: property.installment_plan }) : null;
 
 
   const handleNext = (e: React.MouseEvent) => {
@@ -184,27 +184,37 @@ const PropertyDetailPageContent = () => {
                     </CardContent>
                 </Card>
 
-                {(property.floor_plan || property.installment_plan) && (
+                {(floorPlanUrl || installmentPlanUrl) && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                        {property.floor_plan && (
+                        {floorPlanUrl && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Floor Plan</CardTitle>
-                                    <CardDescription>Details about the property layout.</CardDescription>
+                                    <CardDescription>View the property layout.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{property.floor_plan}</p>
+                                    <Button asChild>
+                                        <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer">
+                                            <Download className="mr-2 h-4 w-4" />
+                                            Download PDF
+                                        </a>
+                                    </Button>
                                 </CardContent>
                             </Card>
                         )}
-                         {property.installment_plan && (
+                         {installmentPlanUrl && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Installment Plan</CardTitle>
-                                    <CardDescription>Information on the payment schedule.</CardDescription>
+                                    <CardDescription>View the payment schedule.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{property.installment_plan}</p>
+                                     <Button asChild>
+                                        <a href={installmentPlanUrl} target="_blank" rel="noopener noreferrer">
+                                            <Download className="mr-2 h-4 w-4" />
+                                            Download PDF
+                                        </a>
+                                    </Button>
                                 </CardContent>
                             </Card>
                         )}
@@ -294,3 +304,5 @@ const PropertyDetailPage = () => (
 );
   
 export default PropertyDetailPage;
+
+    

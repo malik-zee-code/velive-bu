@@ -128,8 +128,8 @@ const INSERT_PROPERTY = gql`
     $is_furnished: Boolean,
     $listing_type: listing_type_enum,
     $address: String,
-    $floor_plan: String,
-    $installment_plan: String
+    $floor_plan: uuid,
+    $installment_plan: uuid
   ) {
     insert_properties_one(object: {
       title: $title, 
@@ -233,8 +233,8 @@ const formSchema = z.object({
   is_available: z.boolean().default(true),
   is_furnished: z.boolean().default(false),
   listing_type: z.enum(['sale', 'rent']).default('rent'),
-  floor_plan: z.string().optional(),
-  installment_plan: z.string().optional(),
+  floor_plan: z.any().optional(),
+  installment_plan: z.any().optional(),
 });
 
 type ImagePreview = {
@@ -263,13 +263,15 @@ const PropertyForm = ({
     property?: any;
     locations: any[];
     categories: any[];
-    onFormSubmit: (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => Promise<void>;
+    onFormSubmit: (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], floorPlanFile?: File, installmentPlanFile?: File, propertyId?: string) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
     isMutating?: boolean;
 }) => {
     const { toast } = useToast();
     const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+    const [floorPlanFile, setFloorPlanFile] = useState<File | undefined>();
+    const [installmentPlanFile, setInstallmentPlanFile] = useState<File | undefined>();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -334,6 +336,19 @@ const PropertyForm = ({
             setImagePreviews(previews => [...previews, ...newPreviews]);
         }
     };
+    
+    const handleFloorPlanChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files[0]) {
+            setFloorPlanFile(event.target.files[0]);
+        }
+    };
+    
+    const handleInstallmentPlanChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files[0]) {
+            setInstallmentPlanFile(event.target.files[0]);
+        }
+    };
+
 
     const setPreviewAsPrimary = (index: number) => {
         setImagePreviews(previews =>
@@ -352,8 +367,10 @@ const PropertyForm = ({
     };
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-        await onFormSubmit(values, imagePreviews, property?.id);
+        await onFormSubmit(values, imagePreviews, floorPlanFile, installmentPlanFile, property?.id);
         setImagePreviews([]);
+        setFloorPlanFile(undefined);
+        setInstallmentPlanFile(undefined);
     };
     
     if (isLoading) {
@@ -530,8 +547,8 @@ const PropertyForm = ({
                     control={form.control} name="floor_plan"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Floor Plan</FormLabel>
-                        <FormControl><Textarea placeholder="Enter floor plan details..." {...field} value={field.value ?? ''} /></FormControl>
+                        <FormLabel>Floor Plan (PDF)</FormLabel>
+                        <FormControl><Input type="file" accept=".pdf" onChange={handleFloorPlanChange} /></FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -540,8 +557,8 @@ const PropertyForm = ({
                     control={form.control} name="installment_plan"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Installment Plan</FormLabel>
-                        <FormControl><Textarea placeholder="Enter installment plan details..." {...field} value={field.value ?? ''} /></FormControl>
+                        <FormLabel>Installment Plan (PDF)</FormLabel>
+                        <FormControl><Input type="file" accept=".pdf" onChange={handleInstallmentPlanChange} /></FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
@@ -653,7 +670,7 @@ const PropertyForm = ({
 
 const PropertyEditForm = ({ propertyId, onFormSubmit, locations, categories, onCancel }: {
     propertyId: string;
-    onFormSubmit: (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => Promise<void>;
+    onFormSubmit: (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], floorPlanFile?: File, installmentPlanFile?: File, propertyId?: string) => Promise<void>;
     locations: any[];
     categories: any[];
     onCancel: () => void;
@@ -710,7 +727,7 @@ const PropertiesPage = () => {
     }, [propertiesData, searchTerm]);
 
 
-    const handleFormSubmit = useCallback(async (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], propertyId?: string) => {
+    const handleFormSubmit = useCallback(async (values: z.infer<typeof formSchema>, imageFiles: ImagePreview[], floorPlanFile?: File, installmentPlanFile?: File, propertyId?: string) => {
         const slug = generateSlug(values.title);
         const submissionData: any = {
             ...values,
@@ -718,8 +735,22 @@ const PropertiesPage = () => {
             location_id: parseInt(values.location_id, 10),
             category_id: values.category_id,
         };
+        
+        delete submissionData.floor_plan;
+        delete submissionData.installment_plan;
 
         try {
+            if (floorPlanFile) {
+                const { id, isError, error } = await upload({ file: floorPlanFile });
+                if (isError) throw error;
+                submissionData.floor_plan = id;
+            }
+            if (installmentPlanFile) {
+                const { id, isError, error } = await upload({ file: installmentPlanFile });
+                if (isError) throw error;
+                submissionData.installment_plan = id;
+            }
+
             let currentPropertyId = propertyId;
 
             if (currentPropertyId) {
@@ -1033,3 +1064,5 @@ const PropertiesPage = () => {
 };
 
 export default PropertiesPage;
+
+    
