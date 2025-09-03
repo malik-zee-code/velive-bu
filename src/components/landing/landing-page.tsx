@@ -89,6 +89,7 @@ export function LandingPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [listingType, setListingType] = useState('rent');
   const [isFurnished, setIsFurnished] = useState(false);
+  const [bedrooms, setBedrooms] = useState('');
   const router = useRouter();
 
   const { data: categoriesData } = useQuery(GET_CATEGORIES);
@@ -102,6 +103,7 @@ export function LandingPage() {
     if (selectedCategory) params.set('category', selectedCategory);
     if (listingType) params.set('listing_type', listingType);
     if (isFurnished) params.set('is_furnished', 'true');
+    if (bedrooms) params.set('bedrooms', bedrooms);
     router.push(`/listings?${params.toString()}`);
   };
   
@@ -111,6 +113,7 @@ export function LandingPage() {
     setSelectedCategory('');
     setListingType('rent');
     setIsFurnished(false);
+    setBedrooms('');
   };
 
   const handleCategorySelect = (category: string) => {
@@ -157,6 +160,8 @@ export function LandingPage() {
           setListingType={setListingType}
           isFurnished={isFurnished}
           setIsFurnished={setIsFurnished}
+          bedrooms={bedrooms}
+          setBedrooms={setBedrooms}
           locations={locationsData?.locations || []}
           categories={categoriesData?.categories || []}
           onSearchClick={handleSearchClick}

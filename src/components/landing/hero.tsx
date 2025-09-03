@@ -5,7 +5,7 @@ import type { Dispatch, SetStateAction, ElementType } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Calendar, Dumbbell, X, Download, MessageCircle, Wrench, Home, Sofa } from 'lucide-react';
+import { Search, MapPin, ListFilter, Utensils, Hotel, ShoppingBag, Briefcase, Calendar, Dumbbell, X, Download, MessageCircle, Wrench, Home, Sofa, BedDouble } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -24,6 +24,8 @@ interface HeroProps {
   setListingType: Dispatch<SetStateAction<string>>;
   isFurnished: boolean;
   setIsFurnished: Dispatch<SetStateAction<boolean>>;
+  bedrooms: string;
+  setBedrooms: Dispatch<SetStateAction<string>>;
   locations: { id: string; name: string }[];
   categories: { id: string; title: string }[];
   onSearchClick: () => void;
@@ -47,6 +49,7 @@ export const Hero = ({
   selectedCategory, setSelectedCategory, 
   listingType, setListingType,
   isFurnished, setIsFurnished,
+  bedrooms, setBedrooms,
   locations, categories, onSearchClick, onClearClick, onCategorySelect
 }: HeroProps) => {
   
@@ -58,6 +61,10 @@ export const Hero = ({
     setSelectedCategory(value === 'all' ? '' : value);
   };
   
+  const handleBedroomsChange = (value: string) => {
+    setBedrooms(value === 'any' ? '' : value);
+  };
+
   const handleListingTypeChange = (value: string) => {
     if (value) {
       setListingType(value);
@@ -114,7 +121,7 @@ export const Hero = ({
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-2 rounded-lg border">
-                            <div className="md:col-span-4 relative">
+                            <div className="md:col-span-3 relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                 <Input
                                     type="text"
@@ -125,7 +132,7 @@ export const Hero = ({
                                     onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
                                 />
                             </div>
-                            <div className="md:col-span-3 relative">
+                            <div className="md:col-span-2 relative">
                                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                 <Select value={selectedLocation} onValueChange={handleLocationChange}>
                                     <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
@@ -137,7 +144,7 @@ export const Hero = ({
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="md:col-span-3 relative">
+                             <div className="md:col-span-2 relative">
                                 <ListFilter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                 <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                                     <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
@@ -146,6 +153,22 @@ export const Hero = ({
                                     <SelectContent>
                                         <SelectItem value="all">All Categories</SelectItem>
                                         {categories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="md:col-span-3 relative">
+                                <BedDouble className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                <Select value={bedrooms} onValueChange={handleBedroomsChange}>
+                                    <SelectTrigger className="pl-10 h-12 text-base bg-transparent border-0 text-black focus:ring-0 focus:ring-offset-0">
+                                        <SelectValue placeholder="Beds" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="any">Any</SelectItem>
+                                        <SelectItem value="1">1</SelectItem>
+                                        <SelectItem value="2">2</SelectItem>
+                                        <SelectItem value="3">3</SelectItem>
+                                        <SelectItem value="4">4</SelectItem>
+                                        <SelectItem value="5+">5+</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

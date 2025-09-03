@@ -73,6 +73,7 @@ const ListingsPageContent = ({ contactPhone }: { contactPhone: string | null }) 
   const categoryQuery = searchParams.get('category');
   const listingTypeQuery = searchParams.get('listing_type');
   const isFurnishedQuery = searchParams.get('is_furnished');
+  const bedroomsQuery = searchParams.get('bedrooms');
 
 
   const createWhereClause = () => {
@@ -94,6 +95,13 @@ const ListingsPageContent = ({ contactPhone }: { contactPhone: string | null }) 
     }
      if (isFurnishedQuery === 'true') {
       where._and.push({ is_furnished: { _eq: true } });
+    }
+    if (bedroomsQuery) {
+        if (bedroomsQuery === '5+') {
+            where._and.push({ bedrooms: { _gte: 5 } });
+        } else {
+            where._and.push({ bedrooms: { _eq: parseInt(bedroomsQuery, 10) } });
+        }
     }
     return where;
   };
