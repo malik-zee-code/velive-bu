@@ -5,7 +5,7 @@ import { AboutHero } from '@/components/about/hero';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Image from 'next/image';
-import { Building, Globe, Target, ShieldCheck, Users, Handshake, CheckCircle } from 'lucide-react';
+import { Building, Globe, Target, ShieldCheck, Users, Handshake, CheckCircle, Mail } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 
 
 const teamMembers = [
-  { name: 'Sam Jacobs', title: 'Chief Operations Officer (C.O.O)', avatar: 'https://placehold.co/128x128.png' },
-  { name: 'Mohamed Gharib', title: 'Operations Manager', avatar: 'https://placehold.co/128x128.png' },
-  { name: 'Yousra Ammi', title: 'Leasing & Property Manager', avatar: 'https://placehold.co/128x128.png' },
+  { name: 'Sam Jacobs', title: 'Chief Operations Officer (C.O.O)', avatar: 'https://placehold.co/128x128.png', email: 'Sam@velive.co.uk' },
+  { name: 'Mohamed Gharib', title: 'Operations Manager', avatar: 'https://placehold.co/128x128.png', email: 'Mohamed@velive.co.uk' },
+  { name: 'Yousra Ammi', title: 'Leasing & Property Manager', avatar: 'https://placehold.co/128x128.png', email: 'Yousra.ammi@velive.co.uk' },
 ];
 
 const differentiators = [
@@ -123,6 +123,10 @@ const AboutPage = () => {
                     </Avatar>
                     <h3 className="font-bold text-xl text-foreground">{member.name}</h3>
                     <p className="text-primary">{member.title}</p>
+                    <a href={`mailto:${member.email}`} className="mt-2 text-sm text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      {member.email}
+                    </a>
                   </CardContent>
                 </Card>
               ))}
