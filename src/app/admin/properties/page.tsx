@@ -272,6 +272,9 @@ const PropertyForm = ({
     const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
     const [floorPlanFile, setFloorPlanFile] = useState<File | undefined>();
     const [installmentPlanFile, setInstallmentPlanFile] = useState<File | undefined>();
+    const [floorPlanFileName, setFloorPlanFileName] = useState<string | null>(property?.floor_plan ? 'Floor plan uploaded' : null);
+    const [installmentPlanFileName, setInstallmentPlanFileName] = useState<string | null>(property?.installment_plan ? 'Installment plan uploaded' : null);
+
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -292,8 +295,8 @@ const PropertyForm = ({
             is_available: property.is_available ?? true,
             is_furnished: property.is_furnished || false,
             listing_type: property.listing_type || 'rent',
-            floor_plan: property.floor_plan || "",
-            installment_plan: property.installment_plan || "",
+            floor_plan: property.floor_plan || undefined,
+            installment_plan: property.installment_plan || undefined,
         } : {
             title: "",
             slug: "",
@@ -311,8 +314,8 @@ const PropertyForm = ({
             address: "",
             location_id: "",
             category_id: "",
-            floor_plan: "",
-            installment_plan: "",
+            floor_plan: undefined,
+            installment_plan: undefined,
         },
     });
 
@@ -340,12 +343,14 @@ const PropertyForm = ({
     const handleFloorPlanChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             setFloorPlanFile(event.target.files[0]);
+            setFloorPlanFileName(event.target.files[0].name);
         }
     };
     
     const handleInstallmentPlanChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             setInstallmentPlanFile(event.target.files[0]);
+            setInstallmentPlanFileName(event.target.files[0].name);
         }
     };
 
@@ -547,19 +552,35 @@ const PropertyForm = ({
                     control={form.control} name="floor_plan"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Floor Plan (PDF)</FormLabel>
-                        <FormControl><Input type="file" accept=".pdf" onChange={handleFloorPlanChange} /></FormControl>
-                        <FormMessage />
+                            <FormLabel>Floor Plan (PDF)</FormLabel>
+                            <FormControl>
+                                <Input id="floor-plan-upload" type="file" accept=".pdf" onChange={handleFloorPlanChange} className="hidden" />
+                            </FormControl>
+                            <label htmlFor="floor-plan-upload" className="cursor-pointer">
+                                <Card className="border-dashed p-4 text-center hover:border-primary">
+                                    <FileText className="mx-auto h-8 w-8 text-muted-foreground" />
+                                    <p className="mt-2 text-sm text-muted-foreground">{floorPlanFileName || 'Click to upload or drag and drop'}</p>
+                                </Card>
+                            </label>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
                  <FormField
                     control={form.control} name="installment_plan"
                     render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Installment Plan (PDF)</FormLabel>
-                        <FormControl><Input type="file" accept=".pdf" onChange={handleInstallmentPlanChange} /></FormControl>
-                        <FormMessage />
+                         <FormItem>
+                            <FormLabel>Installment Plan (PDF)</FormLabel>
+                            <FormControl>
+                                <Input id="installment-plan-upload" type="file" accept=".pdf" onChange={handleInstallmentPlanChange} className="hidden" />
+                            </FormControl>
+                             <label htmlFor="installment-plan-upload" className="cursor-pointer">
+                                <Card className="border-dashed p-4 text-center hover:border-primary">
+                                    <FileText className="mx-auto h-8 w-8 text-muted-foreground" />
+                                    <p className="mt-2 text-sm text-muted-foreground">{installmentPlanFileName || 'Click to upload or drag and drop'}</p>
+                                </Card>
+                            </label>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
@@ -736,8 +757,13 @@ const PropertiesPage = () => {
             category_id: values.category_id,
         };
         
-        delete submissionData.floor_plan;
-        delete submissionData.installment_plan;
+        // Retain existing file IDs if no new file is uploaded
+        if (!floorPlanFile) {
+            submissionData.floor_plan = values.floor_plan || null;
+        }
+        if (!installmentPlanFile) {
+            submissionData.installment_plan = values.installment_plan || null;
+        }
 
         try {
             if (floorPlanFile) {
@@ -754,6 +780,10 @@ const PropertiesPage = () => {
             let currentPropertyId = propertyId;
 
             if (currentPropertyId) {
+                // Ensure nulls are sent if fields are cleared
+                if (!submissionData.floor_plan) submissionData.floor_plan = null;
+                if (!submissionData.installment_plan) submissionData.installment_plan = null;
+
                 await updateProperty({
                     variables: { id: currentPropertyId, data: submissionData },
                 });
