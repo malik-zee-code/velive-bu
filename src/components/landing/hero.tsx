@@ -173,32 +173,6 @@ export const Hero = ({
                         </div>
                     </CardContent>
                 </Card>
-                 <div className="mt-12 max-w-7xl mx-auto">
-                    <p className="text-white mb-6">Or Browse Featured Categories</p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mx-auto">
-                        {categories.slice(0, 6).map((category) => {
-                            const Icon = categoryIconMap[category.title] || Briefcase; // Default icon
-                            return (
-                                <button
-                                key={category.id}
-                                onClick={() => onCategorySelect(category.title)}
-                                className="w-full"
-                                >
-                                <Card className={cn("group text-center p-4 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border-2 bg-white hover:bg-gray-50 rounded-lg border-transparent", {
-                                    "border-primary": selectedCategoryName === category.title,
-                                })}>
-                                    <CardContent className="p-0">
-                                    <div className="mx-auto h-16 w-16 rounded-lg flex items-center justify-center bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                                        <Icon className="h-8 w-8" />
-                                    </div>
-                                    <h3 className="mt-4 font-semibold text-lg text-foreground">{category.title}</h3>
-                                    </CardContent>
-                                </Card>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
             </div>
         </div>
     </section>
