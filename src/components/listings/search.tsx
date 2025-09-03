@@ -86,7 +86,7 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
     }
   };
 
-  const isFiltered = !!searchQuery || !!selectedLocation || !!selectedCategory || (!!listingType && listingType !== 'sale') || isFurnished;
+  const isFiltered = !!searchQuery || !!selectedLocation || !!selectedCategory || (!!listingType && listingType !== 'rent') || isFurnished;
 
   return (
     <div className="bg-secondary py-8 mb-12">
@@ -100,11 +100,11 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
                         onValueChange={handleListingTypeChange}
                         className="flex items-center space-x-1 bg-muted p-1 rounded-md"
                       >
+                        <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
+                          Rent
+                        </ToggleGroupItem>
                         <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
                           Sale
-                        </ToggleGroupItem>
-                         <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
-                          Rent
                         </ToggleGroupItem>
                       </ToggleGroup>
                        <div className="flex items-center space-x-2">

@@ -64,7 +64,7 @@ export const Hero = ({
     }
   };
 
-  const isFiltered = searchQuery || selectedLocation || selectedCategory || (listingType && listingType !== 'sale');
+  const isFiltered = searchQuery || selectedLocation || selectedCategory || (listingType && listingType !== 'rent');
 
   const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.title;
 
@@ -101,11 +101,11 @@ export const Hero = ({
                                 onValueChange={handleListingTypeChange}
                                 className="flex items-center space-x-1 bg-black/20 p-1 rounded-md"
                             >
-                                <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 text-white hover:bg-transparent data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
-                                Sale
-                                </ToggleGroupItem>
                                 <ToggleGroupItem value="rent" aria-label="Toggle rent" className="px-4 py-2 text-white hover:bg-transparent data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
                                 Rent
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="sale" aria-label="Toggle sale" className="px-4 py-2 text-white hover:bg-transparent data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm rounded-md">
+                                Sale
                                 </ToggleGroupItem>
                             </ToggleGroup>
                             <div className="flex items-center space-x-2">
