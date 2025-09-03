@@ -222,7 +222,7 @@ const formSchema = z.object({
   is_featured: z.boolean().default(false),
   is_available: z.boolean().default(true),
   is_furnished: z.boolean().default(false),
-  listing_type: z.enum(['sale', 'rent']).default('sale'),
+  listing_type: z.enum(['sale', 'rent']).default('rent'),
 });
 
 type ImagePreview = {
@@ -276,7 +276,7 @@ const PropertyForm = ({
             is_featured: property.is_featured || false,
             is_available: property.is_available ?? true,
             is_furnished: property.is_furnished || false,
-            listing_type: property.listing_type || 'sale',
+            listing_type: property.listing_type || 'rent',
         } : {
             title: "",
             slug: "",
@@ -284,7 +284,7 @@ const PropertyForm = ({
             is_featured: false,
             is_available: true,
             is_furnished: false,
-            listing_type: 'sale',
+            listing_type: 'rent',
             price: undefined,
             area_in_feet: undefined,
             bathrooms: undefined,

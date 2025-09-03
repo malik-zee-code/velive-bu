@@ -89,8 +89,8 @@ const ListingsPageContent = ({ contactPhone }: { contactPhone: string | null }) 
     if (listingTypeQuery) {
         where._and.push({ listing_type: { _eq: listingTypeQuery } });
     } else {
-        // Default to sale if no listing type is provided
-        where._and.push({ listing_type: { _eq: 'sale' } });
+        // Default to rent if no listing type is provided
+        where._and.push({ listing_type: { _eq: 'rent' } });
     }
      if (isFurnishedQuery === 'true') {
       where._and.push({ is_furnished: { _eq: true } });

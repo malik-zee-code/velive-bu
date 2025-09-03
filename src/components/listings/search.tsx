@@ -24,14 +24,14 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedLocation, setSelectedLocation] = useState(searchParams.get('location') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
-  const [listingType, setListingType] = useState(searchParams.get('listing_type') || 'sale');
+  const [listingType, setListingType] = useState(searchParams.get('listing_type') || 'rent');
   const [isFurnished, setIsFurnished] = useState(searchParams.get('is_furnished') === 'true');
   
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
     setSelectedLocation(searchParams.get('location') || '');
     setSelectedCategory(searchParams.get('category') || '');
-    setListingType(searchParams.get('listing_type') || 'sale');
+    setListingType(searchParams.get('listing_type') || 'rent');
     setIsFurnished(searchParams.get('is_furnished') === 'true');
   }, [searchParams]);
 
@@ -75,7 +75,7 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
     setSearchQuery('');
     setSelectedLocation('');
     setSelectedCategory('');
-    setListingType('sale');
+    setListingType('rent');
     setIsFurnished(false);
     router.push(`/listings?${params.toString()}`);
   };

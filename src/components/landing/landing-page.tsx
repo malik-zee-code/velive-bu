@@ -87,7 +87,7 @@ export function LandingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [listingType, setListingType] = useState('sale');
+  const [listingType, setListingType] = useState('rent');
   const [isFurnished, setIsFurnished] = useState(false);
   const router = useRouter();
 
@@ -109,7 +109,7 @@ export function LandingPage() {
     setSearchQuery('');
     setSelectedLocation('');
     setSelectedCategory('');
-    setListingType('sale');
+    setListingType('rent');
     setIsFurnished(false);
   };
 
