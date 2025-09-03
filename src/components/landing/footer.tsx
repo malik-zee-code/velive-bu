@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Twitter, Facebook, Linkedin, Youtube, Phone, MapPin, Mail, Send, ChevronRight, ChevronUp } from 'lucide-react';
 import { gql, useQuery } from '@apollo/client';
 import { Skeleton } from '../ui/skeleton';
+import { getSetting } from '@/lib/settings';
 
 const GET_FOOTER_DATA = gql`
   query GetFooterData {
@@ -37,11 +38,9 @@ const quickLinks = [
 export const Footer = () => {
     const { data, loading, error } = useQuery(GET_FOOTER_DATA);
 
-    const getSetting = (title: string) => data?.settings.find((s: any) => s.title === title)?.value;
-
-    const phone = getSetting('phone_1');
-    const address = getSetting('address_1');
-    const email = getSetting('email');
+    const phone = getSetting(data?.settings || [], 'phone_1');
+    const address = getSetting(data?.settings || [], 'address_1');
+    const email = getSetting(data?.settings || [], 'email');
 
     return (
         <footer className="bg-black text-white/80 relative">

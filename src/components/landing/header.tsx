@@ -5,12 +5,25 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Shield, LogOut, Menu } from 'lucide-react';
+import { Shield, LogOut, Menu, Phone } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useAuthenticationStatus, useSignOut, useUserData } from '@nhost/nextjs';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { gql, useQuery } from '@apollo/client';
+import { getSetting } from '@/lib/settings';
+import { Skeleton } from '../ui/skeleton';
+
+const GET_HEADER_DATA = gql`
+  query GetHeaderData {
+    settings(where: {title: {_eq: "phone_1"}}) {
+      title
+      value
+    }
+  }
+`;
+
 
 export const Header = () => {
   const pathname = usePathname();
@@ -20,7 +33,10 @@ export const Header = () => {
   const { signOut } = useSignOut();
   const [isClient, setIsClient] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  
+  const { data: settingsData, loading: settingsLoading } = useQuery(GET_HEADER_DATA);
 
+  const phone = getSetting(settingsData?.settings || [], 'phone_1');
 
   useEffect(() => {
     setIsClient(true);
@@ -42,7 +58,7 @@ export const Header = () => {
   
   const isAdmin = userData?.roles.includes('admin') || userData?.roles.includes('manager');
 
-  const isLoading = authIsLoading || !isClient;
+  const isLoading = authIsLoading || !isClient || settingsLoading;
 
   const handleLinkClick = () => {
     setIsSheetOpen(false);
@@ -83,21 +99,33 @@ export const Header = () => {
           {renderNavLinks(false)}
         </div>
         
-        <div className="hidden md:flex items-center justify-end space-x-2 ml-auto">
+        <div className="hidden md:flex items-center justify-end space-x-4 ml-auto">
           {isLoading ? (
-            <div className="h-9 w-24 rounded-md animate-pulse bg-gray-700" />
-          ) : isAuthenticated && isAdmin ? (
-             <Button asChild variant="ghost" className="text-white/80 hover:text-white">
-                <Link href="/admin">
-                  <Shield className="h-5 w-5 mr-2" />
-                  Admin
-                </Link>
+             <div className="flex items-center space-x-4">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-9 w-24 rounded-md" />
+            </div>
+          ) : (
+            <>
+              {phone && (
+                <a href={`tel:${phone}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm">
+                  <Phone className="h-4 w-4 text-primary" />
+                  <span>{phone}</span>
+                </a>
+              )}
+              {isAuthenticated && isAdmin && (
+                 <Button asChild variant="ghost" className="text-white/80 hover:text-white">
+                    <Link href="/admin">
+                      <Shield className="h-5 w-5 mr-2" />
+                      Admin
+                    </Link>
+                  </Button>
+              )}
+              <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
+                <Link href="/contact">Contact Us</Link>
               </Button>
-          ) : null}
-
-          <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold">
-            <Link href="/contact">Contact Us</Link>
-          </Button>
+            </>
+          )}
         </div>
 
         <div className="flex md:hidden items-center ml-auto">
@@ -111,16 +139,23 @@ export const Header = () => {
                   <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                   <div className="p-6">
                       <Link href="/" onClick={handleLinkClick} className="flex items-center space-x-2 mb-8">
-                        <Image src="/assets/images/logo/white-logo.svg" alt="VE LIVE Logo" width={160} height={40} data-ai-hint="logo" />
+                        <Image src="/assets/images/logo/black-logo.svg" alt="VE LIVE Logo" width={160} height={40} data-ai-hint="logo" />
                       </Link>
                       {renderNavLinks(true)}
 
                       <div className="mt-8 pt-4 border-t">
                         {isLoading ? (
-                           <div className="h-9 w-24 rounded-md animate-pulse bg-gray-200" />
-                        ) : isAuthenticated ? (
+                           <div className="h-9 w-full rounded-md animate-pulse bg-gray-200" />
+                        ) : (
                           <>
-                           {isAdmin && (
+                           {phone && (
+                            <Button asChild variant="outline" className="w-full justify-start mb-2" onClick={handleLinkClick}>
+                                <a href={`tel:${phone}`}>
+                                    <Phone className="h-4 w-4 mr-2" /> {phone}
+                                </a>
+                            </Button>
+                           )}
+                           {isAuthenticated && isAdmin && (
                              <Button asChild variant="ghost" className="w-full justify-start mb-2" onClick={handleLinkClick}>
                                <Link href="/admin">
                                  <Shield className="h-4 w-4 mr-2" /> Admin
@@ -128,7 +163,7 @@ export const Header = () => {
                               </Button>
                            )}
                           </>
-                        ) : null}
+                        )}
                         <Button asChild style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90 rounded-md font-bold w-full mt-4" onClick={handleLinkClick}>
                           <Link href="/contact">Contact Us</Link>
                         </Button>
