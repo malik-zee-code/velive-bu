@@ -43,6 +43,8 @@ export const Footer = () => {
     const address2 = getSetting(data?.settings || [], 'address_2');
     const email = getSetting(data?.settings || [], 'email');
 
+    const hadleyHeightsMapQuery = "Hadley Heights 2 by LEOS";
+
     return (
         <footer className="bg-black text-white/80 relative">
             <div className="absolute inset-0 bg-no-repeat bg-right"></div>
@@ -76,7 +78,9 @@ export const Footer = () => {
                                             <div className="bg-primary/20 text-primary p-2 rounded-md mt-1">
                                                 <MapPin className="w-5 h-5" />
                                             </div>
-                                            <span>{address1}</span>
+                                            <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address1)}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                                                <span>{address1}</span>
+                                            </a>
                                         </li>
                                     )}
                                      {address2 && (
@@ -84,7 +88,9 @@ export const Footer = () => {
                                             <div className="bg-primary/20 text-primary p-2 rounded-md mt-1">
                                                 <MapPin className="w-5 h-5" />
                                             </div>
-                                            <span>{address2}</span>
+                                            <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hadleyHeightsMapQuery)}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                                                <span>{address2}</span>
+                                            </a>
                                         </li>
                                     )}
                                     {email && (
