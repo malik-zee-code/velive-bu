@@ -71,18 +71,18 @@ export const Hero = ({
     }
   };
 
-  const isFiltered = searchQuery || selectedLocation || selectedCategory || (listingType && listingType !== 'rent');
+  const isFiltered = searchQuery || selectedLocation || selectedCategory || (listingType && listingType !== 'rent') || isFurnished || bedrooms;
 
   const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.title;
 
   return (
-    <section className="relative flex items-center justify-center text-card-foreground overflow-hidden py-20 md:py-28">
+    <section className="relative flex items-center justify-center text-card-foreground overflow-hidden py-20 md:py-28 md:h-[calc(100vh-5rem)] ">
         <video 
             autoPlay 
             loop 
             muted 
             playsInline
-            className="absolute z-0 w-auto min-w-full min-h-full max-w-none pb-24"
+            className="absolute z-0 w-auto min-w-full min-h-full max-w-none pb-[350px]"
         >
             <source src="/assets/images/hero/hadley-heights1.mp4" type="video/mp4" />
             Your browser does not support the video tag.
