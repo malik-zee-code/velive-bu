@@ -800,7 +800,7 @@ const PropertiesPage = () => {
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
             toast({ title: "Error!", description: `Failed to save property. ${errorMessage}`, variant: "destructive" });
         }
-    }, [insertProperty, updateProperty, upload, toast, refetchProperties, propertyData, refetchProperty]);
+    }, [insertProperty, updateProperty, upload, toast, refetchProperties, propertyData, refetchProperty, unsetPrimaryImage, insertPropertyImage]);
 
     const handleDeleteImage = async (imageId: string) => {
         try {
@@ -1064,5 +1064,3 @@ const PropertiesPage = () => {
 };
 
 export default PropertiesPage;
-
-    
