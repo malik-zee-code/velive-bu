@@ -92,8 +92,9 @@ const PropertyDetailPageContent = () => {
 
   const contactPhone = settingsData?.settings[0]?.value;
 
-  const floorPlanUrl = property.floor_plan ? nhost.storage.getPublicUrl({ fileId: property.floor_plan }) : null;
-  const installmentPlanUrl = property.installment_plan ? nhost.storage.getPublicUrl({ fileId: property.installment_plan }) : null;
+  const floorPlanUrl = property.floor_plan;
+  const installmentPlanUrl = property.installment_plan;
+
 
   const handleNext = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -194,7 +195,7 @@ const PropertyDetailPageContent = () => {
                                 <CardContent>
                                     <Button asChild className="w-full">
                                         <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer">
-                                            <Download className="mr-2 h-4 w-4" /> Download Floor Plan
+                                            <Download className="mr-2 h-4 w-4" /> View Floor Plan
                                         </a>
                                     </Button>
                                 </CardContent>
@@ -209,7 +210,7 @@ const PropertyDetailPageContent = () => {
                                 <CardContent>
                                     <Button asChild className="w-full">
                                         <a href={installmentPlanUrl} target="_blank" rel="noopener noreferrer">
-                                            <FileText className="mr-2 h-4 w-4" /> Download Installment Plan
+                                            <FileText className="mr-2 h-4 w-4" /> View Installment Plan
                                         </a>
                                     </Button>
                                 </CardContent>
