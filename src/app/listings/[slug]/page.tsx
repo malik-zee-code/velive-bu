@@ -201,7 +201,7 @@ const PropertyDetailPageContent = () => {
                                 <span className="font-semibold text-foreground">{property.bathrooms}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground flex items-center gap-2"><Ruler className="w-5 h-5"/> Area</span>
+                                <span className="text-muted-foreground flex items-center gap-2"><Ruler className="w-5 h-5"/> Size</span>
                                 <span className="font-semibold text-foreground">{property.area_in_feet} sqft</span>
                             </div>
                              <div className="flex items-center justify-between">
@@ -261,3 +261,5 @@ const PropertyDetailPage = () => (
 );
   
 export default PropertyDetailPage;
+
+    
