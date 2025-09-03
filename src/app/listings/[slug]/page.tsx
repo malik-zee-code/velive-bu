@@ -1,4 +1,3 @@
-
 // src/app/listings/[slug]/page.tsx
 'use client';
 import React, { useMemo, useState, Suspense } from 'react'
@@ -8,7 +7,7 @@ import Image from 'next/image';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone, Sofa, MessageSquare } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone, Sofa, MessageSquare, Download, FileText } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { nhost } from '@/lib/nhost';
@@ -29,6 +28,9 @@ const GET_PROPERTY_BY_SLUG = gql`
       area_in_feet
       is_furnished
       long_description
+      address
+      floor_plan
+      installment_plan
       properties_images(order_by: {is_primary: desc, created_at: asc}) {
         id
         file_id
@@ -89,6 +91,9 @@ const PropertyDetailPageContent = () => {
   if (!property) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Property not found.</p></div>;
 
   const contactPhone = settingsData?.settings[0]?.value;
+
+  const floorPlanUrl = property.floor_plan ? nhost.storage.getPublicUrl({ fileId: property.floor_plan }) : null;
+  const installmentPlanUrl = property.installment_plan ? nhost.storage.getPublicUrl({ fileId: property.installment_plan }) : null;
 
   const handleNext = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -177,6 +182,41 @@ const PropertyDetailPageContent = () => {
                         </div>
                     </CardContent>
                 </Card>
+
+                {(floorPlanUrl || installmentPlanUrl) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                        {floorPlanUrl && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Floor Plan</CardTitle>
+                                    <CardDescription>View the property layout.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Button asChild className="w-full">
+                                        <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer">
+                                            <Download className="mr-2 h-4 w-4" /> Download Floor Plan
+                                        </a>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        )}
+                         {installmentPlanUrl && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Installment Plan</CardTitle>
+                                    <CardDescription>Check the payment schedule.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Button asChild className="w-full">
+                                        <a href={installmentPlanUrl} target="_blank" rel="noopener noreferrer">
+                                            <FileText className="mr-2 h-4 w-4" /> Download Installment Plan
+                                        </a>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="lg:col-span-1">
@@ -184,7 +224,7 @@ const PropertyDetailPageContent = () => {
                     <CardHeader>
                         <Badge variant="secondary" className="w-fit">{property.category.title}</Badge>
                         <h1 className="text-3xl font-bold font-headline text-foreground mt-2">{property.title}</h1>
-                        <p className="flex items-center text-muted-foreground"><MapPin className="w-4 h-4 mr-2" />{property.location.name}</p>
+                        <p className="flex items-center text-muted-foreground"><MapPin className="w-4 h-4 mr-2" />{property.address || property.location.name}</p>
                     </CardHeader>
                     <CardContent>
                         <p className="text-3xl font-bold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
@@ -261,5 +301,3 @@ const PropertyDetailPage = () => (
 );
   
 export default PropertyDetailPage;
-
-    
