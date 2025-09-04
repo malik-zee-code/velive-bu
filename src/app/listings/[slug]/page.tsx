@@ -14,6 +14,13 @@ import { nhost } from '@/lib/nhost';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const EmbeddedPdfViewer = dynamic(() => import('@/components/common/EmbeddedPdfViewer').then(mod => mod.EmbeddedPdfViewer), {
+  ssr: false,
+  loading: () => <Skeleton className="w-full h-[400px]" />
+});
 
 const GET_PROPERTY_BY_SLUG = gql`
   query GetPropertyBySlug($slug: String!) {
@@ -192,42 +199,30 @@ const PropertyDetailPageContent = () => {
                     </CardContent>
                 </Card>
 
-                {(floorPlanUrl || installmentPlanUrl) && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                        {floorPlanUrl && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Floor Plan</CardTitle>
-                                    <CardDescription>View the property layout.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <Button asChild>
-                                        <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer">
-                                            <Download className="mr-2 h-4 w-4" />
-                                            Download PDF
-                                        </a>
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        )}
-                         {installmentPlanUrl && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Installment Plan</CardTitle>
-                                    <CardDescription>View the payment schedule.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                     <Button asChild>
-                                        <a href={installmentPlanUrl} target="_blank" rel="noopener noreferrer">
-                                            <Download className="mr-2 h-4 w-4" />
-                                            Download PDF
-                                        </a>
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </div>
-                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                    {floorPlanUrl && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Floor Plan</CardTitle>
+                                <CardDescription>View the property layout.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <EmbeddedPdfViewer file={floorPlanUrl} />
+                            </CardContent>
+                        </Card>
+                    )}
+                     {installmentPlanUrl && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Installment Plan</CardTitle>
+                                <CardDescription>View the payment schedule.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                 <EmbeddedPdfViewer file={installmentPlanUrl} />
+                            </CardContent>
+                        </Card>
+                    )}
+                </div>
             </div>
 
             <div className="lg:col-span-1">
