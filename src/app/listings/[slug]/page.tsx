@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Header } from '@/components/landing/header';
 import { Footer } from '@/components/landing/footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone, Sofa, MessageSquare, Download, FileText, View } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, CheckSquare, Star, ChevronLeft, ChevronRight, Phone, Sofa, MessageSquare, Download, FileText, ExternalLink } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { nhost } from '@/lib/nhost';
@@ -210,8 +210,8 @@ const PropertyDetailPageContent = () => {
                                 <EmbeddedPdfViewer file={floorPlanUrl}>
                                     <Button asChild>
                                         <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer">
-                                        <View className="mr-2 h-5 w-5" />
-                                        View PDF
+                                        <ExternalLink className="mr-2 h-5 w-5" />
+                                        View
                                         </a>
                                     </Button>
                                 </EmbeddedPdfViewer>
@@ -228,8 +228,8 @@ const PropertyDetailPageContent = () => {
                                  <EmbeddedPdfViewer file={installmentPlanUrl}>
                                     <Button asChild>
                                         <a href={installmentPlanUrl} target="_blank" rel="noopener noreferrer">
-                                        <View className="mr-2 h-5 w-5" />
-                                        View PDF
+                                        <ExternalLink className="mr-2 h-5 w-5" />
+                                        View
                                         </a>
                                     </Button>
                                  </EmbeddedPdfViewer>
