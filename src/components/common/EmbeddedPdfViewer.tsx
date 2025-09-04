@@ -62,7 +62,6 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
                         renderAnnotationLayer
                         loading={<LoadingSkeleton />}
                         className="shadow-md"
-                        width={500} // Adjust width as needed
                     />
                 </Document>
             </div>
