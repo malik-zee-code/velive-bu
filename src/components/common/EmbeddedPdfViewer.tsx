@@ -48,7 +48,7 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
             </Button>
         </div>
         <CardContent className="p-0 flex justify-center bg-secondary">
-            <div className="w-full overflow-hidden h-[500px] overflow-y-auto">
+            <div className="w-full overflow-hidden">
                 <Document
                     file={file}
                     onLoadSuccess={onDocumentLoadSuccess}
