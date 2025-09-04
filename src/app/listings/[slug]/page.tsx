@@ -42,6 +42,14 @@ const GET_PROPERTY_BY_SLUG = gql`
       category {
         title
       }
+      floorPlanFile {
+        id
+        name
+      }
+      installmentPlanFile {
+        id
+        name
+      }
     }
   }
 `;
@@ -227,7 +235,8 @@ const PropertyDetailPageContent = () => {
                     <CardHeader>
                         <Badge variant="secondary" className="w-fit">{property.category.title}</Badge>
                         <h1 className="text-3xl font-bold font-headline text-foreground mt-2">{property.title}</h1>
-                        <p className="flex items-center text-muted-foreground"><MapPin className="w-4 h-4 mr-2" />{property.address || property.location.name}</p>
+                        <p className="flex items-center text-muted-foreground"><MapPin className="w-4 h-4 mr-2" />{property.location.name}</p>
+                        {property.address && <p className="text-sm text-muted-foreground mt-1">{property.address}</p>}
                     </CardHeader>
                     <CardContent>
                         <p className="text-3xl font-bold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
@@ -304,5 +313,3 @@ const PropertyDetailPage = () => (
 );
   
 export default PropertyDetailPage;
-
-    
