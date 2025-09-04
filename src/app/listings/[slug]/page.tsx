@@ -206,16 +206,15 @@ const PropertyDetailPageContent = () => {
                                 <CardTitle>Floor Plan</CardTitle>
                                 <CardDescription>View the property layout.</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-4">
-                                <EmbeddedPdfViewer file={floorPlanUrl} />
-                                <div className="flex justify-center">
-                                  <Button asChild>
-                                    <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer">
-                                      <View className="mr-2 h-5 w-5" />
-                                      View PDF
-                                    </a>
-                                  </Button>
-                                </div>
+                            <CardContent>
+                                <EmbeddedPdfViewer file={floorPlanUrl}>
+                                    <Button asChild>
+                                        <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer">
+                                        <View className="mr-2 h-5 w-5" />
+                                        View PDF
+                                        </a>
+                                    </Button>
+                                </EmbeddedPdfViewer>
                             </CardContent>
                         </Card>
                     )}
@@ -225,16 +224,15 @@ const PropertyDetailPageContent = () => {
                                 <CardTitle>Installment Plan</CardTitle>
                                 <CardDescription>View the payment schedule.</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-4">
-                                 <EmbeddedPdfViewer file={installmentPlanUrl} />
-                                 <div className="flex justify-center">
-                                  <Button asChild>
-                                    <a href={installmentPlanUrl} target="_blank" rel="noopener noreferrer">
-                                      <View className="mr-2 h-5 w-5" />
-                                      View PDF
-                                    </a>
-                                  </Button>
-                                </div>
+                            <CardContent>
+                                 <EmbeddedPdfViewer file={installmentPlanUrl}>
+                                    <Button asChild>
+                                        <a href={installmentPlanUrl} target="_blank" rel="noopener noreferrer">
+                                        <View className="mr-2 h-5 w-5" />
+                                        View PDF
+                                        </a>
+                                    </Button>
+                                 </EmbeddedPdfViewer>
                             </CardContent>
                         </Card>
                     )}
