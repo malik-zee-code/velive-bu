@@ -30,7 +30,7 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
 
   const LoadingSkeleton = () => (
     <div className="flex justify-center items-center bg-secondary rounded-lg p-4">
-      <Skeleton className="w-full h-[400px]" />
+      <Skeleton className="w-full h-[500px]" />
     </div>
   );
 
@@ -48,7 +48,7 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
             </Button>
         </div>
         <CardContent className="p-0 flex justify-center bg-secondary">
-            <div className="w-full overflow-hidden h-[400px] overflow-y-auto">
+            <div className="w-full overflow-hidden h-[500px] overflow-y-auto">
                 <Document
                     file={file}
                     onLoadSuccess={onDocumentLoadSuccess}
@@ -62,7 +62,7 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
                         renderAnnotationLayer
                         loading={<LoadingSkeleton />}
                         className="shadow-md"
-                        width={400} // Adjust width as needed
+                        width={500} // Adjust width as needed
                     />
                 </Document>
             </div>
