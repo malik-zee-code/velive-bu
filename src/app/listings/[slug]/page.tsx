@@ -206,8 +206,16 @@ const PropertyDetailPageContent = () => {
                                 <CardTitle>Floor Plan</CardTitle>
                                 <CardDescription>View the property layout.</CardDescription>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="space-y-4">
                                 <EmbeddedPdfViewer file={floorPlanUrl} />
+                                <div className="flex justify-center">
+                                  <Button asChild>
+                                    <a href={floorPlanUrl} download>
+                                      <Download className="mr-2 h-5 w-5" />
+                                      Download PDF
+                                    </a>
+                                  </Button>
+                                </div>
                             </CardContent>
                         </Card>
                     )}
@@ -217,8 +225,16 @@ const PropertyDetailPageContent = () => {
                                 <CardTitle>Installment Plan</CardTitle>
                                 <CardDescription>View the payment schedule.</CardDescription>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="space-y-4">
                                  <EmbeddedPdfViewer file={installmentPlanUrl} />
+                                 <div className="flex justify-center">
+                                  <Button asChild>
+                                    <a href={installmentPlanUrl} download>
+                                      <Download className="mr-2 h-5 w-5" />
+                                      Download PDF
+                                    </a>
+                                  </Button>
+                                </div>
                             </CardContent>
                         </Card>
                     )}

@@ -67,14 +67,6 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
                 </Document>
             </div>
         </CardContent>
-         <div className="p-4 border-t flex justify-center">
-            <Button asChild>
-              <a href={file} download>
-                <Download className="mr-2 h-5 w-5" />
-                Download PDF
-              </a>
-            </Button>
-        </div>
     </Card>
   );
 };
