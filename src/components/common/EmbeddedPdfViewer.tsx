@@ -19,6 +19,7 @@ interface EmbeddedPdfViewerProps {
 export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [pageWidth, setPageWidth] = useState(0);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -28,11 +29,22 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
   const goToPrevPage = () => setPageNumber(prev => Math.max(prev - 1, 1));
   const goToNextPage = () => setPageNumber(prev => Math.min(prev + 1, numPages || 1));
 
+  const onPageRenderSuccess = useCallback((page: any) => {
+    setPageWidth(page.width);
+  }, []);
+
   const LoadingSkeleton = () => (
     <div className="flex justify-center items-center bg-secondary rounded-lg p-4">
       <Skeleton className="w-full h-[500px]" />
     </div>
   );
+  
+  const containerRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      setPageWidth(node.getBoundingClientRect().width);
+    }
+  }, []);
+
 
   return (
     <Card className="overflow-hidden shadow-lg border w-full">
@@ -48,7 +60,7 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
             </Button>
         </div>
         <CardContent className="p-0 flex justify-center bg-secondary">
-            <div className="w-full overflow-hidden">
+            <div className="w-full overflow-hidden" ref={containerRef}>
                 <Document
                     file={file}
                     onLoadSuccess={onDocumentLoadSuccess}
@@ -62,6 +74,7 @@ export const EmbeddedPdfViewer = ({ file }: EmbeddedPdfViewerProps) => {
                         renderAnnotationLayer
                         loading={<LoadingSkeleton />}
                         className="shadow-md"
+                        width={pageWidth}
                     />
                 </Document>
             </div>
