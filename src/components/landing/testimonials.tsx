@@ -34,18 +34,18 @@ export const Testimonials = () => {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
           {testimonials.map((testimonial) => (
-            <Card key={testimonial.name} className="bg-background/50 border-border/20 p-6 text-center">
+            <Card key={testimonial.name} className="bg-background/50 border-border/20 p-6 text-center transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl">
               <CardContent className="p-0">
                 <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-primary">
                   <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
                   <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div className="flex justify-center mb-2">
+                <div className="flex justify-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-primary text-primary" />
+                    <Star key={i} className="w-5 h-5 text-primary" />
                   ))}
                 </div>
-                <p className="text-muted-foreground mb-4">"{testimonial.text}"</p>
+                <p className="text-muted-foreground mb-4 h-24">"{testimonial.text}"</p>
                 <h3 className="font-semibold text-lg text-foreground">{testimonial.name}</h3>
               </CardContent>
             </Card>
