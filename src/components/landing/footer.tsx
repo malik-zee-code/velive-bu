@@ -60,7 +60,7 @@ export const Footer = () => {
         <footer className="bg-black text-white/80 relative">
             <div className="absolute inset-0 bg-no-repeat bg-right"></div>
             <div className="container relative py-20 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {/* Column 1: Logo and Contact */}
                     <div className="space-y-6">
                         <Image src="/assets/images/logo/white-logo.svg" alt="VE Live Logo" width={200} height={50} data-ai-hint="logo" />
@@ -148,38 +148,35 @@ export const Footer = () => {
                         </div>
                     </div>
 
-                    {/* Column 3 & 4: Quick Links */}
+                    {/* Column 3: Quick Links (internally split) */}
                     <div>
                         <h4 className="font-bold text-xl mb-6 text-white relative pb-2">
                             Quick Links
                             <span className="absolute bottom-0 left-0 w-8 h-0.5 bg-primary"></span>
                             <span className="absolute bottom-0 left-10 w-4 h-0.5 bg-primary"></span>
                         </h4>
-                        <ul className="space-y-3">
-                            {firstColumnLinks.map(link => (
-                                <li key={link.text}>
-                                    <Link href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
-                                        <ChevronRight className="w-4 h-4 text-primary" />
-                                        <span>{link.text}</span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                     <div>
-                        <h4 className="font-bold text-xl mb-6 text-white relative pb-2 opacity-0">
-                            .
-                        </h4>
-                        <ul className="space-y-3">
-                            {secondColumnLinks.map(link => (
-                                <li key={link.text}>
-                                    <Link href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
-                                        <ChevronRight className="w-4 h-4 text-primary" />
-                                        <span>{link.text}</span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+                        <div className="grid grid-cols-2 gap-x-4">
+                            <ul className="space-y-3">
+                                {firstColumnLinks.map(link => (
+                                    <li key={link.text}>
+                                        <Link href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+                                            <ChevronRight className="w-4 h-4 text-primary" />
+                                            <span>{link.text}</span>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                            <ul className="space-y-3">
+                                {secondColumnLinks.map(link => (
+                                    <li key={link.text}>
+                                        <Link href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+                                            <ChevronRight className="w-4 h-4 text-primary" />
+                                            <span>{link.text}</span>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -191,3 +188,5 @@ export const Footer = () => {
         </footer>
     );
 };
+
+    
