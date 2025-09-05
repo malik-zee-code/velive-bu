@@ -35,6 +35,13 @@ const quickLinks = [
     { href: "/privacy-policy", text: "Privacy Policy" },
 ];
 
+const socialLinks = [
+    { href: "#", icon: <Facebook className="h-4 w-4" />, label: "Facebook" },
+    { href: "#", icon: <Twitter className="h-4 w-4" />, label: "Twitter" },
+    { href: "#", icon: <Linkedin className="h-4 w-4" />, label: "Linkedin" },
+    { href: "#", icon: <Youtube className="h-4 w-4" />, label: "Youtube" },
+]
+
 export const Footer = () => {
     const { data, loading, error } = useQuery(GET_FOOTER_DATA);
 
@@ -44,18 +51,19 @@ export const Footer = () => {
     const email = getSetting(data?.settings || [], 'email');
 
     const hadleyHeightsMapQuery = "Hadley Heights 2 by LEOS";
+    
+    const midIndex = Math.ceil(quickLinks.length / 2);
+    const firstColumnLinks = quickLinks.slice(0, midIndex);
+    const secondColumnLinks = quickLinks.slice(midIndex);
 
     return (
         <footer className="bg-black text-white/80 relative">
             <div className="absolute inset-0 bg-no-repeat bg-right"></div>
             <div className="container relative py-20 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* Column 1: Logo and Contact */}
                     <div className="space-y-6">
                         <Image src="/assets/images/logo/white-logo.svg" alt="VE Live Logo" width={200} height={50} data-ai-hint="logo" />
-                        <p className="text-sm">
-                            We are many variations of passages available but the majority have suffered alteration in some form by injected humour words believable.
-                        </p>
                          <ul className="space-y-4 text-sm">
                             {loading ? (
                                 <>
@@ -131,9 +139,16 @@ export const Footer = () => {
                                 </li>
                             ))}
                         </ul>
+                         <div className="flex space-x-2 mt-6">
+                            {socialLinks.map(link => (
+                                <Link key={link.label} href={link.href} aria-label={link.label} className="w-9 h-9 flex items-center justify-center rounded-md bg-white/10 hover:bg-primary hover:text-black transition-colors">
+                                    {link.icon}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Column 3: Quick Links */}
+                    {/* Column 3 & 4: Quick Links */}
                     <div>
                         <h4 className="font-bold text-xl mb-6 text-white relative pb-2">
                             Quick Links
@@ -141,7 +156,22 @@ export const Footer = () => {
                             <span className="absolute bottom-0 left-10 w-4 h-0.5 bg-primary"></span>
                         </h4>
                         <ul className="space-y-3">
-                            {quickLinks.map(link => (
+                            {firstColumnLinks.map(link => (
+                                <li key={link.text}>
+                                    <Link href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
+                                        <ChevronRight className="w-4 h-4 text-primary" />
+                                        <span>{link.text}</span>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                     <div>
+                        <h4 className="font-bold text-xl mb-6 text-white relative pb-2 opacity-0">
+                            .
+                        </h4>
+                        <ul className="space-y-3">
+                            {secondColumnLinks.map(link => (
                                 <li key={link.text}>
                                     <Link href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
                                         <ChevronRight className="w-4 h-4 text-primary" />
@@ -154,19 +184,8 @@ export const Footer = () => {
                 </div>
             </div>
             <div className="border-t border-white/10">
-                <div className="container max-w-7xl mx-auto py-6 flex flex-col sm:flex-row justify-between items-center text-sm">
+                <div className="container max-w-7xl mx-auto py-6 flex justify-center text-center text-sm">
                     <p>&copy; Copyright {new Date().getFullYear()} <span className="text-primary">VE Live</span> All Rights Reserved.</p>
-                    <div className="flex items-center gap-2 mt-4 sm:mt-0">
-                        <div className="flex space-x-2">
-                            <Link href="#" className="w-9 h-9 flex items-center justify-center rounded-md bg-white/10 hover:bg-primary hover:text-black transition-colors"><Facebook className="h-4 w-4" /></Link>
-                            <Link href="#" className="w-9 h-9 flex items-center justify-center rounded-md bg-white/10 hover:bg-primary hover:text-black transition-colors"><Twitter className="h-4 w-4" /></Link>
-                            <Link href="#" className="w-9 h-9 flex items-center justify-center rounded-md bg-white/10 hover:bg-primary hover:text-black transition-colors"><Linkedin className="h-4 w-4" /></Link>
-                            <Link href="#" className="w-9 h-9 flex items-center justify-center rounded-md bg-white/10 hover:bg-primary hover:text-black transition-colors"><Youtube className="h-4 w-4" /></Link>
-                        </div>
-                        <Link href="#" className="w-9 h-9 ml-4 flex items-center justify-center rounded-md bg-primary text-black">
-                            <ChevronUp className="h-5 w-5" />
-                        </Link>
-                    </div>
                 </div>
             </div>
         </footer>
