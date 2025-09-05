@@ -1,4 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Star } from "lucide-react"
 
@@ -21,6 +28,12 @@ const testimonials = [
     text: "This property management service provides complete ease and peace of mind. My unit is in safe hands.",
     rating: 5,
   },
+  {
+    name: "Sarah Chen",
+    avatar: "/assets/images/category/01.jpg",
+    text: "Exceptional service from VE-Live. They took care of everything seamlessly. I couldn't be happier with the results.",
+    rating: 5,
+  }
 ]
 
 export const Testimonials = () => {
@@ -32,25 +45,39 @@ export const Testimonials = () => {
         <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
           We are trusted by clients from all over the world. Here's what they have to say.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-          {testimonials.map((testimonial) => (
-            <Card key={testimonial.name} className="bg-background/50 border-border/20 p-6 text-center transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl">
-              <CardContent className="p-0">
-                <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-primary">
-                  <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
-                  <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex justify-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-primary" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4 h-24">"{testimonial.text}"</p>
-                <h3 className="font-semibold text-lg text-foreground">{testimonial.name}</h3>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="w-full max-w-xs sm:max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto mt-12"
+        >
+          <CarouselContent className="-ml-4">
+            {testimonials.map((testimonial, index) => (
+              <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                 <div className="p-1">
+                    <Card className="bg-background/50 border-border/20 p-6 text-center h-full">
+                      <CardContent className="p-0 flex flex-col items-center justify-between h-full">
+                        <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-primary">
+                          <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                          <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex justify-center mb-4">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <Star key={i} className="w-5 h-5 text-primary" fill="transparent" />
+                          ))}
+                        </div>
+                        <p className="text-muted-foreground mb-4 h-24 flex-grow">"{testimonial.text}"</p>
+                        <h3 className="font-semibold text-lg text-foreground mt-auto">{testimonial.name}</h3>
+                      </CardContent>
+                    </Card>
+                 </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden md:flex" />
+          <CarouselNext className="hidden md:flex" />
+        </Carousel>
       </div>
     </section>
   )
