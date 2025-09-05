@@ -99,6 +99,8 @@ const ListingsPageContent = ({ contactPhone }: { contactPhone: string | null }) 
     if (bedroomsQuery) {
         if (bedroomsQuery === '5+') {
             where._and.push({ bedrooms: { _gte: 5 } });
+        } else if (bedroomsQuery === 'studio') {
+             where._and.push({ bedrooms: { _eq: 0 } });
         } else {
             where._and.push({ bedrooms: { _eq: parseInt(bedroomsQuery, 10) } });
         }

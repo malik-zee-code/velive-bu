@@ -170,6 +170,7 @@ export const SearchComponent = ({ locations, categories }: SearchComponentProps)
                               </SelectTrigger>
                               <SelectContent>
                                   <SelectItem value="any">Any</SelectItem>
+                                  <SelectItem value="studio">Studio</SelectItem>
                                   <SelectItem value="1">1</SelectItem>
                                   <SelectItem value="2">2</SelectItem>
                                   <SelectItem value="3">3</SelectItem>

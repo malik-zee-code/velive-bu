@@ -230,7 +230,7 @@ const formSchema = z.object({
   ),
   bedrooms: z.preprocess(
     (a) => (a === '' ? undefined : a),
-    z.coerce.number().int().positive({ message: "Number of bedrooms must be positive." }).optional()
+    z.coerce.number().int().min(0, { message: "Number of bedrooms must be positive." }).optional()
   ),
   currency: z.string().optional(),
   tagline: z.string().optional(),
@@ -300,7 +300,7 @@ const PropertyForm = ({
             price: property.price,
             area_in_feet: property.area_in_feet || undefined,
             bathrooms: property.bathrooms || undefined,
-            bedrooms: property.bedrooms || undefined,
+            bedrooms: property.bedrooms,
             currency: property.currency || "AED",
             tagline: property.tagline || "",
             long_description: property.long_description || "",
@@ -524,6 +524,16 @@ const PropertyForm = ({
                         </FormItem>
                     )}
                 />
+                 <FormField
+                    control={form.control} name="bedrooms"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Bedrooms</FormLabel>
+                        <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <FormField
                     control={form.control} name="bathrooms"
                     render={({ field }) => (
@@ -534,18 +544,6 @@ const PropertyForm = ({
                         </FormItem>
                     )}
                 />
-                {selectedCategory?.title !== 'Studio' && (
-                    <FormField
-                        control={form.control} name="bedrooms"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Bedrooms</FormLabel>
-                            <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                )}
                 <FormField
                 control={form.control} name="tagline"
                 render={({ field }) => (
