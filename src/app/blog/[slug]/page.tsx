@@ -1,4 +1,3 @@
-
 // src/app/blog/[slug]/page.tsx
 'use client';
 import { Suspense } from 'react';
@@ -40,7 +39,7 @@ const BlogPostPageContent = () => {
                 <main>
                     <Skeleton className="h-80 w-full" />
                     <section className="py-20">
-                        <div className="container mx-auto max-w-4xl">
+                        <div className="container mx-auto max-w-7xl">
                             <Card className="p-8 md:p-12 space-y-4">
                                <Skeleton className="h-8 w-3/4" />
                                <Skeleton className="h-4 w-1/2" />
@@ -89,7 +88,7 @@ const BlogPostPageContent = () => {
                     />
                     <div className="absolute inset-0 bg-black/70" />
                     <div className="container relative mx-auto text-center">
-                        <div className="max-w-4xl mx-auto">
+                        <div className="max-w-7xl mx-auto">
                         <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-4">
                             {post.title}
                         </h1>
@@ -104,7 +103,7 @@ const BlogPostPageContent = () => {
                 </section>
 
                 <section className="py-20">
-                <div className="container mx-auto max-w-4xl">
+                <div className="container mx-auto max-w-7xl">
                     <Card className="p-8 md:p-12">
                         <div 
                             className="prose max-w-none text-card-foreground dark:prose-invert prose-headings:font-headline prose-p:text-muted-foreground prose-h3:text-foreground prose-h4:text-foreground"
