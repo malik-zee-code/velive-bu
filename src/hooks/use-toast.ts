@@ -1,3 +1,4 @@
+
 "use client"
 
 // Inspired by react-hot-toast library
@@ -23,6 +24,7 @@ const actionTypes = {
   UPDATE_TOAST: "UPDATE_TOAST",
   DISMISS_TOAST: "DISMISS_TOAST",
   REMOVE_TOAST: "REMOVE_TOAST",
+  CLEAR_TIMEOUT: "CLEAR_TIMEOUT"
 } as const
 
 let count = 0
@@ -51,6 +53,10 @@ type Action =
       type: ActionType["REMOVE_TOAST"]
       toastId?: ToasterToast["id"]
     }
+  | {
+      type: ActionType["CLEAR_TIMEOUT"];
+      toastId: ToasterToast["id"];
+    };
 
 interface State {
   toasts: ToasterToast[]
@@ -73,6 +79,15 @@ const addToRemoveQueue = (toastId: string) => {
 
   toastTimeouts.set(toastId, timeout)
 }
+
+const clearTimeoutFromQueue = (toastId: string) => {
+  const timeout = toastTimeouts.get(toastId);
+  if (timeout) {
+    clearTimeout(timeout);
+    dispatch({ type: "CLEAR_TIMEOUT", toastId });
+  }
+};
+
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -124,8 +139,17 @@ export const reducer = (state: State, action: Action): State => {
       }
       return {
         ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.toastId),
+        toasts: state.toasts.filter((t) => {
+          if (t.id === action.toastId) {
+            clearTimeoutFromQueue(t.id);
+            return false;
+          }
+          return true;
+        }),
       }
+    case "CLEAR_TIMEOUT":
+      toastTimeouts.delete(action.toastId);
+      return state;
   }
 }
 
@@ -159,7 +183,10 @@ function toast({ ...props }: Toast) {
       id,
       open: true,
       onOpenChange: (open) => {
-        if (!open) dismiss()
+        if (!open) {
+          clearTimeoutFromQueue(id);
+          dismiss();
+        }
       },
     },
   })
