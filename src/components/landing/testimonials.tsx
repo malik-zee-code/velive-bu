@@ -75,7 +75,7 @@ export const Testimonials = () => {
                         </Avatar>
                         <div className="flex justify-center mb-4">
                           {[...Array(testimonial.rating)].map((_, i) => (
-                            <Star key={i} className="w-5 h-5 text-primary" />
+                            <Star key={i} className="w-5 h-5 text-primary fill-transparent" />
                           ))}
                         </div>
                         <p className="text-muted-foreground mb-4 h-24 flex-grow">"{testimonial.text}"</p>
