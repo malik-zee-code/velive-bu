@@ -177,7 +177,7 @@ const PropertyDetailPageContent = () => {
 
                 <Card className="mt-8">
                     <CardHeader>
-                        <CardTitle>Description</CardTitle>
+                        <CardTitle className="font-headline">Description</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="prose max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: property.long_description || '<p>No description available.</p>' }} />
@@ -186,7 +186,7 @@ const PropertyDetailPageContent = () => {
 
                 <Card className="mt-8">
                     <CardHeader>
-                        <CardTitle>Amenities</CardTitle>
+                        <CardTitle className="font-headline">Amenities</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -204,7 +204,7 @@ const PropertyDetailPageContent = () => {
                     {floorPlanUrl && (
                         <Card>
                             <CardHeader>
-                                <CardTitle>Floor Plan</CardTitle>
+                                <CardTitle className="font-headline">Floor Plan</CardTitle>
                                 <CardDescription>View the property layout.</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -222,7 +222,7 @@ const PropertyDetailPageContent = () => {
                      {installmentPlanUrl && (
                         <Card>
                             <CardHeader>
-                                <CardTitle>Installment Plan</CardTitle>
+                                <CardTitle className="font-headline">Installment Plan</CardTitle>
                                 <CardDescription>View the payment schedule.</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -281,7 +281,7 @@ const PropertyDetailPageContent = () => {
 
                  <Card className="mt-8">
                     <CardHeader>
-                        <CardTitle>Interested? Arrange a Viewing</CardTitle>
+                        <CardTitle className="font-headline">Interested? Arrange a Viewing</CardTitle>
                         <CardDescription>Contact us to schedule a visit or for more details.</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -322,3 +322,5 @@ const PropertyDetailPage = () => (
 );
   
 export default PropertyDetailPage;
+
+    
