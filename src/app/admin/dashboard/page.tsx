@@ -57,9 +57,9 @@ const DashboardPage = () => {
     }
 
     const stats = [
-        { title: 'Total Properties', value: data?.properties_aggregate.aggregate.count, icon: Building2, loading },
-        { title: 'Total Locations', value: data?.locations_aggregate.aggregate.count, icon: MapPin, loading },
-        { title: 'Total Categories', value: data?.categories_aggregate.aggregate.count, icon: Tag, loading },
+        { title: 'Total Properties', value: data?.properties_aggregate.aggregate.count, icon: Building2 },
+        { title: 'Total Locations', value: data?.locations_aggregate.aggregate.count, icon: MapPin },
+        { title: 'Total Categories', value: data?.categories_aggregate.aggregate.count, icon: Tag },
     ];
 
     return (
@@ -70,7 +70,7 @@ const DashboardPage = () => {
 
             <div className="grid gap-4 md:grid-cols-3">
                 {stats.map(stat => (
-                    <StatCard key={stat.title} {...stat} />
+                    <StatCard key={stat.title} {...stat} loading={loading} />
                 ))}
             </div>
 
