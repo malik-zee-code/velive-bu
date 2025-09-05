@@ -1,3 +1,4 @@
+
 // src/app/admin/properties/page.tsx
 'use client';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -524,16 +525,18 @@ const PropertyForm = ({
                         </FormItem>
                     )}
                 />
-                 <FormField
-                    control={form.control} name="bedrooms"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Bedrooms</FormLabel>
-                        <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                {selectedCategory?.title !== 'Studio' && (
+                    <FormField
+                        control={form.control} name="bedrooms"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Bedrooms</FormLabel>
+                            <FormControl><Input type="number" placeholder="e.g., 3" {...field} value={field.value ?? ''} onChange={field.onChange} /></FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )}
                 <FormField
                     control={form.control} name="bathrooms"
                     render={({ field }) => (
@@ -812,6 +815,11 @@ const PropertiesPage = () => {
             location_id: parseInt(values.location_id, 10),
             category_id: values.category_id,
         };
+        
+        const selectedCategory = categoriesData?.categories.find(cat => cat.id === values.category_id);
+        if (selectedCategory?.title === 'Studio') {
+            submissionData.bedrooms = 0;
+        }
 
         try {
             if (floorPlanFile) {
@@ -880,7 +888,7 @@ const PropertiesPage = () => {
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
             toast({ title: "Error!", description: `Failed to save property. ${errorMessage}`, variant: "destructive" });
         }
-    }, [insertProperty, updateProperty, upload, toast, refetchProperties, propertyData, refetchProperty, unsetPrimaryImage, insertPropertyImage]);
+    }, [insertProperty, updateProperty, upload, toast, refetchProperties, propertyData, refetchProperty, unsetPrimaryImage, insertPropertyImage, categoriesData]);
 
     const handleDeleteImage = async (imageId: string) => {
         try {

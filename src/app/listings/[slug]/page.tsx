@@ -1,3 +1,4 @@
+
 // src/app/listings/[slug]/page.tsx
 'use client';
 import React, { useMemo, useState, Suspense } from 'react'
