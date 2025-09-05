@@ -240,71 +240,69 @@ const PropertyDetailPageContent = () => {
                 </div>
             </div>
 
-            <div className="lg:col-span-1">
-                <div className="sticky top-28 space-y-8">
-                    <Card>
-                        <CardHeader>
-                            <Badge variant="secondary" className="w-fit">{property.category.title}</Badge>
-                            <h1 className="text-3xl font-bold font-headline text-foreground mt-2">{property.title}</h1>
-                            <p className="flex items-center text-muted-foreground"><MapPin className="w-4 h-4 mr-2" />{property.location.name}</p>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-3xl font-bold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
-                            <Separator className="my-4" />
-                            <div className="space-y-4">
-                                {property.category.title !== 'Studio' && (
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-muted-foreground flex items-center gap-2"><BedDouble className="w-5 h-5"/> Bedrooms</span>
-                                        <span className="font-semibold text-foreground">{property.bedrooms}</span>
-                                    </div>
-                                )}
+            <div className="lg:col-span-1 space-y-8">
+                <Card>
+                    <CardHeader>
+                        <Badge variant="secondary" className="w-fit">{property.category.title}</Badge>
+                        <h1 className="text-3xl font-bold font-headline text-foreground mt-2">{property.title}</h1>
+                        <p className="flex items-center text-muted-foreground"><MapPin className="w-4 h-4 mr-2" />{property.location.name}</p>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-3xl font-bold text-primary mb-4">{property.currency} {new Intl.NumberFormat().format(property.price)}</p>
+                        <Separator className="my-4" />
+                        <div className="space-y-4">
+                            {property.category.title !== 'Studio' && (
                                 <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground flex items-center gap-2"><Bath className="w-5 h-5"/> Bathrooms</span>
-                                    <span className="font-semibold text-foreground">{property.bathrooms}</span>
+                                    <span className="text-muted-foreground flex items-center gap-2"><BedDouble className="w-5 h-5"/> Bedrooms</span>
+                                    <span className="font-semibold text-foreground">{property.bedrooms}</span>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground flex items-center gap-2"><Ruler className="w-5 h-5"/> Size</span>
-                                    <span className="font-semibold text-foreground">{property.area_in_feet} sqft</span>
-                                </div>
-                                 <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground flex items-center gap-2"><Building className="w-5 h-5"/> Type</span>
-                                    <span className="font-semibold text-foreground">{property.category.title}</span>
-                                </div>
-                                 <div className="flex items-center justify-between">
-                                    <span className="text-muted-foreground flex items-center gap-2"><Sofa className="w-5 h-5"/> Furnished</span>
-                                    <span className="font-semibold text-foreground">{property.is_furnished ? 'Yes' : 'No'}</span>
-                                </div>
+                            )}
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground flex items-center gap-2"><Bath className="w-5 h-5"/> Bathrooms</span>
+                                <span className="font-semibold text-foreground">{property.bathrooms}</span>
                             </div>
-                             <Separator className="my-4" />
-                             <p className="text-sm text-muted-foreground italic">"{property.tagline}"</p>
-                        </CardContent>
-                    </Card>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground flex items-center gap-2"><Ruler className="w-5 h-5"/> Size</span>
+                                <span className="font-semibold text-foreground">{property.area_in_feet} sqft</span>
+                            </div>
+                             <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground flex items-center gap-2"><Building className="w-5 h-5"/> Type</span>
+                                <span className="font-semibold text-foreground">{property.category.title}</span>
+                            </div>
+                             <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground flex items-center gap-2"><Sofa className="w-5 h-5"/> Furnished</span>
+                                <span className="font-semibold text-foreground">{property.is_furnished ? 'Yes' : 'No'}</span>
+                            </div>
+                        </div>
+                         <Separator className="my-4" />
+                         <p className="text-sm text-muted-foreground italic">"{property.tagline}"</p>
+                    </CardContent>
+                </Card>
 
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline">Interested? Arrange a Viewing</CardTitle>
-                            <CardDescription>Contact us to schedule a visit or for more details.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                           {contactPhone ? (
-                               <div className="flex items-center space-x-2">
-                                    <Button asChild variant="outline" className="flex-1">
-                                        <a href={`tel:${contactPhone}`}>
-                                            <Phone className="mr-2 h-4 w-4" /> Call
-                                        </a>
-                                    </Button>
-                                    <Button asChild className="flex-1" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
-                                        <a href={`https://wa.me/${contactPhone.replace(/\s+/g, '')}`} target="_blank" rel="noopener noreferrer">
-                                            <MessageSquare className="mr-2 h-4 w-4" /> Whatsapp
-                                        </a>
-                                    </Button>
-                                </div>
-                           ) : (
-                               <p className="text-muted-foreground">Contact information not available.</p>
-                           )}
-                        </CardContent>
-                    </Card>
-                </div>
+                 <Card className="sticky top-28">
+                    <CardHeader>
+                        <CardTitle className="font-headline">Interested? Arrange a Viewing</CardTitle>
+                        <CardDescription>Contact us to schedule a visit or for more details.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       {contactPhone ? (
+                           <div className="flex items-center space-x-2">
+                                <Button asChild variant="outline" className="flex-1">
+                                    <a href={`tel:${contactPhone}`}>
+                                        <Phone className="mr-2 h-4 w-4" /> Call
+                                    </a>
+                                </Button>
+                                <Button asChild className="flex-1" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }}>
+                                    <a href={`https://wa.me/${contactPhone.replace(/\s+/g, '')}`} target="_blank" rel="noopener noreferrer">
+                                        <MessageSquare className="mr-2 h-4 w-4" /> Whatsapp
+                                    </a>
+                                </Button>
+                            </div>
+                       ) : (
+                           <p className="text-muted-foreground">Contact information not available.</p>
+                       )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     </div>
@@ -324,5 +322,3 @@ const PropertyDetailPage = () => (
 );
   
 export default PropertyDetailPage;
-
-    
