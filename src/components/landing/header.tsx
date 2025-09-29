@@ -15,7 +15,7 @@ import { gql, useQuery } from '@apollo/client';
 import { getSetting } from '@/lib/settings';
 import { Skeleton } from '../ui/skeleton';
 
-const GET_HEADER_DATA = gql` 
+const GET_HEADER_DATA = gql`  
   query GetHeaderData {
     settings(where: {title: {_eq: "phone_1"}}) {
       title
