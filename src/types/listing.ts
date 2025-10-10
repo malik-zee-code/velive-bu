@@ -4,8 +4,8 @@ export type Listing = {
   slug: string;
   title: string;
   description: string;
-  category: 'Restaurants' | 'Hotels' | 'Shopping' | 'Business' | 'Events' | 'Fitness' | 'Apartment';
-  location: string;
+  category: any;
+  location: any;
   image: string;
   rating: number;
   reviews: number;
@@ -16,7 +16,7 @@ export type Listing = {
   price: number;
   status: 'Open' | 'Closed';
   date: string;
-  listing_type: 'sale' | 'rent';
+  listingType: 'sale' | 'rent';
   bedrooms: number;
   bathrooms: number;
   area: number;

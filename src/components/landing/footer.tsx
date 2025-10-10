@@ -6,23 +6,10 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Twitter, Facebook, Linkedin, Youtube, Phone, MapPin, Mail, Send, ChevronRight, ChevronUp } from 'lucide-react';
-import { gql, useQuery } from '@apollo/client';
 import { Skeleton } from '../ui/skeleton';
 import { getSetting } from '@/lib/settings';
-
-const GET_FOOTER_DATA = gql`
-  query GetFooterData {
-    properties(where: {is_featured: {_eq: true}}, order_by: {created_at: desc}, limit: 6) {
-      id
-      title
-      slug
-    }
-    settings(where: {title: {_in: ["address_1", "address_2", "email", "phone_1"]}}) {
-      title
-      value
-    }
-  }
-`;
+import { useState, useEffect } from 'react';
+import { propertyService, settingsService } from '@/lib/services';
 
 const quickLinks = [
     { href: "/", text: "Home" },
@@ -43,15 +30,42 @@ const socialLinks = [
 ]
 
 export const Footer = () => {
-    const { data, loading, error } = useQuery(GET_FOOTER_DATA);
+    const [properties, setProperties] = useState<any[]>([]);
+    const [phone, setPhone] = useState<string | null>(null);
+    const [address1, setAddress1] = useState<string | null>(null);
+    const [address2, setAddress2] = useState<string | null>(null);
+    const [email, setEmail] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
 
-    const phone = getSetting(data?.settings || [], 'phone_1');
-    const address1 = getSetting(data?.settings || [], 'address_1');
-    const address2 = getSetting(data?.settings || [], 'address_2');
-    const email = getSetting(data?.settings || [], 'email');
+    useEffect(() => {
+        const fetchFooterData = async () => {
+            try {
+                setLoading(true);
+                const [propertiesRes, settingsRes] = await Promise.all([
+                    propertyService.getFeaturedProperties(),
+                    settingsService.getAllSettings(),
+                ]);
+
+                setProperties(propertiesRes.data.slice(0, 6));
+                setPhone(getSetting(settingsRes.data, 'phone_1'));
+                setAddress1(getSetting(settingsRes.data, 'address_1'));
+                setAddress2(getSetting(settingsRes.data, 'address_2'));
+                setEmail(getSetting(settingsRes.data, 'email'));
+                setError(null);
+            } catch (err) {
+                setError(err instanceof Error ? err : new Error('Failed to fetch footer data'));
+                console.error('Failed to fetch footer data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFooterData();
+    }, []);
 
     const hadleyHeightsMapQuery = "Hadley Heights 2 by LEOS";
-    
+
     const midIndex = Math.ceil(quickLinks.length / 2);
     const firstColumnLinks = quickLinks.slice(0, midIndex);
     const secondColumnLinks = quickLinks.slice(midIndex);
@@ -64,17 +78,17 @@ export const Footer = () => {
                     {/* Column 1: Logo and Contact */}
                     <div className="space-y-6">
                         <Image src="/assets/images/logo/white-logo.svg" alt="VE Live Logo" width={200} height={50} data-ai-hint="logo" />
-                         <ul className="space-y-4 text-sm">
+                        <ul className="space-y-4 text-sm">
                             {loading ? (
                                 <>
-                                    <li className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-40" /></li>
-                                    <li className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-48" /></li>
-                                    <li className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-32" /></li>
+                                    <li key={Math.random()} className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-40" /></li>
+                                    <li key={Math.random()} className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-48" /></li>
+                                    <li key={Math.random()} className="flex items-center gap-3"><Skeleton className="w-8 h-8 rounded-md" /><Skeleton className="h-4 w-32" /></li>
                                 </>
                             ) : (
                                 <>
                                     {phone && (
-                                        <li className="flex items-center gap-3">
+                                        <li key={phone} className="flex items-center gap-3">
                                             <div className="bg-primary/20 text-primary p-2 rounded-md">
                                                 <Phone className="w-5 h-5" />
                                             </div>
@@ -82,7 +96,7 @@ export const Footer = () => {
                                         </li>
                                     )}
                                     {address1 && (
-                                        <li className="flex items-start gap-3">
+                                        <li key={address1} className="flex items-start gap-3">
                                             <div className="bg-primary/20 text-primary p-2 rounded-md mt-1">
                                                 <MapPin className="w-5 h-5" />
                                             </div>
@@ -91,8 +105,8 @@ export const Footer = () => {
                                             </a>
                                         </li>
                                     )}
-                                     {address2 && (
-                                        <li className="flex items-start gap-3">
+                                    {address2 && (
+                                        <li key={address2} className="flex items-start gap-3">
                                             <div className="bg-primary/20 text-primary p-2 rounded-md mt-1">
                                                 <MapPin className="w-5 h-5" />
                                             </div>
@@ -102,7 +116,7 @@ export const Footer = () => {
                                         </li>
                                     )}
                                     {email && (
-                                         <li className="flex items-center gap-3">
+                                        <li key={email} className="flex items-center gap-3">
                                             <div className="bg-primary/20 text-primary p-2 rounded-md">
                                                 <Mail className="w-5 h-5" />
                                             </div>
@@ -124,14 +138,14 @@ export const Footer = () => {
                         <ul className="space-y-3">
                             {loading && (
                                 <>
-                                {[...Array(5)].map((_, i) => (
-                                    <li key={i}><Skeleton className="h-4 w-3/4" /></li>
-                                ))}
+                                    {[...Array(5)].map((_, i) => (
+                                        <li key={i}><Skeleton className="h-4 w-3/4" /></li>
+                                    ))}
                                 </>
                             )}
                             {error && <li><p className="text-destructive">Could not load properties.</p></li>}
-                            {data?.properties.map((prop: { id: string, slug: string, title: string }) => (
-                                <li key={prop.id}>
+                            {properties.map((prop: { _id: string, slug: string, title: string }) => (
+                                <li key={prop._id}>
                                     <Link href={`/listings/${prop.slug}`} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
                                         <ChevronRight className="w-4 h-4 text-primary" />
                                         <span>{prop.title}</span>
@@ -139,7 +153,7 @@ export const Footer = () => {
                                 </li>
                             ))}
                         </ul>
-                         <div className="flex space-x-2 mt-6">
+                        <div className="flex space-x-2 mt-6">
                             {socialLinks.map(link => (
                                 <Link key={link.label} href={link.href} aria-label={link.label} className="w-9 h-9 flex items-center justify-center rounded-md bg-white/10 hover:bg-primary hover:text-black transition-colors">
                                     {link.icon}
@@ -168,7 +182,7 @@ export const Footer = () => {
                             </ul>
                             <ul className="space-y-3">
                                 {secondColumnLinks.map(link => (
-                                    <li key={link.text}>
+                                    <li key={link.text} >
                                         <Link href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors">
                                             <ChevronRight className="w-4 h-4 text-primary" />
                                             <span>{link.text}</span>
@@ -189,4 +203,3 @@ export const Footer = () => {
     );
 };
 
-    

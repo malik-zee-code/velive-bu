@@ -1,18 +1,13 @@
 "use client";
 
 import React from 'react';
-import { NhostProvider } from '@nhost/nextjs';
-import { nhost } from '@/lib/nhost';
-import client from '@/lib/apolloClient';
-import { ApolloProvider,  } from '@apollo/client/react/context';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const LayoutClient = ({ children }: { children: React.ReactNode }) => {
   return (
-    <NhostProvider nhost={nhost}>
-      <ApolloProvider client={client}>
-        {children}
-      </ApolloProvider>
-    </NhostProvider>
+    <AuthProvider>
+      {children}
+    </AuthProvider>
   );
 };
 

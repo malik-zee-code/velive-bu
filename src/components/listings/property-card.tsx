@@ -6,17 +6,16 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BedDouble, Bath, Ruler, Phone, MessageSquare, ArrowRight, MapPin, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
-import { nhost } from '@/lib/nhost';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 
 export const PropertyCard = ({ property, contactPhone }: { property: any, contactPhone: string | null }) => {
     const imageUrls = useMemo(() =>
-        (property.properties_images && property.properties_images.length > 0)
-            ? property.properties_images.map((img: any) => nhost.storage.getPublicUrl({ fileId: img.file_id }))
+        (property.images && property.images.length > 0)
+            ? property.images.map((img: any) => img.imageUrl)
             : ['https://placehold.co/800x600.png']
-    , [property.properties_images]);
-    
+        , [property.images]);
+
     const [activeIndex, setActiveIndex] = useState(0);
 
     const handleNext = (e: React.MouseEvent) => {
@@ -36,13 +35,16 @@ export const PropertyCard = ({ property, contactPhone }: { property: any, contac
         e.stopPropagation();
         setActiveIndex(index);
     }
-    
+
+    console.log(property);
+
+
     return (
         <Card className="overflow-hidden w-full transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">
             <div className="flex flex-col md:flex-row">
                 {/* Image Carousel Section */}
                 <div className="w-full md:w-1/2 p-2">
-                     <Link href={`/listings/${property.slug}`}>
+                    <Link href={`/listings/${property.slug}`}>
                         <div className="relative group">
                             <Image
                                 src={imageUrls[activeIndex]}
@@ -62,14 +64,14 @@ export const PropertyCard = ({ property, contactPhone }: { property: any, contac
                                     </Button>
                                 </>
                             )}
-                             <Badge variant="default" className="absolute top-4 left-4 capitalize">
-                                For {property.listing_type}
+                            <Badge variant="default" className="absolute top-4 left-4 capitalize">
+                                For {property.listingType}
                             </Badge>
                         </div>
                     </Link>
                     {imageUrls.length > 1 && (
                         <div className="grid grid-cols-5 gap-2 mt-2">
-                           {imageUrls.slice(0, 5).map((url: string, index: number) => (
+                            {imageUrls.slice(0, 5).map((url: string, index: number) => (
                                 <button key={index} onClick={(e) => handleThumbnailClick(e, index)}>
                                     <Image
                                         src={url}
@@ -91,11 +93,11 @@ export const PropertyCard = ({ property, contactPhone }: { property: any, contac
                 <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
                     <div>
                         <div className="flex justify-between items-center mb-2">
-                             <p className="text-3xl font-bold text-primary">
+                            <p className="text-3xl font-bold text-primary">
                                 {property.currency} {new Intl.NumberFormat().format(property.price)}
                             </p>
                             <Badge variant="secondary" className="flex items-center gap-1">
-                                <Tag className="w-3 h-3"/>
+                                <Tag className="w-3 h-3" />
                                 {property.category?.title}
                             </Badge>
                         </div>
@@ -108,7 +110,7 @@ export const PropertyCard = ({ property, contactPhone }: { property: any, contac
                             <Link href={`/listings/${property.slug}`}>{property.title}</Link>
                         </h3>
                         {property.tagline && <p className="text-sm text-muted-foreground mb-4 italic">"{property.tagline}"</p>}
-                        
+
                         <div className="flex items-center space-x-6 text-muted-foreground mb-8">
                             {property.category?.title !== 'Studio' && (
                                 <div className="flex items-center space-x-2">
@@ -122,7 +124,7 @@ export const PropertyCard = ({ property, contactPhone }: { property: any, contac
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Ruler className="w-5 h-5 text-primary" />
-                                <span>{property.area_in_feet} sqft</span>
+                                <span>{property.areaInFeet} sqft</span>
                             </div>
                         </div>
                     </div>
@@ -133,7 +135,7 @@ export const PropertyCard = ({ property, contactPhone }: { property: any, contac
                             </a>
                         </Button>
                         <Button asChild variant="outline" className="flex-1">
-                             <a href={`https://wa.me/${contactPhone?.replace(/\s+/g, '')}`} target="_blank" rel="noopener noreferrer">
+                            <a href={`https://wa.me/${contactPhone?.replace(/\s+/g, '')}`} target="_blank" rel="noopener noreferrer">
                                 <MessageSquare className="mr-2 h-4 w-4" /> Whatsapp
                             </a>
                         </Button>

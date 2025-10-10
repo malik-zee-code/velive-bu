@@ -4,31 +4,31 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, User, Calendar } from 'lucide-react';
-import { nhost } from '@/lib/nhost';
 
 interface BlogCardProps {
   post: {
-    id: string;
+    id?: string;
+    _id?: string;
     slug: string;
-    blog_image: string;
+    blog_image?: string;
+    featuredImage?: string;
     title: string;
-    user: {
-        displayName: string;
+    user?: {
+      displayName: string;
     }
-    created_at: string;
+    created_at?: string;
+    createdAt?: string;
   };
 }
 
 export const BlogCard = ({ post }: BlogCardProps) => {
-    const imageUrl = post.blog_image 
-        ? nhost.storage.getPublicUrl({ fileId: post.blog_image }) 
-        : 'https://placehold.co/400x250.png';
+  const imageUrl = post.featuredImage || post.blog_image || 'https://placehold.co/400x250.png';
 
-    const postDate = new Date(post.created_at).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+  const postDate = new Date(post.createdAt || post.created_at || Date.now()).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <Card className="overflow-hidden flex flex-col h-full group transition-all duration-300 hover:shadow-xl bg-card text-card-foreground border-border">

@@ -4,33 +4,54 @@ import { SidebarProvider, Sidebar, SidebarMenu, SidebarMenuItem, SidebarMenuButt
 import { Header } from '@/components/landing/header';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { MapPin, Tag, Building2, PanelLeft, Globe, LayoutDashboard, LogOut, Cog, Rss } from 'lucide-react';
-import { useAuthenticationStatus, useSignOut } from '@nhost/nextjs';
+import { MapPin, Tag, Building2, PanelLeft, Globe, LayoutDashboard, LogOut, Cog, Rss, Users } from 'lucide-react';
 import { Footer } from '@/components/landing/footer';
 import { Button } from '@/components/ui/button';
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { userService } from '@/lib/services';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     const pathname = usePathname();
     const router = useRouter();
-    const { isAuthenticated, isLoading } = useAuthenticationStatus();
-    const { signOut } = useSignOut();
+    const { user, isAuthenticated, isLoading, logout } = useAuth();
+    const [userRole, setUserRole] = useState<string | null>(null);
 
-    const navItems = [
-        { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/admin/properties', label: 'Properties', icon: Building2 },
-        { href: '/admin/categories', label: 'Categories', icon: Tag },
-        { href: '/admin/locations', label: 'Locations', icon: MapPin },
-        { href: '/admin/countries', label: 'Countries', icon: Globe },
-        { href: '/admin/blogs', label: 'Blogs', icon: Rss },
-        { href: '/admin/settings', label: 'Settings', icon: Cog },
+    // Get user role from context
+    useEffect(() => {
+        if (user?.roles && user.roles.length > 0) {
+            setUserRole(user.roles[0]);
+        }
+    }, [user]);
+
+    // All navigation items
+    const allNavItems = [
+        { href: '/portal/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['user', 'manager'] },
+        { href: '/portal/properties', label: 'Properties', icon: Building2, roles: ['user', 'manager'] },
+        { href: '/portal/customers', label: 'Customers', icon: Users, roles: ['manager'] },
+        { href: '/portal/categories', label: 'Categories', icon: Tag, roles: ['manager'] },
+        { href: '/portal/locations', label: 'Locations', icon: MapPin, roles: ['manager'] },
+        { href: '/portal/countries', label: 'Countries', icon: Globe, roles: ['manager'] },
+        { href: '/portal/blogs', label: 'Blogs', icon: Rss, roles: ['manager'] },
+        { href: '/portal/settings', label: 'Settings', icon: Cog, roles: ['manager'] },
     ];
 
+    // Filter nav items based on user role
+    const navItems = useMemo(() => {
+        if (!userRole) return [];
+        return allNavItems.filter(item => item.roles.includes(userRole));
+    }, [userRole]);
+
     const handleSignOut = async () => {
-        await signOut();
+        try {
+            await userService.logout();
+        } catch (err) {
+            console.error('Logout error:', err);
+        }
+        logout();
         router.push('/');
     };
-    
+
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
             router.push('/auth/signin');
@@ -39,13 +60,13 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
     if (isLoading || !isAuthenticated) {
         return (
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <div className="flex-grow container mx-auto py-20 text-center max-w-7xl">
-              <p>Loading...</p>
+            <div className="flex flex-col min-h-screen">
+                <Header />
+                <div className="flex-grow container mx-auto py-20 text-center max-w-7xl">
+                    <p>Loading...</p>
+                </div>
+                <Footer />
             </div>
-            <Footer />
-          </div>
         );
     }
 
@@ -73,7 +94,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                                     </SidebarMenuItem>
                                 ))}
                             </div>
-                             <div>
+                            <div>
                                 <SidebarMenuItem className="px-2 py-1 mt-auto">
                                     <SidebarMenuButton
                                         onClick={handleSignOut}

@@ -1,10 +1,9 @@
 
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useSignInEmailPassword } from '@nhost/nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/landing/header';
@@ -15,6 +14,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Metadata } from 'next';
+import { userService } from '@/lib/services';
+import { useAuth } from '@/contexts/AuthContext';
 
 // This is a client component, so we can't export metadata directly.
 // We can set the title using useEffect.
@@ -30,8 +31,9 @@ const formSchema = z.object({
 const SignInPage = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const { signInEmailPassword, isLoading } = useSignInEmailPassword();
-  
+  const { refreshUser } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+
   React.useEffect(() => {
     document.title = 'Sign In | VE LIVE';
   }, []);
@@ -46,30 +48,32 @@ const SignInPage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { isSuccess, error } = await signInEmailPassword(values.email, values.password);
-      
-      if (isSuccess) {
-        toast({
-          title: "Success!",
-          description: "You have been signed in successfully.",
-        });
-        router.push('/admin/dashboard');
-      } else {
-         const errorMessage = error?.message || "Incorrect email or password. Please try again.";
-         toast({
-            title: "Sign In Failed",
-            description: errorMessage,
-            variant: "destructive",
-         });
-      }
-    } catch (e) {
-      console.error(e);
-      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+      setIsLoading(true);
+
+      const response = await userService.login({
+        email: values.email,
+        password: values.password,
+      });
+
+      // Refresh user context
+      refreshUser();
+
       toast({
-        title: "Error!",
-        description: `An unexpected error occurred. ${errorMessage}`,
+        title: "Success!",
+        description: "You have been signed in successfully.",
+      });
+
+      router.push('/portal/dashboard');
+    } catch (e: any) {
+      console.error(e);
+      const errorMessage = e?.message || 'Incorrect email or password. Please try again.';
+      toast({
+        title: "Sign In Failed",
+        description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

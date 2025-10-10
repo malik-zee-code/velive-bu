@@ -1,6 +1,7 @@
 
 interface Setting {
-    id: string;
+    _id?: string;
+    id?: string;  // Support both formats for compatibility
     title: string;
     value: string;
 }
