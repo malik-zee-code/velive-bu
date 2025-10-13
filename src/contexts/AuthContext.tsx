@@ -1,8 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { User } from '@/lib/services/userService';
-import { getUser, isAuthenticated as checkAuth, logout as authLogout } from '@/lib/auth';
+import {
+    getUser,
+    isAuthenticated as checkAuth,
+    logout as authLogout,
+    shouldRefreshToken,
+    refreshAccessToken
+} from '@/lib/auth';
 
 interface AuthContextType {
     user: User | null;
@@ -18,6 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const refreshUser = () => {
         const storedUser = getUser();
@@ -27,12 +34,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(authenticated);
     };
 
+    // Background token refresh
+    const checkAndRefreshToken = async () => {
+        if (shouldRefreshToken()) {
+            console.log('Token is about to expire, refreshing...');
+            const refreshed = await refreshAccessToken();
+            if (refreshed) {
+                console.log('Token refreshed successfully');
+                refreshUser();
+            } else {
+                console.log('Token refresh failed, logging out');
+                logout();
+            }
+        }
+    };
+
     useEffect(() => {
         refreshUser();
         setIsLoading(false);
+
+        // Check token every minute
+        refreshIntervalRef.current = setInterval(() => {
+            checkAndRefreshToken();
+        }, 60000); // Check every 60 seconds
+
+        // Cleanup interval on unmount
+        return () => {
+            if (refreshIntervalRef.current) {
+                clearInterval(refreshIntervalRef.current);
+            }
+        };
     }, []);
 
     const logout = () => {
+        if (refreshIntervalRef.current) {
+            clearInterval(refreshIntervalRef.current);
+        }
         authLogout();
         setUser(null);
         setIsAuthenticated(false);

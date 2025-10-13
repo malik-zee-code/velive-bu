@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import Image from 'next/image';
-import { Trash2, Pencil, PlusCircle, FileText } from 'lucide-react';
+import { Trash2, Pencil, PlusCircle, FileText, Star, X, XIcon } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
     AlertDialog,
@@ -30,7 +30,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { propertyService, locationService, categoryService, userService, Property } from '@/lib/services';
+import { propertyService, locationService, categoryService, userService, Property, propertyImageService, PropertyImage } from '@/lib/services';
+import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 
 const formSchema = z.object({
     title: z.string().min(1, { message: "Title is required." }),
@@ -81,6 +82,7 @@ const PropertiesPage = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [isMutating, setIsMutating] = useState(false);
+    const [pendingImages, setPendingImages] = useState<File[]>([]);
     const { toast } = useToast();
 
     const fetchData = async () => {
@@ -164,13 +166,31 @@ const PropertiesPage = () => {
                 await propertyService.updateProperty(editingProperty.id || editingProperty._id, propertyData);
                 toast({ title: "Success!", description: "Property updated successfully." });
             } else {
-                await propertyService.createProperty(propertyData);
-                toast({ title: "Success!", description: "Property added successfully." });
+                const newProperty = await propertyService.createProperty(propertyData);
+
+                // Upload pending images for new property
+                if (pendingImages.length > 0 && newProperty.data) {
+                    try {
+                        const formData = new FormData();
+                        pendingImages.forEach(file => {
+                            formData.append('images', file);
+                        });
+
+                        await propertyImageService.uploadMultipleImages(newProperty.data.id || newProperty.data._id, formData);
+                        toast({ title: "Success!", description: "Property and images added successfully." });
+                    } catch (imageError) {
+                        console.error('Failed to upload images:', imageError);
+                        toast({ title: "Warning!", description: "Property created but some images failed to upload.", variant: "destructive" });
+                    }
+                } else {
+                    toast({ title: "Success!", description: "Property added successfully." });
+                }
             }
 
             form.reset();
             setIsModalOpen(false);
             setEditingProperty(null);
+            setPendingImages([]);
             fetchData();
         } catch (err) {
             console.error(err);
@@ -180,65 +200,78 @@ const PropertiesPage = () => {
         }
     };
 
-    const handleEdit = (property: Property) => {
-        setEditingProperty(property);
+    const handleEdit = async (property: Property) => {
+        try {
+            // Fetch the property with images
+            const propertyRes = await propertyService.getPropertyById(property.id || property._id);
+            const propertyWithImages = propertyRes.data;
+            setEditingProperty(propertyWithImages);
 
-        console.log('=== EDITING PROPERTY ===');
-        console.log('Property:', property);
-        console.log('Property location:', property.location);
-        console.log('Property category:', property.category);
-        console.log('Available locations:', locations);
-        console.log('Available categories:', categories);
+            console.log('=== EDITING PROPERTY ===');
+            console.log('Property:', propertyWithImages);
+            console.log('Property images:', propertyWithImages.images);
+            console.log('Property location:', propertyWithImages.location);
+            console.log('Property category:', propertyWithImages.category);
+            console.log('Available locations:', locations);
+            console.log('Available categories:', categories);
 
-        // Extract IDs more carefully
-        let locationId = '';
-        let categoryId = '';
+            // Extract IDs more carefully
+            let locationId = '';
+            let categoryId = '';
 
-        if (property.location) {
-            if (typeof property.location === 'object') {
-                locationId = property.location._id || property.location.id || '';
-            } else {
-                locationId = property.location;
+            if (propertyWithImages.location) {
+                if (typeof propertyWithImages.location === 'object') {
+                    locationId = propertyWithImages.location._id || propertyWithImages.location.id || '';
+                } else {
+                    locationId = propertyWithImages.location;
+                }
             }
-        }
 
-        if (property.category) {
-            if (typeof property.category === 'object') {
-                categoryId = property.category._id || property.category.id || '';
-            } else {
-                categoryId = property.category;
+            if (propertyWithImages.category) {
+                if (typeof propertyWithImages.category === 'object') {
+                    categoryId = propertyWithImages.category._id || propertyWithImages.category.id || '';
+                } else {
+                    categoryId = propertyWithImages.category;
+                }
             }
+
+            console.log('Extracted locationId:', locationId);
+            console.log('Extracted categoryId:', categoryId);
+
+            // Use setTimeout to ensure the form is reset after the modal opens
+            setTimeout(() => {
+                const formData = {
+                    title: propertyWithImages.title || '',
+                    slug: propertyWithImages.slug || '',
+                    price: propertyWithImages.price || 0,
+                    areaInFeet: propertyWithImages.areaInFeet || 0,
+                    bedrooms: propertyWithImages.bedrooms || 0,
+                    bathrooms: propertyWithImages.bathrooms || 0,
+                    currency: propertyWithImages.currency || 'AED',
+                    tagline: propertyWithImages.tagline || '',
+                    longDescription: propertyWithImages.longDescription || '',
+                    address: propertyWithImages.address || '',
+                    location: locationId,
+                    category: categoryId,
+                    isFeatured: propertyWithImages.isFeatured || false,
+                    isAvailable: propertyWithImages.isAvailable !== undefined ? propertyWithImages.isAvailable : true,
+                    isFurnished: propertyWithImages.isFurnished || false,
+                    listingType: (propertyWithImages.listingType as any) || 'rent',
+                };
+
+                console.log('Form data being set:', formData);
+                form.reset(formData);
+            }, 100);
+
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error('Error fetching property for editing:', error);
+            toast({
+                title: "Error",
+                description: "Failed to load property details for editing",
+                variant: "destructive"
+            });
         }
-
-        console.log('Extracted locationId:', locationId);
-        console.log('Extracted categoryId:', categoryId);
-
-        // Use setTimeout to ensure the form is reset after the modal opens
-        setTimeout(() => {
-            const formData = {
-                title: property.title || '',
-                slug: property.slug || '',
-                price: property.price || 0,
-                areaInFeet: property.areaInFeet || 0,
-                bedrooms: property.bedrooms || 0,
-                bathrooms: property.bathrooms || 0,
-                currency: property.currency || 'AED',
-                tagline: property.tagline || '',
-                longDescription: property.longDescription || '',
-                address: property.address || '',
-                location: locationId,
-                category: categoryId,
-                isFeatured: property.isFeatured || false,
-                isAvailable: property.isAvailable !== undefined ? property.isAvailable : true,
-                isFurnished: property.isFurnished || false,
-                listingType: (property.listingType as any) || 'rent',
-            };
-
-            console.log('Form data being set:', formData);
-            form.reset(formData);
-        }, 100);
-
-        setIsModalOpen(true);
     };
 
     const handleDelete = async (id: string) => {
@@ -253,14 +286,35 @@ const PropertiesPage = () => {
 
     const handleNewProperty = () => {
         setEditingProperty(null);
-        form.reset();
+        setPendingImages([]);
+        form.reset({
+            title: "",
+            slug: "",
+            price: 0,
+            areaInFeet: 0,
+            bedrooms: 0,
+            bathrooms: 0,
+            currency: "AED",
+            tagline: "",
+            longDescription: "",
+            address: "",
+            location: "",
+            category: "",
+            isFeatured: false,
+            isAvailable: true,
+            isFurnished: false,
+            listingType: "rent",
+        });
         setIsModalOpen(true);
     };
 
     const getImageUrl = (property: Property) => {
         if (property.images && property.images.length > 0) {
             const primaryImage = property.images.find(img => img.isPrimary);
-            return (primaryImage || property.images[0]).imageUrl;
+
+            console.log('Primary image:', primaryImage);
+
+            return (primaryImage?.fileUrl);
         }
         return 'https://placehold.co/100x100.png';
     };
@@ -280,201 +334,463 @@ const PropertiesPage = () => {
                                 Add Property
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
                                 <DialogTitle>{editingProperty ? 'Edit Property' : 'Add New Property'}</DialogTitle>
+                                <p className="text-sm text-gray-600">{editingProperty ? 'Update the details of your property.' : 'Add a new property to your listings.'}</p>
                             </DialogHeader>
                             <Form {...form}>
                                 <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField
-                                            control={form.control}
-                                            name="title"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Title</FormLabel>
-                                                    <FormControl><Input placeholder="Luxury Villa" {...field} /></FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="price"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Price</FormLabel>
-                                                    <FormControl><Input type="number" placeholder="500000" {...field} /></FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <FormField
-                                            control={form.control}
-                                            name="bedrooms"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Bedrooms</FormLabel>
-                                                    <FormControl><Input type="number" placeholder="3" {...field} /></FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="bathrooms"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Bathrooms</FormLabel>
-                                                    <FormControl><Input type="number" placeholder="2" {...field} /></FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="areaInFeet"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Area (sqft)</FormLabel>
-                                                    <FormControl><Input type="number" placeholder="2000" {...field} /></FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField
-                                            control={form.control}
-                                            name="location"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Location</FormLabel>
-                                                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value} key={`location-${field.value}`}>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        {/* Left Column - Property Details */}
+                                        <div className="space-y-6">
+                                            {/* Listing Type */}
+                                            <FormField
+                                                control={form.control}
+                                                name="listingType"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Listing Type</FormLabel>
                                                         <FormControl>
-                                                            <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
+                                                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                                <div className="flex items-center space-x-2">
+                                                                    <RadioGroupItem value="rent" id="rent" />
+                                                                    <Label htmlFor="rent">For Rent</Label>
+                                                                </div>
+                                                                <div className="flex items-center space-x-2">
+                                                                    <RadioGroupItem value="sale" id="sale" />
+                                                                    <Label htmlFor="sale">For Sale</Label>
+                                                                </div>
+                                                            </RadioGroup>
                                                         </FormControl>
-                                                        <SelectContent>
-                                                            {locations.map((loc) => (
-                                                                <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="category"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Category</FormLabel>
-                                                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value} key={`category-${field.value}`}>
-                                                        <FormControl>
-                                                            <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {categories.map((cat) => (
-                                                                <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <FormField
-                                        control={form.control}
-                                        name="tagline"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Tagline</FormLabel>
-                                                <FormControl><Input placeholder="Short description" {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="longDescription"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Description</FormLabel>
-                                                <FormControl><Textarea rows={4} placeholder="Property description" {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="listingType"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Listing Type</FormLabel>
-                                                <FormControl>
-                                                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="rent" id="rent" />
-                                                            <Label htmlFor="rent">For Rent</Label>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Title */}
+                                            <FormField
+                                                control={form.control}
+                                                name="title"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Title</FormLabel>
+                                                        <FormControl><Input placeholder="Property title" {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Price */}
+                                            <FormField
+                                                control={form.control}
+                                                name="price"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Price</FormLabel>
+                                                        <FormControl><Input type="number" placeholder="0" {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Location */}
+                                            <FormField
+                                                control={form.control}
+                                                name="location"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Location</FormLabel>
+                                                        <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value} key={`location-${field.value}`}>
+                                                            <FormControl>
+                                                                <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {locations.map((loc) => (
+                                                                    <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Category */}
+                                            <FormField
+                                                control={form.control}
+                                                name="category"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Category</FormLabel>
+                                                        <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value} key={`category-${field.value}`}>
+                                                            <FormControl>
+                                                                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {categories.map((cat) => (
+                                                                    <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Area */}
+                                            <FormField
+                                                control={form.control}
+                                                name="areaInFeet"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Area (sqft)</FormLabel>
+                                                        <FormControl><Input type="number" placeholder="0" {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Bedrooms */}
+                                            <FormField
+                                                control={form.control}
+                                                name="bedrooms"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Bedrooms</FormLabel>
+                                                        <FormControl><Input type="number" placeholder="0" {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Bathrooms */}
+                                            <FormField
+                                                control={form.control}
+                                                name="bathrooms"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Bathrooms</FormLabel>
+                                                        <FormControl><Input type="number" placeholder="0" {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Tagline */}
+                                            <FormField
+                                                control={form.control}
+                                                name="tagline"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Tagline</FormLabel>
+                                                        <FormControl><Input placeholder="Short description" {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Description */}
+                                            <FormField
+                                                control={form.control}
+                                                name="longDescription"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Description</FormLabel>
+                                                        <FormControl><Textarea rows={4} placeholder="Property description" {...field} /></FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            {/* Feature Toggles */}
+                                            <div className="space-y-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="isFeatured"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                                                            <div>
+                                                                <FormLabel>Featured</FormLabel>
+                                                            </div>
+                                                            <FormControl>
+                                                                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="isAvailable"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                                                            <div>
+                                                                <FormLabel>Available</FormLabel>
+                                                            </div>
+                                                            <FormControl>
+                                                                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="isFurnished"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                                                            <div>
+                                                                <FormLabel>Furnished</FormLabel>
+                                                            </div>
+                                                            <FormControl>
+                                                                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Property Images Section */}
+                                        <div className="space-y-4">
+                                            <div>
+                                                <h3 className="text-lg font-medium">Property Images</h3>
+                                                <p className="text-sm text-gray-600">Manage the images associated with this property.</p>
+                                            </div>
+
+                                            {editingProperty && editingProperty.images && editingProperty.images.length > 0 ? (
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between items-center">
+                                                        <h4 className="text-sm font-medium">Property Images</h4>
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                const input = document.createElement('input');
+                                                                input.type = 'file';
+                                                                input.accept = 'image/*';
+                                                                input.multiple = true;
+                                                                input.onchange = async (e) => {
+                                                                    const files = (e.target as HTMLInputElement).files;
+                                                                    if (files && files.length > 0 && editingProperty) {
+                                                                        const formData = new FormData();
+                                                                        Array.from(files).forEach(file => {
+                                                                            formData.append('images', file);
+                                                                        });
+                                                                        try {
+                                                                            const response = await propertyImageService.uploadMultipleImages(editingProperty.id, formData);
+
+                                                                            if (response.success && response.data) {
+                                                                                setEditingProperty((prev: any) => {
+                                                                                    if (!prev) return prev;
+                                                                                    return {
+                                                                                        ...prev,
+                                                                                        images: [
+                                                                                            ...(prev.images?.map((img: PropertyImage) => ({
+                                                                                                ...img,
+                                                                                                isPrimary: false
+                                                                                            })) || []),
+                                                                                            ...(response.data || [])
+                                                                                        ]
+                                                                                    };
+                                                                                });
+                                                                                toast({
+                                                                                    title: "Success",
+                                                                                    description: `${files.length} image(s) uploaded successfully`,
+                                                                                });
+                                                                            }
+                                                                        } catch (error) {
+                                                                            toast({
+                                                                                title: "Error",
+                                                                                description: "Failed to upload images",
+                                                                                variant: "destructive",
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                };
+                                                                input.click();
+                                                            }}
+                                                        >
+                                                            <PlusCircle className="w-4 h-4 mr-2" />
+                                                            Add More Images
+                                                        </Button>
+                                                    </div>
+                                                    <div className="grid grid-cols-3 gap-4">
+                                                        {editingProperty.images.map((image, index) => (
+                                                            <div key={image._id || index} className="relative group transition-all duration-300 ">
+                                                                <div className="aspect-square rounded-lg overflow-hidden border">
+                                                                    <Image
+                                                                        src={image.fileUrl}
+                                                                        alt={image.altText || `Property image ${index + 1}`}
+                                                                        width={200}
+                                                                        height={300}
+                                                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
+                                                                </div>
+                                                                {image.isPrimary && (
+                                                                    <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
+                                                                        <span>★</span>
+                                                                        Primary
+                                                                    </div>
+                                                                )}
+                                                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-10">
+
+                                                                    <Button
+                                                                        type="button"
+                                                                        size="sm"
+                                                                        variant={image.isPrimary ? "secondary" : "default"}
+                                                                        onClick={() => {
+                                                                            if (editingProperty && editingProperty.images) {
+
+
+                                                                                propertyImageService.setPrimaryPropertyImage(image.id);
+
+
+                                                                                const updatedImages = editingProperty.images.map(img => ({
+                                                                                    ...img,
+                                                                                    isPrimary: img.id === image.id
+                                                                                }));
+                                                                                setEditingProperty({
+                                                                                    ...editingProperty,
+                                                                                    images: updatedImages
+                                                                                });
+                                                                            }
+                                                                        }}
+                                                                        disabled={image.isPrimary}
+                                                                    >
+                                                                        <Star className="w-4 h-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        type="button"
+                                                                        size="sm"
+                                                                        variant="destructive"
+                                                                        onClick={() => {
+                                                                            if (editingProperty && editingProperty.images) {
+                                                                                propertyImageService.deletePropertyImage(image.id);
+                                                                                const updatedImages = editingProperty.images.filter(img => img.id !== image.id);
+                                                                                setEditingProperty({
+                                                                                    ...editingProperty,
+                                                                                    images: updatedImages
+                                                                                });
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4" />
+                                                                    </Button>
+
+
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                                                    {pendingImages.length > 0 ? (
+                                                        <div className="space-y-4">
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                {pendingImages.map((file, index) => (
+                                                                    <div key={index} className="aspect-square relative bg-gray-100 rounded-lg flex items-center justify-center">
+                                                                        <Image
+                                                                            src={URL.createObjectURL(file)}
+                                                                            alt={`Pending image ${index + 1}`}
+                                                                            width={60}
+                                                                            height={60}
+                                                                            className="object-cover rounded w-full h-full ring-2"
+                                                                        />
+
+                                                                        <Button
+                                                                            type="button"
+                                                                            size="sm"
+                                                                            variant="link"
+                                                                            className='absolute top-0 right-0 gap-2 '
+                                                                            onClick={() => {
+                                                                                setPendingImages(prev => prev.filter(img => img !== file));
+                                                                            }}
+                                                                        >
+                                                                            <XIcon className="w-4 h-4" />
+                                                                        </Button>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            <p className="text-sm text-gray-600">
+                                                                {pendingImages.length} image(s) ready to upload
+                                                            </p>
                                                         </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="sale" id="sale" />
-                                                            <Label htmlFor="sale">For Sale</Label>
-                                                        </div>
-                                                    </RadioGroup>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <FormField
-                                            control={form.control}
-                                            name="isFeatured"
-                                            render={({ field }) => (
-                                                <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                                                    <div>
-                                                        <FormLabel>Featured</FormLabel>
-                                                    </div>
-                                                    <FormControl>
-                                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                                    </FormControl>
-                                                </FormItem>
+                                                    ) : (
+                                                        <>
+                                                            <Image
+                                                                src="/assets/images/placeholder-image.svg"
+                                                                alt="No images"
+                                                                width={64}
+                                                                height={64}
+                                                                className="mx-auto mb-4 opacity-50"
+                                                            />
+                                                            <p className="text-gray-500 mb-2">No images uploaded yet</p>
+                                                        </>
+                                                    )}
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            const input = document.createElement('input');
+                                                            input.type = 'file';
+                                                            input.accept = 'image/*';
+                                                            input.multiple = true;
+                                                            input.onchange = async (e) => {
+                                                                const files = (e.target as HTMLInputElement).files;
+                                                                if (files && files.length > 0) {
+                                                                    if (editingProperty) {
+                                                                        // Edit mode: upload immediately
+                                                                        const formData = new FormData();
+                                                                        Array.from(files).forEach(file => {
+                                                                            formData.append('images', file);
+                                                                        });
+
+                                                                        try {
+                                                                            const response = await propertyImageService.uploadMultipleImages(editingProperty._id, formData);
+                                                                            if (response.success && response.data) {
+                                                                                setEditingProperty((prev: any) => {
+                                                                                    return {
+                                                                                        ...prev,
+                                                                                        images: [...(prev.images || []), ...(response.data || [])]
+                                                                                    }
+                                                                                });
+                                                                                toast({
+                                                                                    title: "Success",
+                                                                                    description: `${files.length} image(s) uploaded successfully`,
+                                                                                });
+                                                                            }
+                                                                        } catch (error) {
+                                                                            toast({
+                                                                                title: "Error",
+                                                                                description: "Failed to upload images",
+                                                                                variant: "destructive",
+                                                                            });
+                                                                        }
+                                                                    } else {
+                                                                        // New property mode: store files for later upload
+                                                                        setPendingImages(prev => [...prev, ...Array.from(files)]);
+                                                                        toast({
+                                                                            title: "Images Selected",
+                                                                            description: `${files.length} image(s) will be uploaded when you save the property`,
+                                                                        });
+                                                                    }
+                                                                }
+                                                            };
+                                                            input.click();
+                                                        }}
+                                                    >
+                                                        <PlusCircle className="w-4 h-4 mr-2" />
+                                                        Upload Images
+                                                    </Button>
+                                                </div>
                                             )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="isAvailable"
-                                            render={({ field }) => (
-                                                <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                                                    <div>
-                                                        <FormLabel>Available</FormLabel>
-                                                    </div>
-                                                    <FormControl>
-                                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                                    </FormControl>
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="isFurnished"
-                                            render={({ field }) => (
-                                                <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                                                    <div>
-                                                        <FormLabel>Furnished</FormLabel>
-                                                    </div>
-                                                    <FormControl>
-                                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                                    </FormControl>
-                                                </FormItem>
-                                            )}
-                                        />
+                                        </div>
                                     </div>
+
                                     <div className="flex justify-end space-x-4">
                                         <DialogClose asChild>
                                             <Button type="button" variant="outline">Cancel</Button>
@@ -516,7 +832,7 @@ const PropertiesPage = () => {
                                         <TableRow key={property.id || property._id}>
                                             <TableCell>
                                                 <Image
-                                                    src={getImageUrl(property)}
+                                                    src={getImageUrl(property) as string | StaticImport}
                                                     alt={property.title}
                                                     width={60}
                                                     height={40}

@@ -52,11 +52,12 @@ export interface Property {
 
 export interface PropertyImage {
     _id: string;
-    imageUrl: string;
+    id: string;
+    fileUrl: string;
     caption?: string;
     altText?: string;
     isPrimary: boolean;
-    propertyId: string;
+    property: string;
     order: number;
     createdAt: string;
     updatedAt: string;

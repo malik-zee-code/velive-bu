@@ -63,7 +63,7 @@ const PropertyDetailPageContent = () => {
     }, [slug]);
     const images = useMemo(() =>
         (property?.images && property.images.length > 0)
-            ? property.images.map((img: any) => img.imageUrl)
+            ? property.images.map((img: any) => img.fileUrl)
             : ['https://placehold.co/800x600.png']
         , [property?.images]);
 
