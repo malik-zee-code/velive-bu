@@ -1,14 +1,14 @@
 // JWT utility functions
 export interface HasuraClaims {
-  'x-hasura-allowed-roles': string[];
-  'x-hasura-default-role': string;
-  'x-hasura-user-id': string;
-  'x-hasura-user-is-anonymous': string;
+  "x-hasura-allowed-roles": string[];
+  "x-hasura-default-role": string;
+  "x-hasura-user-id": string;
+  "x-hasura-user-is-anonymous": string;
 }
 
 export interface DecodedToken {
   exp: number;
-  'https://hasura.io/jwt/claims': HasuraClaims;
+  "https://hasura.io/jwt/claims": HasuraClaims;
   iat: number;
   iss: string;
   sub: string;
@@ -20,17 +20,17 @@ export interface DecodedToken {
  */
 export function decodeJWT(token: string): DecodedToken | null {
   try {
-    const parts = token.split('.');
+    const parts = token.split(".");
     if (parts.length !== 3) {
       return null;
     }
 
     // Decode the payload (second part)
     const payload = parts[1];
-    const decodedPayload = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const decodedPayload = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
     return JSON.parse(decodedPayload) as DecodedToken;
   } catch (error) {
-    console.error('Error decoding JWT:', error);
+    console.error("Error decoding JWT:", error);
     return null;
   }
 }
@@ -43,7 +43,7 @@ export function getUserRole(token: string): string | null {
   if (!decoded) {
     return null;
   }
-  return decoded['https://hasura.io/jwt/claims']['x-hasura-default-role'];
+  return decoded["https://hasura.io/jwt/claims"]["x-hasura-default-role"];
 }
 
 /**
@@ -54,15 +54,15 @@ export function getUserId(token: string): string | null {
   if (!decoded) {
     return null;
   }
-  return decoded['https://hasura.io/jwt/claims']['x-hasura-user-id'];
+  return decoded["https://hasura.io/jwt/claims"]["x-hasura-user-id"];
 }
 
 /**
  * Stores user role in localStorage
  */
 export function storeUserRole(role: string[]): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('userRole', JSON.stringify(role));
+  if (typeof window !== "undefined") {
+    localStorage.setItem("userRole", JSON.stringify(role.map((r: any) => r.role.toLowerCase())));
   }
 }
 
@@ -70,8 +70,8 @@ export function storeUserRole(role: string[]): void {
  * Gets user role from localStorage
  */
 export function getStoredUserRole(): string[] | null {
-  if (typeof window !== 'undefined') {
-    const userRole = localStorage.getItem('userRole');
+  if (typeof window !== "undefined") {
+    const userRole = localStorage.getItem("userRole");
     return userRole ? JSON.parse(userRole) : null;
   }
   return null;
@@ -81,8 +81,8 @@ export function getStoredUserRole(): string[] | null {
  * Clears stored user role
  */
 export function clearStoredUserRole(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('userRole');
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("userRole");
   }
 }
 
@@ -99,13 +99,12 @@ export function hasRole(role: string): boolean {
  */
 export function isAdmin(): boolean {
   const role = getStoredUserRole();
-  return role?.includes('manager') || role?.includes('admin') || false;
+  return role?.includes("manager") || role?.includes("admin") || false;
 }
 
 /**
  * Checks if user is regular user
  */
 export function isOwner(): boolean {
-  return hasRole('owner') || false;
+  return hasRole("owner") || false;
 }
-

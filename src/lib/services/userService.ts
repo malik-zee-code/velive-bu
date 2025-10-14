@@ -44,7 +44,10 @@ export interface AuthResponse {
 
 export const userService = {
   // Auth endpoints
-  register: async (data: RegisterData): Promise<ApiResponse<AuthResponse>> => {
+  register: async (
+    data: RegisterData,
+    isAdmin: boolean = false
+  ): Promise<ApiResponse<AuthResponse>> => {
     const response = await apiClient.post<AuthResponse>("/users/register", {
       email: data.email,
       password: data.password,
@@ -53,7 +56,7 @@ export const userService = {
     });
 
     // Store tokens and user data
-    if (response.data.accessToken) {
+    if (response.data.accessToken && !isAdmin) {
       setTokens(response.data.accessToken, response.data.refreshToken);
       setAuthUser(response.data.user);
     }

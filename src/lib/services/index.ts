@@ -8,6 +8,8 @@ export { default as countryService } from "./countryService";
 export { default as settingsService } from "./settingsService";
 export { default as propertyImageService } from "./propertyImageService";
 export { default as roleService } from "./roleService";
+export { default as feedbackService } from "./feedbackService";
+export { default as newsService } from "./newsService";
 
 // Export types
 export type { User, LoginCredentials, RegisterData, AuthResponse } from "./userService";
@@ -19,3 +21,7 @@ export type { Location, CreateLocationData } from "./locationService";
 export type { Country, CreateCountryData } from "./countryService";
 export type { Setting, CreateSettingData } from "./settingsService";
 export type { Role, CreateRoleData } from "./roleService";
+export type { Feedback, CreateFeedbackData, FeedbackStats } from "./feedbackService";
+export { FeedbackStatus, FeedbackType } from "./feedbackService";
+export type { News, CreateNewsData, NewsStats } from "./newsService";
+export { NewsType, NewsPriority } from "./newsService";

@@ -221,12 +221,15 @@ const CustomersPage = () => {
       console.log("values.roles", values.roles);
 
       // Use REST API to create user
-      await userService.register({
-        name: values.name,
-        email: values.email,
-        password: password,
-        roles: values.roles,
-      });
+      await userService.register(
+        {
+          name: values.name,
+          email: values.email,
+          password: password,
+          roles: values.roles,
+        },
+        true
+      );
 
       toast({
         title: "Success!",

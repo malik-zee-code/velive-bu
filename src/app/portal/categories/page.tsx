@@ -1,14 +1,27 @@
-
-'use client';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+"use client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,13 +32,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Pencil, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { isAdmin } from '@/lib/jwt';
-import { categoryService } from '@/lib/services';
-
+} from "@/components/ui/alert-dialog";
+import { Pencil, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { isAdmin } from "@/lib/jwt";
+import { categoryService } from "@/lib/services";
 
 const formSchema = z.object({
   title: z.string().min(1, "Category title is required."),
@@ -34,7 +46,7 @@ const formSchema = z.object({
 type Category = {
   id: string;
   title: string;
-}
+};
 
 const CategoriesPage = () => {
   const { toast } = useToast();
@@ -54,7 +66,7 @@ const CategoriesPage = () => {
         description: "You don't have permission to access this page.",
         variant: "destructive",
       });
-      router.push('/portal/dashboard');
+      router.push("/portal/dashboard");
     }
   }, [router, toast]);
 
@@ -65,7 +77,7 @@ const CategoriesPage = () => {
       setCategories(response.data);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch categories'));
+      setError(err instanceof Error ? err : new Error("Failed to fetch categories"));
     } finally {
       setLoading(false);
     }
@@ -115,7 +127,6 @@ const CategoriesPage = () => {
     }
   };
 
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { title: "" },
@@ -150,9 +161,11 @@ const CategoriesPage = () => {
       <div className="md:col-span-1">
         <Card>
           <CardHeader>
-            <CardTitle>{editingCategory ? 'Edit Category' : 'Add Category'}</CardTitle>
+            <CardTitle>{editingCategory ? "Edit Category" : "Add Category"}</CardTitle>
             <CardDescription>
-              {editingCategory ? 'Update the category name.' : 'Create a new category for your properties.'}
+              {editingCategory
+                ? "Update the category name."
+                : "Create a new category for your properties."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -173,7 +186,11 @@ const CategoriesPage = () => {
                 />
                 <div className="flex gap-2">
                   <Button type="submit" disabled={isMutating}>
-                    {isMutating ? 'Saving...' : (editingCategory ? 'Update Category' : 'Add Category')}
+                    {isMutating
+                      ? "Saving..."
+                      : editingCategory
+                      ? "Update Category"
+                      : "Add Category"}
                   </Button>
                   {editingCategory && (
                     <Button variant="outline" onClick={handleCancelEdit}>
@@ -190,9 +207,7 @@ const CategoriesPage = () => {
         <Card>
           <CardHeader>
             <CardTitle>Existing Categories</CardTitle>
-            <CardDescription>
-              Here is a list of all your current categories.
-            </CardDescription>
+            <CardDescription>Here is a list of all your current categories.</CardDescription>
           </CardHeader>
           <CardContent>
             {loading && <p>Loading...</p>}
@@ -223,7 +238,8 @@ const CategoriesPage = () => {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the category.
+                                This action cannot be undone. This will permanently delete the
+                                category.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
