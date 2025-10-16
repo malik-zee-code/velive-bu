@@ -47,7 +47,11 @@ export const Footer = () => {
                     settingsService.getAllSettings(),
                 ]);
 
-                setProperties(propertiesRes.data.slice(0, 6));
+                // Filter to only show approved and available properties
+                const approvedAndAvailableProperties = propertiesRes.data.filter(
+                    (property: any) => property.isApproved === true && property.isAvailable === true
+                );
+                setProperties(approvedAndAvailableProperties.slice(0, 6));
                 setPhone(getSetting(settingsRes.data, 'phone_1'));
                 setAddress1(getSetting(settingsRes.data, 'address_1'));
                 setAddress2(getSetting(settingsRes.data, 'address_2'));

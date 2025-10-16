@@ -108,7 +108,15 @@ const SignInPage = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>Password</FormLabel>
+                          <Link
+                            href="/auth/forgot-password"
+                            className="text-sm text-primary hover:underline"
+                          >
+                            Forgot Password?
+                          </Link>
+                        </div>
                         <FormControl>
                           <Input type="password" placeholder="Enter your password" {...field} />
                         </FormControl>

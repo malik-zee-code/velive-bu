@@ -133,6 +133,18 @@ export const userService = {
   }): Promise<ApiResponse<null>> => {
     return apiClient.put("/users/change-password", data);
   },
+
+  // Forgot Password / Reset Password
+  forgotPassword: (email: string): Promise<ApiResponse<{ message: string }>> => {
+    return apiClient.post("/users/forgot-password", { email });
+  },
+
+  resetPassword: (data: {
+    token: string;
+    newPassword: string;
+  }): Promise<ApiResponse<{ message: string }>> => {
+    return apiClient.post("/users/reset-password", data);
+  },
 };
 
 export default userService;

@@ -19,11 +19,13 @@ export interface Property {
   status: "available" | "sold" | "pending" | boolean;
   isFeatured: boolean;
   isAvailable?: boolean;
+  isApproved?: boolean;
   isFurnished?: boolean;
   listingType?: "sale" | "rent";
   address?: string;
   floorPlan?: string;
   installmentPlan?: string;
+  reference?: string;
   location?: {
     _id?: string;
     id?: string;
@@ -40,6 +42,12 @@ export interface Property {
     title: string;
   };
   owner?: {
+    _id?: string;
+    id?: string;
+    displayName: string;
+    email: string;
+  };
+  rentee?: {
     _id?: string;
     id?: string;
     displayName: string;
@@ -79,14 +87,17 @@ export interface CreatePropertyData {
   status?: "available" | "sold" | "pending" | boolean;
   isFeatured?: boolean;
   isAvailable?: boolean;
+  isApproved?: boolean;
   isFurnished?: boolean;
   listingType?: "sale" | "rent";
   address?: string;
   floorPlan?: string;
   installmentPlan?: string;
+  reference?: string;
   location?: string;
   category?: string;
   owner?: string;
+  rentee?: string;
 }
 
 export interface PropertyStats {

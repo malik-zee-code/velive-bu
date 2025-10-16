@@ -42,7 +42,7 @@ import {
 import { feedbackService, Feedback, FeedbackType, FeedbackStatus } from "@/lib/services";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { isAdmin } from "@/lib/jwt";
+import { isAdmin } from "@/lib/auth";
 
 const updateSchema = z.object({
   status: z.nativeEnum(FeedbackStatus),

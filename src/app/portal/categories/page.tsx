@@ -36,8 +36,10 @@ import {
 import { Pencil, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { isAdmin } from "@/lib/jwt";
+import { isAdmin } from "@/lib/auth";
 import { categoryService } from "@/lib/services";
+import { Pagination } from "@/components/common/Pagination";
+import { usePagination } from "@/hooks/usePagination";
 
 const formSchema = z.object({
   title: z.string().min(1, "Category title is required."),
@@ -57,6 +59,18 @@ const CategoriesPage = () => {
   const [error, setError] = useState<Error | null>(null);
   const [addLoading, setAddLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
+
+  // Pagination
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    totalItems,
+    goToPage,
+  } = usePagination({
+    data: categories,
+    itemsPerPage: 10,
+  });
 
   // Redirect non-admin users
   useEffect(() => {
@@ -189,8 +203,8 @@ const CategoriesPage = () => {
                     {isMutating
                       ? "Saving..."
                       : editingCategory
-                      ? "Update Category"
-                      : "Add Category"}
+                        ? "Update Category"
+                        : "Add Category"}
                   </Button>
                   {editingCategory && (
                     <Button variant="outline" onClick={handleCancelEdit}>
@@ -210,51 +224,62 @@ const CategoriesPage = () => {
             <CardDescription>Here is a list of all your current categories.</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading && <p>Loading...</p>}
-            {error && <p>Error loading categories: {error.message}</p>}
-            {!loading && !error && (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {categories.map((category: Category) => (
-                    <TableRow key={category.id}>
-                      <TableCell>{category.title}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(category)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the
-                                category.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(category.id)}>
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
+            {loading ? (
+              <p>Loading...</p>
+            ) : error ? (
+              <p>Error loading categories: {error.message}</p>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedData.map((category: Category) => (
+                      <TableRow key={category.id}>
+                        <TableCell>{category.title}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(category)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete the
+                                  category.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(category.id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  itemsPerPage={10}
+                  onPageChange={goToPage}
+                />
+              </>
             )}
           </CardContent>
         </Card>

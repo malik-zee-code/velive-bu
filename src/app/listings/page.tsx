@@ -47,7 +47,12 @@ const ListingsPageContent = ({ contactPhone }: { contactPhone: string | null }) 
           locationService.getAllLocations(),
         ]);
 
-        setProperties(propertiesRes.data);
+        // Filter to only show approved and available properties
+        const approvedAndAvailableProperties = propertiesRes.data.filter(
+          (property: any) => property.isApproved === true && property.isAvailable === true
+        );
+
+        setProperties(approvedAndAvailableProperties);
         setCategories(categoriesRes.data);
         setLocations(locationsRes.data);
         setError(null);

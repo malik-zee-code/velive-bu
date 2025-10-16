@@ -23,6 +23,8 @@ import {
   Users,
   MessageSquare,
   Bell,
+  FileText,
+  DollarSign,
 } from "lucide-react";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
@@ -56,6 +58,18 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       label: "Properties",
       icon: Building2,
       roles: ["rentee", "manager", "owner"],
+    },
+    {
+      href: "/portal/transactions",
+      label: "Transactions",
+      icon: DollarSign,
+      roles: ["admin", "manager", "owner", "rentee"],
+    },
+    {
+      href: "/portal/my-documents",
+      label: "My Documents",
+      icon: FileText,
+      roles: ["rentee", "service", "owner"],
     },
     { href: "/portal/customers", label: "Customers", icon: Users, roles: ["manager"] },
     { href: "/portal/categories", label: "Categories", icon: Tag, roles: ["manager"] },

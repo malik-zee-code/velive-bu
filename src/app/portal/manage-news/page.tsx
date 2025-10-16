@@ -61,6 +61,7 @@ const formSchema = z.object({
   type: z.nativeEnum(NewsType),
   priority: z.nativeEnum(NewsPriority),
   isActive: z.boolean().default(true),
+  isFeatured: z.boolean().default(false),
   expiresAt: z.string().optional(),
 });
 
@@ -97,6 +98,7 @@ const ManageNewsPage = () => {
       type: NewsType.NEWS,
       priority: NewsPriority.MEDIUM,
       isActive: true,
+      isFeatured: false,
       expiresAt: "",
     },
   });
@@ -110,7 +112,7 @@ const ManageNewsPage = () => {
       };
 
       if (editingNews) {
-        await newsService.updateNews(editingNews.id || editingNews._id, newsData);
+        await newsService.updateNews(editingNews.id || editingNews._id || '', newsData);
         toast({ title: "Success!", description: "News updated successfully." });
       } else {
         await newsService.createNews(newsData);
@@ -137,6 +139,7 @@ const ManageNewsPage = () => {
       type: newsItem.type,
       priority: newsItem.priority,
       isActive: newsItem.isActive,
+      isFeatured: newsItem.isFeatured,
       expiresAt: newsItem.expiresAt ? newsItem.expiresAt.split("T")[0] : "",
     });
     setIsModalOpen(true);
@@ -310,6 +313,22 @@ const ManageNewsPage = () => {
                     )}
                   />
 
+                  <FormField
+                    control={form.control}
+                    name="isFeatured"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                        <div>
+                          <FormLabel>Featured</FormLabel>
+                          <p className="text-sm text-gray-500">Show on dashboard</p>
+                        </div>
+                        <FormControl>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
                   <div className="flex justify-end space-x-4">
                     <DialogClose asChild>
                       <Button type="button" variant="outline">
@@ -336,6 +355,7 @@ const ManageNewsPage = () => {
                   <TableHead>Type</TableHead>
                   <TableHead>Priority</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Featured</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -343,7 +363,7 @@ const ManageNewsPage = () => {
               <TableBody>
                 {news.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">
                       No news found.
                     </TableCell>
                   </TableRow>
@@ -356,6 +376,11 @@ const ManageNewsPage = () => {
                       <TableCell>
                         <Badge variant={item.isActive ? "default" : "secondary"}>
                           {item.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={item.isFeatured ? "default" : "outline"}>
+                          {item.isFeatured ? "Featured" : "Normal"}
                         </Badge>
                       </TableCell>
                       <TableCell>{new Date(item.createdAt!).toLocaleDateString()}</TableCell>
@@ -378,7 +403,7 @@ const ManageNewsPage = () => {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(item.id || item._id)}>
+                              <AlertDialogAction onClick={() => handleDelete(item.id || item._id || '')}>
                                 Delete
                               </AlertDialogAction>
                             </AlertDialogFooter>

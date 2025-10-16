@@ -22,6 +22,7 @@ export interface News {
   type: NewsType;
   priority: NewsPriority;
   isActive: boolean;
+  isFeatured: boolean;
   publishedBy?: any; // User object or ID
   expiresAt?: string;
   createdAt?: string;
@@ -76,6 +77,11 @@ export const newsService = {
   // Get news stats (admin only)
   getNewsStats: (): Promise<ApiResponse<NewsStats>> => {
     return apiClient.get("/news/stats/summary");
+  },
+
+  // Get featured news (public)
+  getFeaturedNews: (): Promise<ApiResponse<News[]>> => {
+    return apiClient.get("/news/featured");
   },
 };
 

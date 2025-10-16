@@ -5,1059 +5,608 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "@/components/ui/textarea";
+import { PlusCircle } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import Image from "next/image";
-import { Trash2, Pencil, PlusCircle, FileText, Star, X, XIcon } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose,
 } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import {
-  propertyService,
-  locationService,
-  categoryService,
-  userService,
-  Property,
-  propertyImageService,
-  PropertyImage,
-  User,
+    propertyService,
+    locationService,
+    categoryService,
+    userService,
+    Property,
+    propertyImageService,
+    User,
 } from "@/lib/services";
-import { StaticImport } from "next/dist/shared/lib/get-img-props";
-import { isAdmin } from "@/lib/jwt";
+import { propertyFileService } from "@/lib/services/propertyFileService";
+import { isAdmin } from "@/lib/auth";
+import { PropertyFormFields } from "@/components/portal/PropertyFormFields";
+import { PropertyImageManager } from "@/components/portal/PropertyImageManager";
+import { PropertiesTable } from "@/components/portal/PropertiesTable";
 
 const formSchema = z.object({
-  title: z.string().min(1, { message: "Title is required." }),
-  slug: z.string().optional(),
-  price: z.coerce.number({ required_error: "Price is required." }).positive(),
-  areaInFeet: z.coerce.number().optional(),
-  bedrooms: z.coerce.number().optional(),
-  bathrooms: z.coerce.number().optional(),
-  currency: z.string().optional(),
-  tagline: z.string().optional(),
-  longDescription: z.string().optional(),
-  address: z.string().optional(),
-  location: z.string().min(1, "Location is required."),
-  category: z.string().min(1, "Category is required."),
-  owner: z.any().optional(),
-  isFeatured: z.boolean().default(false),
-  isAvailable: z.boolean().default(true),
-  isFurnished: z.boolean().default(false),
-  listingType: z.enum(["sale", "rent"]).default("rent"),
+    title: z.string().min(1, { message: "Title is required." }),
+    slug: z.string().optional(),
+    price: z.coerce.number({ required_error: "Price is required." }).positive(),
+    areaInFeet: z.coerce.number().optional(),
+    bedrooms: z.coerce.number().optional(),
+    bathrooms: z.coerce.number().optional(),
+    currency: z.string().optional(),
+    tagline: z.string().optional(),
+    longDescription: z.string().optional(),
+    address: z.string().optional(),
+    location: z.string().min(1, "Location is required."),
+    category: z.string().min(1, "Category is required."),
+    owner: z.any().optional(),
+    rentee: z.any().optional(),
+    isFeatured: z.boolean().default(false),
+    isAvailable: z.boolean().default(true),
+    isApproved: z.boolean().default(false),
+    isFurnished: z.boolean().default(false),
+    listingType: z.enum(["sale", "rent"]).default("rent"),
+    floorPlan: z.string().optional(),
+    installmentPlan: z.string().optional(),
+    reference: z.string().optional(),
 });
 
 const generateSlug = (title: string) => {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    return title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
 };
 
-// Using Property type from service
-
 type Category = {
-  id: string;
-  title: string;
+    id: string;
+    title: string;
 };
 
 type Location = {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 };
 
 const PropertiesPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [owners, setOwners] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isMutating, setIsMutating] = useState(false);
-  const [pendingImages, setPendingImages] = useState<File[]>([]);
-  const { toast } = useToast();
-  console.log("editingProperty", editingProperty);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [locations, setLocations] = useState<Location[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [owners, setOwners] = useState<User[]>([]);
+    const [rentees, setRentees] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isMutating, setIsMutating] = useState(false);
+    const [pendingImages, setPendingImages] = useState<File[]>([]);
+    const [pendingFloorPlanFile, setPendingFloorPlanFile] = useState<File | null>(null);
+    const [pendingInstallmentPlanFile, setPendingInstallmentPlanFile] = useState<File | null>(null);
+    const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
+    const [deleteFloorPlan, setDeleteFloorPlan] = useState(false);
+    const [deleteInstallmentPlan, setDeleteInstallmentPlan] = useState(false);
+    const [originalEditingProperty, setOriginalEditingProperty] = useState<Property | null>(null);
+    const { toast } = useToast();
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [propertiesRes, locationsRes, categoriesRes, usersRes] = await Promise.all([
-        isAdmin() ? propertyService.getAllProperties() : propertyService.getPropertiesByOwner(),
-        locationService.getAllLocations(),
-        categoryService.getAllCategories(),
-        userService.getAllUsers(),
-      ]);
-      setProperties(propertiesRes.data);
-      setLocations(locationsRes.data);
-      setCategories(categoriesRes.data);
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const [propertiesRes, locationsRes, categoriesRes, usersRes] = await Promise.all([
+                isAdmin() ? propertyService.getAllProperties() : propertyService.getPropertiesByOwner(),
+                locationService.getAllLocations(),
+                categoryService.getAllCategories(),
+                userService.getAllUsers(),
+            ]);
+            setProperties(propertiesRes.data);
+            setLocations(locationsRes.data);
+            setCategories(categoriesRes.data);
 
-      console.log("usersRes", usersRes.data);
-      // Filter users who have 'owner' role
-      const ownersData = usersRes.data.filter(
-        (user: any) =>
-          user.roles &&
-          user.roles.some(
-            (role: any) => (typeof role === "string" ? role : role.role)?.toLowerCase() === "owner"
-          )
-      );
-      setOwners(ownersData);
-    } catch (err) {
-      console.error("Failed to fetch data:", err);
-      toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // Force re-render when editing property changes
-  useEffect(() => {
-    if (editingProperty && isModalOpen) {
-      console.log("Modal opened, editing property:", editingProperty);
-      console.log("Current form values:", form.getValues());
-    }
-  }, [editingProperty, isModalOpen]);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      slug: "",
-      price: 0,
-      areaInFeet: 0,
-      bedrooms: 0,
-      bathrooms: 0,
-      currency: "AED",
-      tagline: "",
-      longDescription: "",
-      address: "",
-      location: "",
-      category: "",
-      owner: {},
-      isFeatured: false,
-      isAvailable: true,
-      isFurnished: false,
-      listingType: "rent",
-    },
-  });
-
-  const handleFormSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      setIsMutating(true);
-      const slug = values.slug || generateSlug(values.title);
-
-      const propertyData = {
-        title: values.title,
-        slug,
-        price: values.price,
-        areaInFeet: values.areaInFeet,
-        bedrooms: values.bedrooms,
-        bathrooms: values.bathrooms,
-        currency: values.currency,
-        tagline: values.tagline,
-        longDescription: values.longDescription,
-        address: values.address,
-        location: values.location,
-        category: values.category,
-        owner: values.owner,
-        isFeatured: values.isFeatured,
-        isAvailable: values.isAvailable,
-        isFurnished: values.isFurnished,
-        listingType: values.listingType,
-      };
-
-      console.log("Owner", values.owner);
-
-      if (editingProperty) {
-        await propertyService.updateProperty(
-          editingProperty.id || editingProperty._id,
-          propertyData
-        );
-        toast({ title: "Success!", description: "Property updated successfully." });
-      } else {
-        const newProperty = await propertyService.createProperty(propertyData);
-
-        // Upload pending images for new property
-        if (pendingImages.length > 0 && newProperty.data) {
-          try {
-            const formData = new FormData();
-            pendingImages.forEach((file) => {
-              formData.append("images", file);
-            });
-
-            await propertyImageService.uploadMultipleImages(
-              newProperty.data.id || newProperty.data._id,
-              formData
+            // Filter users by roles
+            const ownersData = usersRes.data.filter(
+                (user: any) =>
+                    user.roles &&
+                    user.roles.some(
+                        (role: any) => (typeof role === "string" ? role : role.role)?.toLowerCase() === "owner"
+                    )
             );
-            toast({ title: "Success!", description: "Property and images added successfully." });
-          } catch (imageError) {
-            console.error("Failed to upload images:", imageError);
-            toast({
-              title: "Warning!",
-              description: "Property created but some images failed to upload.",
-              variant: "destructive",
-            });
-          }
-        } else {
-          toast({ title: "Success!", description: "Property added successfully." });
+            setOwners(ownersData);
+
+            const renteesData = usersRes.data.filter(
+                (user: any) =>
+                    user.roles &&
+                    user.roles.some(
+                        (role: any) => (typeof role === "string" ? role : role.role)?.toLowerCase() === "rentee"
+                    )
+            );
+            setRentees(renteesData);
+        } catch (err) {
+            console.error("Failed to fetch data:", err);
+            toast({ title: "Error", description: "Failed to load data", variant: "destructive" });
+        } finally {
+            setLoading(false);
         }
-      }
+    };
 
-      form.reset();
-      setIsModalOpen(false);
-      setEditingProperty(null);
-      setPendingImages([]);
-      fetchData();
-    } catch (err) {
-      console.error(err);
-      toast({ title: "Error!", description: "Failed to save property.", variant: "destructive" });
-    } finally {
-      setIsMutating(false);
-    }
-  };
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-  const handleEdit = async (property: Property) => {
-    try {
-      // Fetch the property with images
-      const propertyRes = await propertyService.getPropertyById(property.id || property._id);
-      const propertyWithImages = propertyRes.data;
-      setEditingProperty(propertyWithImages);
-
-      console.log("=== EDITING PROPERTY ===");
-      console.log("Property:", propertyWithImages);
-      console.log("Property images:", propertyWithImages.images);
-      console.log("Property location:", propertyWithImages.location);
-      console.log("Property category:", propertyWithImages.category);
-      console.log("Available locations:", locations);
-      console.log("Available categories:", categories);
-
-      // Extract IDs more carefully
-      let locationId = "";
-      let categoryId = "";
-      let ownerId = "";
-
-      if (propertyWithImages.location) {
-        if (typeof propertyWithImages.location === "object") {
-          locationId = propertyWithImages.location._id || propertyWithImages.location.id || "";
-        } else {
-          locationId = propertyWithImages.location;
-        }
-      }
-
-      if (propertyWithImages.category) {
-        if (typeof propertyWithImages.category === "object") {
-          categoryId = propertyWithImages.category._id || propertyWithImages.category.id || "";
-        } else {
-          categoryId = propertyWithImages.category;
-        }
-      }
-
-      if (propertyWithImages.owner) {
-        if (typeof propertyWithImages.owner === "object") {
-          ownerId = propertyWithImages.owner._id || propertyWithImages.owner.id || "";
-        } else {
-          ownerId = propertyWithImages.owner;
-        }
-      }
-
-      console.log("Extracted locationId:", locationId);
-      console.log("Extracted categoryId:", categoryId);
-      console.log("Extracted ownerId:", ownerId);
-
-      // Use setTimeout to ensure the form is reset after the modal opens
-      setTimeout(() => {
-        const formData = {
-          title: propertyWithImages.title || "",
-          slug: propertyWithImages.slug || "",
-          price: propertyWithImages.price || 0,
-          areaInFeet: propertyWithImages.areaInFeet || 0,
-          bedrooms: propertyWithImages.bedrooms || 0,
-          bathrooms: propertyWithImages.bathrooms || 0,
-          currency: propertyWithImages.currency || "AED",
-          tagline: propertyWithImages.tagline || "",
-          longDescription: propertyWithImages.longDescription || "",
-          address: propertyWithImages.address || "",
-          location: locationId,
-          category: categoryId,
-          owner: ownerId,
-          isFeatured: propertyWithImages.isFeatured || false,
-          isAvailable:
-            propertyWithImages.isAvailable !== undefined ? propertyWithImages.isAvailable : true,
-          isFurnished: propertyWithImages.isFurnished || false,
-          listingType: (propertyWithImages.listingType as any) || "rent",
-        };
-
-        console.log("Form data being set:", formData);
-        form.reset(formData);
-      }, 100);
-
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error("Error fetching property for editing:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load property details for editing",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await propertyService.deleteProperty(id);
-      toast({ title: "Success!", description: "Property deleted successfully." });
-      fetchData();
-    } catch (err) {
-      toast({ title: "Error!", description: "Failed to delete property.", variant: "destructive" });
-    }
-  };
-
-  const handleNewProperty = () => {
-    setEditingProperty(null);
-    setPendingImages([]);
-    form.reset({
-      title: "",
-      slug: "",
-      price: 0,
-      areaInFeet: 0,
-      bedrooms: 0,
-      bathrooms: 0,
-      currency: "AED",
-      tagline: "",
-      longDescription: "",
-      address: "",
-      location: "",
-      category: "",
-      owner: "",
-      isFeatured: false,
-      isAvailable: true,
-      isFurnished: false,
-      listingType: "rent",
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            title: "",
+            slug: "",
+            price: 0,
+            areaInFeet: 0,
+            bedrooms: 0,
+            bathrooms: 0,
+            currency: "AED",
+            tagline: "",
+            longDescription: "",
+            address: "",
+            location: "",
+            category: "",
+            owner: {},
+            rentee: {},
+            isFeatured: false,
+            isAvailable: true,
+            isApproved: false,
+            isFurnished: false,
+            listingType: "rent",
+            floorPlan: "",
+            installmentPlan: "",
+            reference: "",
+        },
     });
-    setIsModalOpen(true);
-  };
 
-  const getImageUrl = (property: Property) => {
-    if (property.images && property.images.length > 0) {
-      const primaryImage = property.images.find((img) => img.isPrimary);
+    const handleFloorPlanFileSelect = (file: File) => {
+        setPendingFloorPlanFile(file);
+    };
 
-      return primaryImage?.fileUrl;
-    }
-    return "https://placehold.co/100x100.png";
-  };
+    const handleInstallmentPlanFileSelect = (file: File) => {
+        setPendingInstallmentPlanFile(file);
+    };
 
-  return (
-    <div className="p-4 md:p-0">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="font-headline text-2xl">Properties</CardTitle>
-            <CardDescription>Manage your property listings</CardDescription>
-          </div>
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleNewProperty}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Property
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{editingProperty ? "Edit Property" : "Add New Property"}</DialogTitle>
-                <p className="text-sm text-gray-600">
-                  {editingProperty
-                    ? "Update the details of your property."
-                    : "Add a new property to your listings."}
-                </p>
-              </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Column - Property Details */}
-                    <div className="space-y-6">
-                      {/* Listing Type */}
-                      <FormField
-                        control={form.control}
-                        name="listingType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Listing Type</FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                className="flex gap-4"
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="rent" id="rent" />
-                                  <Label htmlFor="rent">For Rent</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="sale" id="sale" />
-                                  <Label htmlFor="sale">For Sale</Label>
-                                </div>
-                              </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+    const handleFormSubmit = async (values: z.infer<typeof formSchema>) => {
+        try {
+            setIsMutating(true);
+            const slug = values.slug || generateSlug(values.title);
 
-                      {/* Title */}
-                      <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Title</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Property title" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+            const propertyData = {
+                title: values.title,
+                slug,
+                price: values.price,
+                areaInFeet: values.areaInFeet,
+                bedrooms: values.bedrooms,
+                bathrooms: values.bathrooms,
+                currency: values.currency,
+                tagline: values.tagline,
+                longDescription: values.longDescription,
+                address: values.address,
+                location: values.location,
+                category: values.category,
+                owner: values.owner && values.owner !== "" ? values.owner : undefined,
+                rentee: values.rentee === "none" || values.rentee === "" ? undefined : values.rentee,
+                isFeatured: values.isFeatured,
+                isAvailable: values.isAvailable,
+                isApproved: values.isApproved,
+                isFurnished: values.isFurnished,
+                listingType: values.listingType,
+                floorPlan: values.floorPlan,
+                installmentPlan: values.installmentPlan,
+                reference: values.reference,
+            };
 
-                      {/* Price */}
-                      <FormField
-                        control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Price</FormLabel>
-                            <FormControl>
-                              <Input type="number" placeholder="0" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+            if (editingProperty) {
+                const propertyId = editingProperty.id || editingProperty._id;
 
-                      {/* Location */}
-                      <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Location</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              defaultValue={field.value}
-                              key={`location-${field.value}`}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select location" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {locations.map((loc) => (
-                                  <SelectItem key={loc.id} value={loc.id}>
-                                    {loc.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                // Delete marked images
+                if (imagesToDelete.length > 0) {
+                    try {
+                        await Promise.all(
+                            imagesToDelete.map(imageId =>
+                                propertyImageService.deletePropertyImage(imageId)
+                            )
+                        );
+                    } catch (error) {
+                        console.error("Failed to delete some images:", error);
+                    }
+                }
 
-                      {/* Category */}
-                      <FormField
-                        control={form.control}
-                        name="category"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Category</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              defaultValue={field.value}
-                              key={`category-${field.value}`}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select category" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {categories.map((cat) => (
-                                  <SelectItem key={cat.id} value={cat.id}>
-                                    {cat.title}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                // Upload pending images for existing property
+                if (pendingImages.length > 0) {
+                    try {
+                        const formData = new FormData();
+                        pendingImages.forEach((file) => {
+                            formData.append("images", file);
+                        });
 
-                      {/* Owner */}
-                      <FormField
-                        control={form.control}
-                        name="owner"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Owner</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              defaultValue={field.value}
-                              key={`owner-${field.value}`}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select owner" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {owners.map((owner: User) => (
-                                  <SelectItem
-                                    key={owner._id || owner.id}
-                                    value={owner._id || owner.id}
-                                  >
-                                    {owner.name} ({owner.email})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        await propertyImageService.uploadMultipleImages(propertyId, formData);
+                    } catch (imageError) {
+                        console.error("Failed to upload images:", imageError);
+                        toast({
+                            title: "Warning!",
+                            description: "Property updated but some images failed to upload.",
+                            variant: "destructive",
+                        });
+                    }
+                }
 
-                      {/* Area */}
-                      <FormField
-                        control={form.control}
-                        name="areaInFeet"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Area (sqft)</FormLabel>
-                            <FormControl>
-                              <Input type="number" placeholder="0" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                // Upload pending floor plan if exists
+                if (pendingFloorPlanFile) {
+                    try {
+                        await propertyFileService.uploadFloorPlan(propertyId, pendingFloorPlanFile);
+                    } catch (error) {
+                        console.error("Failed to upload floor plan:", error);
+                        toast({
+                            title: "Warning!",
+                            description: "Property updated but floor plan upload failed.",
+                            variant: "destructive",
+                        });
+                    }
+                }
 
-                      {/* Bedrooms */}
-                      <FormField
-                        control={form.control}
-                        name="bedrooms"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Bedrooms</FormLabel>
-                            <FormControl>
-                              <Input type="number" placeholder="0" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                // Upload pending installment plan if exists
+                if (pendingInstallmentPlanFile) {
+                    try {
+                        await propertyFileService.uploadInstallmentPlan(propertyId, pendingInstallmentPlanFile);
+                    } catch (error) {
+                        console.error("Failed to upload installment plan:", error);
+                        toast({
+                            title: "Warning!",
+                            description: "Property updated but installment plan upload failed.",
+                            variant: "destructive",
+                        });
+                    }
+                }
 
-                      {/* Bathrooms */}
-                      <FormField
-                        control={form.control}
-                        name="bathrooms"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Bathrooms</FormLabel>
-                            <FormControl>
-                              <Input type="number" placeholder="0" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                // Delete floor plan if marked
+                if (deleteFloorPlan) {
+                    try {
+                        await propertyFileService.deleteFloorPlan(propertyId);
+                    } catch (error) {
+                        console.error("Failed to delete floor plan:", error);
+                    }
+                }
 
-                      {/* Tagline */}
-                      <FormField
-                        control={form.control}
-                        name="tagline"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tagline</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Short description" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                // Delete installment plan if marked
+                if (deleteInstallmentPlan) {
+                    try {
+                        await propertyFileService.deleteInstallmentPlan(propertyId);
+                    } catch (error) {
+                        console.error("Failed to delete installment plan:", error);
+                    }
+                }
 
-                      {/* Description */}
-                      <FormField
-                        control={form.control}
-                        name="longDescription"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                              <Textarea rows={4} placeholder="Property description" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                await propertyService.updateProperty(propertyId, propertyData);
+                toast({ title: "Success!", description: "Property updated successfully." });
+            } else {
+                const newProperty = await propertyService.createProperty(propertyData);
 
-                      {/* Feature Toggles */}
-                      <div className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="isFeatured"
-                          render={({ field }) => (
-                            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                              <div>
-                                <FormLabel>Featured</FormLabel>
-                              </div>
-                              <FormControl>
-                                <Switch checked={field.value} onCheckedChange={field.onChange} />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="isAvailable"
-                          render={({ field }) => (
-                            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                              <div>
-                                <FormLabel>Available</FormLabel>
-                              </div>
-                              <FormControl>
-                                <Switch checked={field.value} onCheckedChange={field.onChange} />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="isFurnished"
-                          render={({ field }) => (
-                            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                              <div>
-                                <FormLabel>Furnished</FormLabel>
-                              </div>
-                              <FormControl>
-                                <Switch checked={field.value} onCheckedChange={field.onChange} />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                // Upload pending images for new property
+                if (pendingImages.length > 0 && newProperty.data) {
+                    try {
+                        const formData = new FormData();
+                        pendingImages.forEach((file) => {
+                            formData.append("images", file);
+                        });
+
+                        await propertyImageService.uploadMultipleImages(
+                            newProperty.data.id || newProperty.data._id,
+                            formData
+                        );
+                        toast({ title: "Success!", description: "Property and images added successfully." });
+                    } catch (imageError) {
+                        console.error("Failed to upload images:", imageError);
+                        toast({
+                            title: "Warning!",
+                            description: "Property created but some images failed to upload.",
+                            variant: "destructive",
+                        });
+                    }
+                } else {
+                    toast({ title: "Success!", description: "Property added successfully." });
+                }
+
+                // Upload PDF files for new property
+                if (newProperty.data) {
+                    const propertyId = newProperty.data.id || newProperty.data._id;
+
+                    // Upload floor plan if selected
+                    if (pendingFloorPlanFile) {
+                        try {
+                            await propertyFileService.uploadFloorPlan(propertyId, pendingFloorPlanFile);
+                        } catch (error) {
+                            console.error("Failed to upload floor plan:", error);
+                            toast({
+                                title: "Warning!",
+                                description: "Property created but floor plan upload failed.",
+                                variant: "destructive",
+                            });
+                        }
+                    }
+
+                    // Upload installment plan if selected
+                    if (pendingInstallmentPlanFile) {
+                        try {
+                            await propertyFileService.uploadInstallmentPlan(propertyId, pendingInstallmentPlanFile);
+                        } catch (error) {
+                            console.error("Failed to upload installment plan:", error);
+                            toast({
+                                title: "Warning!",
+                                description: "Property created but installment plan upload failed.",
+                                variant: "destructive",
+                            });
+                        }
+                    }
+                }
+            }
+
+            form.reset();
+            setIsModalOpen(false);
+            setEditingProperty(null);
+            setOriginalEditingProperty(null);
+            setPendingImages([]);
+            setPendingFloorPlanFile(null);
+            setPendingInstallmentPlanFile(null);
+            setImagesToDelete([]);
+            setDeleteFloorPlan(false);
+            setDeleteInstallmentPlan(false);
+            fetchData();
+        } catch (err) {
+            console.error(err);
+            toast({ title: "Error!", description: "Failed to save property.", variant: "destructive" });
+        } finally {
+            setIsMutating(false);
+        }
+    };
+
+    const handleEdit = async (property: Property) => {
+        try {
+            // Clear any pending files from previous operations
+            setPendingImages([]);
+            setPendingFloorPlanFile(null);
+            setPendingInstallmentPlanFile(null);
+            setImagesToDelete([]);
+            setDeleteFloorPlan(false);
+            setDeleteInstallmentPlan(false);
+
+            console.log("Fetching property for editing:", property.id || property._id);
+            const propertyRes = await propertyService.getPropertyById(property.id || property._id);
+            console.log("Property API response:", propertyRes);
+
+            const propertyWithImages = propertyRes.data;
+            console.log("Property with images:", propertyWithImages);
+
+            // Check if property data exists
+            if (!propertyWithImages) {
+                throw new Error("Property not found");
+            }
+
+            // Ensure ID fields are properly set
+            if (!propertyWithImages.id && propertyWithImages._id) {
+                propertyWithImages.id = propertyWithImages._id;
+            }
+            if (!propertyWithImages._id && propertyWithImages.id) {
+                propertyWithImages._id = propertyWithImages.id;
+            }
+
+            setEditingProperty(propertyWithImages);
+            // Keep a copy of the original for restoring on cancel
+            setOriginalEditingProperty(JSON.parse(JSON.stringify(propertyWithImages)));
+
+            // Extract IDs with null checks
+            const locationId = propertyWithImages.location && typeof propertyWithImages.location === "object"
+                ? propertyWithImages.location._id || propertyWithImages.location.id || ""
+                : propertyWithImages.location || "";
+
+            const categoryId = propertyWithImages.category && typeof propertyWithImages.category === "object"
+                ? propertyWithImages.category._id || propertyWithImages.category.id || ""
+                : propertyWithImages.category || "";
+
+            const ownerId = propertyWithImages.owner && typeof propertyWithImages.owner === "object"
+                ? propertyWithImages.owner._id || propertyWithImages.owner.id || ""
+                : propertyWithImages.owner || "";
+
+            const renteeId = propertyWithImages.rentee
+                ? typeof propertyWithImages.rentee === "object"
+                    ? propertyWithImages.rentee._id || propertyWithImages.rentee.id || "none"
+                    : propertyWithImages.rentee || "none"
+                : "none";
+
+            setTimeout(() => {
+                form.reset({
+                    title: propertyWithImages.title || "",
+                    slug: propertyWithImages.slug || "",
+                    price: propertyWithImages.price || 0,
+                    areaInFeet: propertyWithImages.areaInFeet || 0,
+                    bedrooms: propertyWithImages.bedrooms || 0,
+                    bathrooms: propertyWithImages.bathrooms || 0,
+                    currency: propertyWithImages.currency || "AED",
+                    tagline: propertyWithImages.tagline || "",
+                    longDescription: propertyWithImages.longDescription || "",
+                    address: propertyWithImages.address || "",
+                    location: locationId,
+                    category: categoryId,
+                    owner: ownerId,
+                    rentee: renteeId,
+                    isFeatured: propertyWithImages.isFeatured || false,
+                    isAvailable: propertyWithImages.isAvailable !== undefined ? propertyWithImages.isAvailable : true,
+                    isApproved: propertyWithImages.isApproved !== undefined ? propertyWithImages.isApproved : false,
+                    isFurnished: propertyWithImages.isFurnished || false,
+                    listingType: (propertyWithImages.listingType as any) || "rent",
+                    floorPlan: propertyWithImages.floorPlan || "",
+                    installmentPlan: propertyWithImages.installmentPlan || "",
+                    reference: propertyWithImages.reference || "",
+                });
+            }, 100);
+
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error("Error fetching property for editing:", error);
+            console.error("Property ID that failed:", property.id || property._id);
+            console.error("Property object:", property);
+            toast({
+                title: "Error",
+                description: `Failed to load property details for editing: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        try {
+            await propertyService.deleteProperty(id);
+            toast({ title: "Success!", description: "Property deleted successfully." });
+            fetchData();
+        } catch (err) {
+            toast({ title: "Error!", description: "Failed to delete property.", variant: "destructive" });
+        }
+    };
+
+    const handleNewProperty = () => {
+        setEditingProperty(null);
+        setOriginalEditingProperty(null);
+        setPendingImages([]);
+        setImagesToDelete([]);
+        setDeleteFloorPlan(false);
+        setDeleteInstallmentPlan(false);
+        form.reset({
+            title: "",
+            slug: "",
+            price: 0,
+            areaInFeet: 0,
+            bedrooms: 0,
+            bathrooms: 0,
+            currency: "AED",
+            tagline: "",
+            longDescription: "",
+            address: "",
+            location: "",
+            category: "",
+            owner: "",
+            rentee: "none",
+            isFeatured: false,
+            isAvailable: true,
+            isApproved: false,
+            isFurnished: false,
+            listingType: "rent",
+        });
+        setIsModalOpen(true);
+    };
+
+    const getImageUrl = (property: Property): string => {
+        if (property.images && property.images.length > 0) {
+            const primaryImage = property.images.find((img) => img.isPrimary);
+            return primaryImage?.fileUrl || "https://placehold.co/100x100.png";
+        }
+        return "https://placehold.co/100x100.png";
+    };
+
+    return (
+        <div className="p-4 md:p-0">
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle className="font-headline text-2xl">Properties</CardTitle>
+                        <CardDescription>Manage your property listings</CardDescription>
                     </div>
-
-                    {/* Property Images Section */}
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-medium">Property Images</h3>
-                        <p className="text-sm text-gray-600">
-                          Manage the images associated with this property.
-                        </p>
-                      </div>
-
-                      {editingProperty &&
-                      editingProperty.images &&
-                      editingProperty.images.length > 0 ? (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <h4 className="text-sm font-medium">Property Images</h4>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const input = document.createElement("input");
-                                input.type = "file";
-                                input.accept = "image/*";
-                                input.multiple = true;
-                                input.onchange = async (e) => {
-                                  const files = (e.target as HTMLInputElement).files;
-                                  if (files && files.length > 0 && editingProperty) {
-                                    const formData = new FormData();
-                                    Array.from(files).forEach((file) => {
-                                      formData.append("images", file);
-                                    });
-                                    try {
-                                      const response =
-                                        await propertyImageService.uploadMultipleImages(
-                                          editingProperty.id,
-                                          formData
-                                        );
-
-                                      if (response.success && response.data) {
-                                        setEditingProperty((prev: any) => {
-                                          if (!prev) return prev;
-                                          return {
-                                            ...prev,
-                                            images: [
-                                              ...(prev.images?.map((img: PropertyImage) => ({
-                                                ...img,
-                                                isPrimary: false,
-                                              })) || []),
-                                              ...(response.data || []),
-                                            ],
-                                          };
-                                        });
-                                        toast({
-                                          title: "Success",
-                                          description: `${files.length} image(s) uploaded successfully`,
-                                        });
-                                      }
-                                    } catch (error) {
-                                      toast({
-                                        title: "Error",
-                                        description: "Failed to upload images",
-                                        variant: "destructive",
-                                      });
-                                    }
-                                  }
-                                };
-                                input.click();
-                              }}
-                            >
-                              <PlusCircle className="w-4 h-4 mr-2" />
-                              Add More Images
+                    <Dialog open={isModalOpen} onOpenChange={(open) => {
+                        setIsModalOpen(open);
+                        // Reset deletion states and restore original data when closing the modal
+                        if (!open) {
+                            setImagesToDelete([]);
+                            setDeleteFloorPlan(false);
+                            setDeleteInstallmentPlan(false);
+                            setPendingImages([]);
+                            setPendingFloorPlanFile(null);
+                            setPendingInstallmentPlanFile(null);
+                            // Restore original property data if it was being edited (Cancel clicked)
+                            if (originalEditingProperty) {
+                                setEditingProperty(originalEditingProperty);
+                                setOriginalEditingProperty(null);
+                            }
+                        }
+                    }}>
+                        <DialogTrigger asChild>
+                            <Button onClick={handleNewProperty}>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Property
                             </Button>
-                          </div>
-                          <div className="grid grid-cols-3 gap-4">
-                            {editingProperty.images.map((image, index) => (
-                              <div
-                                key={image._id || index}
-                                className="relative group transition-all duration-300 "
-                              >
-                                <div className="aspect-square rounded-lg overflow-hidden border">
-                                  <Image
-                                    src={image.fileUrl}
-                                    alt={image.altText || `Property image ${index + 1}`}
-                                    width={200}
-                                    height={300}
-                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                  />
-                                  <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
-                                </div>
-                                {image.isPrimary && (
-                                  <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
-                                    <span>★</span>
-                                    Primary
-                                  </div>
-                                )}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-10">
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant={image.isPrimary ? "secondary" : "default"}
-                                    onClick={() => {
-                                      if (editingProperty && editingProperty.images) {
-                                        propertyImageService.setPrimaryPropertyImage(image.id);
+                        </DialogTrigger>
+                        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                                <DialogTitle>{editingProperty ? "Edit Property" : "Add New Property"}</DialogTitle>
+                                <p className="text-sm text-gray-600">
+                                    {editingProperty
+                                        ? "Update the details of your property."
+                                        : "Add a new property to your listings."}
+                                </p>
+                            </DialogHeader>
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        {/* Left Column - Property Details */}
+                                        <PropertyFormFields
+                                            control={form.control}
+                                            locations={locations}
+                                            categories={categories}
+                                            owners={owners}
+                                            rentees={rentees}
+                                            editingProperty={editingProperty}
+                                            onFloorPlanFileSelect={handleFloorPlanFileSelect}
+                                            onInstallmentPlanFileSelect={handleInstallmentPlanFileSelect}
+                                            deleteFloorPlan={deleteFloorPlan}
+                                            setDeleteFloorPlan={setDeleteFloorPlan}
+                                            deleteInstallmentPlan={deleteInstallmentPlan}
+                                            setDeleteInstallmentPlan={setDeleteInstallmentPlan}
+                                        />
 
-                                        const updatedImages = editingProperty.images.map((img) => ({
-                                          ...img,
-                                          isPrimary: img.id === image.id,
-                                        }));
-                                        setEditingProperty({
-                                          ...editingProperty,
-                                          images: updatedImages,
-                                        });
-                                      }
-                                    }}
-                                    disabled={image.isPrimary}
-                                  >
-                                    <Star className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => {
-                                      if (editingProperty && editingProperty.images) {
-                                        propertyImageService.deletePropertyImage(image.id);
-                                        const updatedImages = editingProperty.images.filter(
-                                          (img) => img.id !== image.id
-                                        );
-                                        setEditingProperty({
-                                          ...editingProperty,
-                                          images: updatedImages,
-                                        });
-                                      }
-                                    }}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                          {pendingImages.length > 0 ? (
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-3 gap-2">
-                                {pendingImages.map((file, index) => (
-                                  <div
-                                    key={index}
-                                    className="aspect-square relative bg-gray-100 rounded-lg flex items-center justify-center"
-                                  >
-                                    <Image
-                                      src={URL.createObjectURL(file)}
-                                      alt={`Pending image ${index + 1}`}
-                                      width={60}
-                                      height={60}
-                                      className="object-cover rounded w-full h-full ring-2"
-                                    />
+                                        {/* Right Column - Property Images */}
+                                        <PropertyImageManager
+                                            editingProperty={editingProperty}
+                                            setEditingProperty={setEditingProperty}
+                                            pendingImages={pendingImages}
+                                            setPendingImages={setPendingImages}
+                                            imagesToDelete={imagesToDelete}
+                                            setImagesToDelete={setImagesToDelete}
+                                        />
+                                    </div>
 
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="default"
-                                      className="absolute top-0 right-0 gap-2 "
-                                      onClick={() => {
-                                        setPendingImages((prev) =>
-                                          prev.filter((img) => img !== file)
-                                        );
-                                      }}
-                                    >
-                                      <XIcon className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                ))}
-                              </div>
-                              <p className="text-sm text-gray-600">
-                                {pendingImages.length} image(s) ready to upload
-                              </p>
-                            </div>
-                          ) : (
-                            <>
-                              <Image
-                                src="/assets/images/placeholder-image.svg"
-                                alt="No images"
-                                width={64}
-                                height={64}
-                                className="mx-auto mb-4 opacity-50"
-                              />
-                              <p className="text-gray-500 mb-2">No images uploaded yet</p>
-                            </>
-                          )}
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              const input = document.createElement("input");
-                              input.type = "file";
-                              input.accept = "image/*";
-                              input.multiple = true;
-                              input.onchange = async (e) => {
-                                const files = (e.target as HTMLInputElement).files;
-                                if (files && files.length > 0) {
-                                  if (editingProperty) {
-                                    // Edit mode: upload immediately
-                                    const formData = new FormData();
-                                    Array.from(files).forEach((file) => {
-                                      formData.append("images", file);
-                                    });
-
-                                    try {
-                                      const response =
-                                        await propertyImageService.uploadMultipleImages(
-                                          editingProperty._id,
-                                          formData
-                                        );
-                                      if (response.success && response.data) {
-                                        setEditingProperty((prev: any) => {
-                                          return {
-                                            ...prev,
-                                            images: [
-                                              ...(prev.images || []),
-                                              ...(response.data || []),
-                                            ],
-                                          };
-                                        });
-                                        toast({
-                                          title: "Success",
-                                          description: `${files.length} image(s) uploaded successfully`,
-                                        });
-                                      }
-                                    } catch (error) {
-                                      toast({
-                                        title: "Error",
-                                        description: "Failed to upload images",
-                                        variant: "destructive",
-                                      });
-                                    }
-                                  } else {
-                                    // New property mode: store files for later upload
-                                    setPendingImages((prev) => [...prev, ...Array.from(files)]);
-                                    toast({
-                                      title: "Images Selected",
-                                      description: `${files.length} image(s) will be uploaded when you save the property`,
-                                    });
-                                  }
-                                }
-                              };
-                              input.click();
-                            }}
-                          >
-                            <PlusCircle className="w-4 h-4 mr-2" />
-                            Upload Images
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-4">
-                    <DialogClose asChild>
-                      <Button type="button" variant="outline">
-                        Cancel
-                      </Button>
-                    </DialogClose>
-                    <Button type="submit" disabled={isMutating}>
-                      {isMutating ? "Saving..." : editingProperty ? "Update" : "Add Property"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p>Loading properties...</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {properties.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
-                      No properties found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  properties.map((property) => (
-                    <TableRow key={property.id || property._id}>
-                      <TableCell>
-                        <Image
-                          src={getImageUrl(property) as string | StaticImport}
-                          alt={property.title}
-                          width={60}
-                          height={40}
-                          className="rounded object-cover"
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium">{property.title}</TableCell>
-                      <TableCell>
-                        {property.currency} {property.price.toLocaleString()}
-                      </TableCell>
-                      <TableCell>{property.location?.name || "N/A"}</TableCell>
-                      <TableCell>{property.category?.title || "N/A"}</TableCell>
-                      <TableCell className="capitalize">{property.listingType}</TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Link href={`/listings/${property.slug}`} target="_blank">
-                          <Button variant="ghost" size="icon">
-                            <FileText className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(property)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently delete this property and all its images.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(property.id || property._id)}
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+                                    <div className="flex justify-end space-x-4">
+                                        <DialogClose asChild>
+                                            <Button type="button" variant="outline">
+                                                Cancel
+                                            </Button>
+                                        </DialogClose>
+                                        <Button type="submit" disabled={isMutating}>
+                                            {isMutating ? "Saving..." : editingProperty ? "Update" : "Add Property"}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Form>
+                        </DialogContent>
+                    </Dialog>
+                </CardHeader>
+                <CardContent>
+                    <PropertiesTable
+                        properties={properties}
+                        loading={loading}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        getImageUrl={getImageUrl}
+                        itemsPerPage={10}
+                    />
+                </CardContent>
+            </Card>
+        </div>
+    );
 };
 
 export default PropertiesPage;
+

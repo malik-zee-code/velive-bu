@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { newsService, News, NewsType, NewsPriority } from "@/lib/services";
 import { Badge } from "@/components/ui/badge";
 import { Bell, AlertTriangle, Megaphone, Clock } from "lucide-react";
+import { format } from "date-fns";
 
 const NewsPage = () => {
   const [news, setNews] = useState<News[]>([]);
@@ -127,12 +128,12 @@ const NewsPage = () => {
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {new Date(item.createdAt!).toLocaleDateString()}
+                        {format(new Date(item.createdAt!), 'dd-MMM-yyyy')}
                       </div>
                       {item.expiresAt && (
                         <div className="flex items-center gap-1">
                           <span>Expires:</span>
-                          {new Date(item.expiresAt).toLocaleDateString()}
+                          {format(new Date(item.expiresAt), 'dd-MMM-yyyy')}
                         </div>
                       )}
                     </div>

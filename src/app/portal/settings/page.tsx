@@ -24,7 +24,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
-import { isAdmin } from '@/lib/jwt';
+import { isAdmin } from '@/lib/auth';
 import { settingsService } from '@/lib/services';
 
 const formSchema = z.object({

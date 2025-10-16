@@ -14,7 +14,7 @@ import Image from 'next/image';
 import { Trash2, Pencil, PlusCircle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useRouter } from 'next/navigation';
-import { isAdmin } from '@/lib/jwt';
+import { isAdmin } from '@/lib/auth';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,6 +29,9 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { TinyMceEditor } from '@/components/common/TinyMceEditor';
 import { blogService, categoryService } from '@/lib/services';
+import { Pagination } from '@/components/common/Pagination';
+import { usePagination } from '@/hooks/usePagination';
+import { format } from 'date-fns';
 
 const formSchema = z.object({
     title: z.string().min(1, { message: "Title is required." }),
@@ -66,6 +69,18 @@ const BlogsPage = () => {
     const [isMutating, setIsMutating] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
+
+    // Pagination
+    const {
+        currentPage,
+        totalPages,
+        paginatedData,
+        totalItems,
+        goToPage,
+    } = usePagination({
+        data: blogs,
+        itemsPerPage: 10,
+    });
 
     // Redirect non-admin users
     useEffect(() => {
@@ -270,71 +285,80 @@ const BlogsPage = () => {
                     {loading ? (
                         <p>Loading blogs...</p>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Image</TableHead>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {blogs.length === 0 ? (
+                        <>
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-muted-foreground">
-                                            No blog posts found.
-                                        </TableCell>
+                                        <TableHead>Image</TableHead>
+                                        <TableHead>Title</TableHead>
+                                        <TableHead>Category</TableHead>
+                                        <TableHead>Created</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
-                                ) : (
-                                    blogs.map((blog) => (
-                                        <TableRow key={blog.id}>
-                                            <TableCell>
-                                                {blog.featuredImage && (
-                                                    <Image
-                                                        src={blog.featuredImage}
-                                                        alt={blog.title}
-                                                        width={60}
-                                                        height={40}
-                                                        className="rounded object-cover"
-                                                    />
-                                                )}
-                                            </TableCell>
-                                            <TableCell>{blog.title}</TableCell>
-                                            <TableCell>{blog.category?.title || 'Uncategorized'}</TableCell>
-                                            <TableCell>{new Date(blog.createdAt).toLocaleDateString()}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleEdit(blog)}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon">
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                This will permanently delete this blog post.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDelete(blog.id)}>
-                                                                Delete
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
+                                </TableHeader>
+                                <TableBody>
+                                    {paginatedData.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="text-center text-muted-foreground">
+                                                No blog posts found.
                                             </TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                    ) : (
+                                        paginatedData.map((blog) => (
+                                            <TableRow key={blog.id}>
+                                                <TableCell>
+                                                    {blog.featuredImage && (
+                                                        <Image
+                                                            src={blog.featuredImage}
+                                                            alt={blog.title}
+                                                            width={60}
+                                                            height={40}
+                                                            className="rounded object-cover"
+                                                        />
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>{blog.title}</TableCell>
+                                                <TableCell>{blog.category?.title || 'Uncategorized'}</TableCell>
+                                                <TableCell>{format(new Date(blog.createdAt || new Date()), 'dd-MMM-yyyy')}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="ghost" size="icon" onClick={() => handleEdit(blog)}>
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="ghost" size="icon">
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    This will permanently delete this blog post.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleDelete(blog.id)}>
+                                                                    Delete
+                                                                </AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalItems={totalItems}
+                                itemsPerPage={10}
+                                onPageChange={goToPage}
+                            />
+                        </>
                     )}
                 </CardContent>
             </Card>

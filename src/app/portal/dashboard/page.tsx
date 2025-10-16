@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Building2, MapPin, Tag, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getStoredUserRole, isAdmin } from "@/lib/jwt";
+import { isAdmin } from "@/lib/auth";
 import { propertyService, locationService, categoryService } from "@/lib/services";
 import { useAuth } from "@/contexts/AuthContext";
+import { ExpiringDocumentsWidget } from "@/components/portal/ExpiringDocumentsWidget";
+import { FeaturedNewsWidget } from "@/components/portal/FeaturedNewsWidget";
 
 const StatCard = ({
   title,
@@ -108,6 +110,12 @@ const DashboardPage = () => {
         {stats.map((stat) => (
           <StatCard key={stat.title} {...stat} loading={loading} />
         ))}
+      </div>
+
+      {/* Widgets - For admins, managers, and users with documents */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <ExpiringDocumentsWidget />
+        <FeaturedNewsWidget />
       </div>
 
       <div>

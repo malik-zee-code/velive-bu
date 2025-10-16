@@ -3,11 +3,14 @@ import apiClient, { ApiResponse } from '../api';
 
 export interface PropertyImage {
     _id: string;
+    id: string;
     imageUrl: string;
+    fileUrl: string;
     caption?: string;
     altText?: string;
     isPrimary: boolean;
     propertyId: string;
+    property: string;
     order: number;
     createdAt: string;
     updatedAt: string;
@@ -63,6 +66,11 @@ export const propertyImageService = {
     // Delete all images for a property
     deletePropertyImages: (propertyId: string): Promise<ApiResponse<null>> => {
         return apiClient.delete(`/property-images/property/${propertyId}`);
+    },
+
+    // Update order of multiple images
+    updateImagesOrder: (imageOrders: Array<{ id: string; order: number }>): Promise<ApiResponse<null>> => {
+        return apiClient.put(`/property-images/update-order`, { imageOrders });
     },
 };
 

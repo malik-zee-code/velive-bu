@@ -32,7 +32,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Pencil, PlusCircle, Mail, User, Copy, Check } from "lucide-react";
+import { Pencil, PlusCircle, Mail, User, Copy, Check, FileText } from "lucide-react";
+import { DocumentManager } from "@/components/portal/DocumentManager";
 import {
   Select,
   SelectContent,
@@ -42,6 +43,9 @@ import {
 } from "@/components/ui/select";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { userService, roleService, type Role } from "@/lib/services";
+import { Pagination } from "@/components/common/Pagination";
+import { usePagination } from "@/hooks/usePagination";
+import { format } from "date-fns";
 
 const editFormSchema = z.object({
   name: z.string().optional(),
@@ -93,12 +97,27 @@ const CustomersPage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
   const [passwordCopied, setPasswordCopied] = useState(false);
+  const [documentManagerOpen, setDocumentManagerOpen] = useState(false);
+  const [documentUserId, setDocumentUserId] = useState<string>("");
+  const [documentUserName, setDocumentUserName] = useState<string>("");
 
   const [users, setUsers] = useState<any[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [rolesLoading, setRolesLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  // Pagination
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    totalItems,
+    goToPage,
+  } = usePagination({
+    data: users,
+    itemsPerPage: 10,
+  });
 
   const editForm = useForm<z.infer<typeof editFormSchema>>({
     resolver: zodResolver(editFormSchema),
@@ -400,14 +419,14 @@ const CustomersPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.length === 0 ? (
+              {paginatedData.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground">
                     No customers found.
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user: any) => (
+                paginatedData.map((user: any) => (
                   <TableRow key={user._id}>
                     <TableCell className="font-medium">{user.email}</TableCell>
                     <TableCell>{user.name || "-"}</TableCell>
@@ -434,8 +453,29 @@ const CustomersPage = () => {
                         Active
                       </span>
                     </TableCell>
-                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>{format(new Date(user.createdAt), 'dd-MMM-yyyy')}</TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const userId = user._id || user.id;
+                          if (!userId) {
+                            toast({
+                              title: "Error",
+                              description: "User ID not found",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          setDocumentUserId(userId);
+                          setDocumentUserName(user.name || user.email);
+                          setDocumentManagerOpen(true);
+                        }}
+                        title="Manage Documents"
+                      >
+                        <FileText className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(user)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -445,6 +485,13 @@ const CustomersPage = () => {
               )}
             </TableBody>
           </Table>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={10}
+            onPageChange={goToPage}
+          />
         </CardContent>
       </Card>
 
@@ -527,6 +574,14 @@ const CustomersPage = () => {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Document Manager Modal */}
+      <DocumentManager
+        open={documentManagerOpen}
+        onOpenChange={setDocumentManagerOpen}
+        userId={documentUserId}
+        userName={documentUserName}
+      />
     </div>
   );
 };

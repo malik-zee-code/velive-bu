@@ -45,13 +45,18 @@ const PropertyDetailPageContent = () => {
                     settingsService.getAllSettings(),
                 ]);
 
-                setProperty(propertyRes.data);
+                // Only show approved and available properties
+                if (propertyRes.data && propertyRes.data.isApproved === true && propertyRes.data.isAvailable === true) {
+                    setProperty(propertyRes.data);
+                    if (propertyRes.data?.title) {
+                        document.title = `${propertyRes.data.title} | VE LIVE`;
+                    }
+                } else {
+                    setProperty(null);
+                }
+
                 const phone = settingsRes.data.find((s: any) => s.title === 'contact_phone')?.value || null;
                 setContactPhone(phone);
-
-                if (propertyRes.data?.title) {
-                    document.title = `${propertyRes.data.title} | VE LIVE`;
-                }
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('Failed to fetch property'));
             } finally {
@@ -69,7 +74,12 @@ const PropertyDetailPageContent = () => {
 
     if (loading) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Loading property details...</p></div>;
     if (error) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Error: {error.message}</p></div>;
-    if (!property) return <div className="container mx-auto py-20 text-center max-w-7xl"><p>Property not found.</p></div>;
+    if (!property) return (
+        <div className="container mx-auto py-20 text-center max-w-7xl">
+            <h3 className="text-2xl font-semibold">Property Not Available</h3>
+            <p className="text-muted-foreground mt-2">This property is currently not available for viewing.</p>
+        </div>
+    );
 
     const floorPlanUrl = null; // TODO: Handle floor plan from REST API
     const installmentPlanUrl = null; // TODO: Handle installment plan from REST API

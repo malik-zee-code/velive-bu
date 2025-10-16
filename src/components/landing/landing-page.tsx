@@ -61,7 +61,12 @@ export function LandingPage() {
 
         setCategories(categoriesRes.data);
         setLocations(locationsRes.data);
-        setFeaturedProperties(propertiesRes.data);
+
+        // Filter to only show approved and available properties
+        const approvedAndAvailableProperties = propertiesRes.data.filter(
+          (property: any) => property.isApproved === true && property.isAvailable === true
+        );
+        setFeaturedProperties(approvedAndAvailableProperties);
       } catch (err) {
         console.error('Failed to fetch landing page data:', err);
       } finally {
